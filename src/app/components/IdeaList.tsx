@@ -3,11 +3,11 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus } from 'lucide-react'
-import IdeaCard from './components/IdeaCard'
-import IdeaForm from './components/IdeaForm'
+import IdeaCard from './IdeaCard'
+import IdeaForm from './IdeaForm'
 import { Button } from '@/components/ui/button'
 
-interface Idea {
+export interface Idea {
   id: string
   title: string
   description: string
@@ -16,7 +16,7 @@ interface Idea {
   deadline: string
 }
 
-export default function Home() {
+export default function IdeaList() {
   const [ideas, setIdeas] = useState<Idea[]>([])
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingIdea, setEditingIdea] = useState<Idea | null>(null)
@@ -33,7 +33,7 @@ export default function Home() {
   }, [ideas])
 
   const addIdea = (idea: Idea) => {
-    setIdeas([...ideas, idea])
+    setIdeas([...ideas, { ...idea, id: Date.now().toString() }])
     setIsFormOpen(false)
   }
 
@@ -47,15 +47,7 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen p-4 sm:p-8 md:p-12 lg:p-24">
-      <motion.h1 
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="text-4xl font-bold mb-8 text-center"
-      >
-        Shitbucket
-      </motion.h1>
+    <>
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -91,7 +83,7 @@ export default function Home() {
           ))}
         </AnimatePresence>
       </motion.div>
-    </main>
+    </>
   )
 }
 
