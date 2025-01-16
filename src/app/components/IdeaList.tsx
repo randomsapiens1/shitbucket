@@ -11,9 +11,8 @@ export interface Idea {
   id: string
   title: string
   description: string
-  status: 'Not Started' | 'In Progress' | 'Completed'
+  status: 'Not Started' | 'In Progress' | 'Completed' | 'Will Never Start'
   resources: string
-  deadline: string
 }
 
 export default function IdeaList() {

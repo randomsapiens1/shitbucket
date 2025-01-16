@@ -17,7 +17,8 @@ export default function IdeaCard({ idea, onEdit, onDelete }: IdeaCardProps) {
   const statusColors = {
     'Not Started': 'bg-red-500',
     'In Progress': 'bg-yellow-500',
-    'Completed': 'bg-green-500'
+    'Completed': 'bg-green-500',
+    'Will Never Start': 'bg-gray-500'
   }
 
   return (
@@ -44,7 +45,6 @@ export default function IdeaCard({ idea, onEdit, onDelete }: IdeaCardProps) {
             <p className="text-xs text-gray-400">Resources:</p>
             <p className="text-sm text-gray-300">{idea.resources}</p>
           </div>
-          <p className="text-xs text-gray-400">Deadline: {idea.deadline}</p>
         </CardContent>
         <CardFooter className="justify-end space-x-2">
           <Button variant="outline" size="icon" onClick={onEdit}>

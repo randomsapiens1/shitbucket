@@ -18,9 +18,9 @@ interface IdeaFormProps {
 export default function IdeaForm({ idea, onSubmit, onClose }: IdeaFormProps) {
   const [title, setTitle] = useState(idea?.title || '')
   const [description, setDescription] = useState(idea?.description || '')
-  const [status, setStatus] = useState(idea?.status || 'Not Started')
+  const [status, setStatus] = useState<'Not Started' | 'In Progress' | 'Completed' | 'Will Never Start'>(idea?.status || 'Not Started')
   const [resources, setResources] = useState(idea?.resources || '')
-  const [deadline, setDeadline] = useState(idea?.deadline || '')
+  
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -28,9 +28,8 @@ export default function IdeaForm({ idea, onSubmit, onClose }: IdeaFormProps) {
       id: idea?.id || '',
       title,
       description,
-      status: status as 'Not Started' | 'In Progress' | 'Completed',
+      status: status as 'Not Started' | 'In Progress' | 'Completed' | 'Will Never Start',
       resources,
-      deadline,
     })
   }
 
@@ -84,7 +83,7 @@ export default function IdeaForm({ idea, onSubmit, onClose }: IdeaFormProps) {
             <label htmlFor="status" className="block text-sm font-medium mb-1">
               Status
             </label>
-            <Select value={status} onValueChange={(value) => setStatus(value as 'Not Started' | 'In Progress' | 'Completed')}>
+            <Select value={status} onValueChange={(value) => setStatus(value as 'Not Started' | 'In Progress' | 'Completed' | 'Will Never Start')}> 
               <SelectTrigger className="w-full bg-gray-800 border-gray-700">
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
@@ -92,6 +91,7 @@ export default function IdeaForm({ idea, onSubmit, onClose }: IdeaFormProps) {
                 <SelectItem value="Not Started">Not Started</SelectItem>
                 <SelectItem value="In Progress">In Progress</SelectItem>
                 <SelectItem value="Completed">Completed</SelectItem>
+                <SelectItem value="Will Never Start">Will Never Start</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -107,19 +107,7 @@ export default function IdeaForm({ idea, onSubmit, onClose }: IdeaFormProps) {
             />
           </div>
           
-          <div>
-            <label htmlFor="deadline" className="block text-sm font-medium mb-1">
-              Deadline
-            </label>
-            <Input
-              type="date"
-              id="deadline"
-              value={deadline}
-              onChange={(e) => setDeadline(e.target.value)}
-              required
-              className="w-full bg-gray-800 border-gray-700"
-            />
-          </div>
+          
           <Button type="submit" className="w-full bg-white text-black hover:bg-gray-200">
             {idea ? 'Update Idea' : 'Add Idea'}
           </Button>
