@@ -6,6 +6,7 @@ import { Plus } from 'lucide-react'
 import IdeaCard from './IdeaCard'
 import IdeaForm from './IdeaForm'
 import { Button } from '@/components/ui/button'
+import { v4 as uuidv4 } from 'uuid'
 
 export interface Idea {
   id: string
@@ -32,31 +33,28 @@ export default function IdeaList() {
   }, [ideas])
 
   const addIdea = (idea: Idea) => {
-    setIdeas([...ideas, { ...idea, id: Date.now().toString() }])
+    setIdeas([...ideas, { ...idea, id: uuidv4() }])
     setIsFormOpen(false)
   }
 
   const updateIdea = (updatedIdea: Idea) => {
-    setIdeas(ideas.map(idea => idea.id === updatedIdea.id ? updatedIdea : idea))
+    setIdeas(ideas.map(idea => (idea.id === updatedIdea.id ? updatedIdea : idea)))
     setEditingIdea(null)
   }
 
   const deleteIdea = (id: string) => {
-    setIdeas(ideas.filter(idea => idea.id !== id))
+    console.log('Deleting idea with id:', id)
+    setIdeas(prevIdeas => prevIdeas.filter(idea => idea.id !== id))
   }
 
   return (
     <>
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2, duration: 0.5 }}
-        className="mb-8 flex justify-center"
-      >
+      <motion.div className="mb-8 flex justify-center">
         <Button onClick={() => setIsFormOpen(true)} className="bg-white text-black hover:bg-gray-200">
           <Plus className="mr-2 h-4 w-4" /> Add Idea
         </Button>
       </motion.div>
+
       <AnimatePresence>
         {isFormOpen && (
           <IdeaForm onSubmit={addIdea} onClose={() => setIsFormOpen(false)} />
@@ -65,12 +63,8 @@ export default function IdeaList() {
           <IdeaForm idea={editingIdea} onSubmit={updateIdea} onClose={() => setEditingIdea(null)} />
         )}
       </AnimatePresence>
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.4, duration: 0.5 }}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-      >
+
+      <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <AnimatePresence>
           {ideas.map(idea => (
             <IdeaCard 
@@ -85,4 +79,3 @@ export default function IdeaList() {
     </>
   )
 }
-

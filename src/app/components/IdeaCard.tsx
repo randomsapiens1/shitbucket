@@ -10,7 +10,7 @@ import { Idea } from './IdeaList'
 interface IdeaCardProps {
   idea: Idea
   onEdit: () => void
-  onDelete: () => void
+  onDelete: (id: string) => void // Pass `id` here
 }
 
 export default function IdeaCard({ idea, onEdit, onDelete }: IdeaCardProps) {
@@ -18,7 +18,7 @@ export default function IdeaCard({ idea, onEdit, onDelete }: IdeaCardProps) {
     'Not Started': 'bg-red-500',
     'In Progress': 'bg-yellow-500',
     'Completed': 'bg-green-500',
-    'Will Never Start': 'bg-gray-500'
+    'Will Never Start': 'bg-gray-500',
   }
 
   return (
@@ -50,7 +50,12 @@ export default function IdeaCard({ idea, onEdit, onDelete }: IdeaCardProps) {
           <Button variant="outline" size="icon" onClick={onEdit}>
             <Edit2 className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" onClick={onDelete}>
+          {/* Pass the idea.id directly to onDelete */}
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => onDelete(idea.id)}
+          >
             <Trash2 className="h-4 w-4" />
           </Button>
         </CardFooter>
@@ -58,4 +63,3 @@ export default function IdeaCard({ idea, onEdit, onDelete }: IdeaCardProps) {
     </motion.div>
   )
 }
-
