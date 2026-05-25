@@ -1,5 +1,7 @@
+
+
 "use client";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import { fetchIdeas, createIdea, updateIdea as dbUpdateIdea, deleteIdea as dbDeleteIdea, createShareLink } from "@/lib/db";
 
@@ -7,25 +9,21 @@ import { fetchIdeas, createIdea, updateIdea as dbUpdateIdea, deleteIdea as dbDel
 // UTILITY FUNCTIONS
 // ============================================================
 
-// Color palette for tags - each tag gets a unique color based on its name
 const TAG_COLORS = [
   "#ff6a00", "#ff3d00", "#ffab00", "#ff6d3a", "#e85d04",
   "#ff8800", "#d45500", "#ffcc02", "#ff4400", "#c75000",
 ];
 
-// Generate a consistent color for a tag based on its text
 function hashColor(str) {
   let h = 0;
   for (let i = 0; i < str.length; i++) h = ((h << 5) - h + str.charCodeAt(i)) | 0;
   return TAG_COLORS[Math.abs(h) % TAG_COLORS.length];
 }
 
-// Generate a unique ID for tasks, thoughts, etc.
 function genId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
 
-// Convert a timestamp to human-readable format (e.g., "2h ago", "just now")
 function timeAgo(ts) {
   const d = typeof ts === "string" ? new Date(ts) : new Date(ts);
   const s = Math.floor((Date.now() - d.getTime()) / 1000);
@@ -37,7 +35,7 @@ function timeAgo(ts) {
 }
 
 // ============================================================
-// BREW STAGES (Progress tracking for each idea)
+// BREW STAGES
 // ============================================================
 
 const BREW_STAGES = [
@@ -49,31 +47,29 @@ const BREW_STAGES = [
   { min: 95, label: "pure gold", emoji: "✨" },
 ];
 
-// Get the current brew stage based on progress percentage
 function getBrewStage(pct) {
   let stage = BREW_STAGES[0];
   for (const s of BREW_STAGES) if (pct >= s.min) stage = s;
   return stage;
 }
 
-// Calculate how "brewed" an idea is (0-100%) based on completed fields
 function calcBrewProgress(idea) {
   let score = 0;
-  if (idea.thought) score += 10;                          // Has main thought
-  score += Math.min((idea.thoughts || []).length * 6, 30); // Additional thoughts (max 30%)
-  if ((idea.tags || []).length > 0) score += 10;          // Has tags
-  if ((idea.links || []).length > 0) score += 10;         // Has links
+  if (idea.thought) score += 10;
+  score += Math.min((idea.thoughts || []).length * 6, 30);
+  if ((idea.tags || []).length > 0) score += 10;
+  if ((idea.links || []).length > 0) score += 10;
   const filledFields = (idea.fields || []).filter(f => f.type === "checkbox" ? f.value : f.value?.toString().trim());
-  score += Math.min(filledFields.length * 5, 15);         // Custom fields (max 15%)
+  score += Math.min(filledFields.length * 5, 15);
   const tasks = idea.tasks || [];
-  if (tasks.length > 0) score += 10;                      // Has tasks
+  if (tasks.length > 0) score += 10;
   const done = tasks.filter(t => t.done).length;
-  if (tasks.length > 0) score += Math.round((done / tasks.length) * 15); // Task completion (max 15%)
+  if (tasks.length > 0) score += Math.round((done / tasks.length) * 15);
   return Math.min(score, 100);
 }
 
 // ============================================================
-// FIELD TYPES for custom fields
+// FIELD TYPES
 // ============================================================
 
 const FIELD_TYPES = [
@@ -84,43 +80,76 @@ const FIELD_TYPES = [
 ];
 
 // ============================================================
-// LIVE CLOCK COMPONENT - Shows current time and bedtime warning
+// LIVE CLOCK
 // ============================================================
 
 function LiveClock() {
   const [time, setTime] = useState(new Date());
-  const [currentHour, setCurrentHour] = useState(new Date().getHours());
-
-  // Update clock every second
   useEffect(() => {
-    const timer = setInterval(() => {
-      const now = new Date();
-      setTime(now);
-      setCurrentHour(now.getHours());
-    }, 1000);
+    const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // Define late night hours (10 PM to 5 AM)
-  const isLateNight = currentHour >= 22 || currentHour <= 5; // 10 PM to 5 AM
-
-  // Format time as HH:MM AM/PM
   const formatTime = (date) => {
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: true 
-    });
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    }).toLowerCase();
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <div className={`text-sm font-mono ${isLateNight ? 'text-red-400 animate-pulse' : 'text-gray-400'}`}>
-        {formatTime(time)}
-      </div>
-      {isLateNight && (
-        <div className="text-[10px] bg-red-900/50 text-red-300 px-1.5 py-0.5 rounded-full whitespace-nowrap">
-          ⚠️ GO TO SLEEP
+    <span className="text-[13px] text-zinc-400 font-medium">
+      time: {formatTime(time)}
+    </span>
+  );
+}
+
+// ============================================================
+// SORT DROPDOWN
+// ============================================================
+
+function SortDropdown({ value, onChange }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    function handleClick(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const options = [
+    { key: "newest", label: "Newest first" },
+    { key: "oldest", label: "Oldest first" },
+    { key: "brew", label: "Most brewed" },
+    { key: "alpha", label: "A-Z" },
+  ];
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-1.5 text-[12px] text-zinc-500 bg-[#111111] border border-[#222] rounded-lg px-3 py-1.5 hover:border-[#333] transition"
+      >
+        {options.find(o => o.key === value)?.label || "Newest first"}
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+          <path d="M2 4L5 7L8 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full mt-1 bg-[#111111] border border-[#222] rounded-lg py-1 z-50 min-w-[120px]">
+          {options.map(o => (
+            <button
+              key={o.key}
+              onClick={() => { onChange(o.key); setOpen(false); }}
+              className={`block w-full text-left px-3 py-1.5 text-[12px] ${value === o.key ? "text-[#ff6a00]" : "text-zinc-400 hover:text-white"} transition`}
+            >
+              {o.label}
+            </button>
+          ))}
         </div>
       )}
     </div>
@@ -132,22 +161,19 @@ function LiveClock() {
 // ============================================================
 
 export default function Bucket({ onLogout }) {
-  // State management
-  const [ideas, setIdeas] = useState([]);           // All user's ideas
-  const [view, setView] = useState("list");         // Current view: "list" or "detail"
-  const [activeId, setActiveId] = useState(null);   // Currently selected idea ID
-  const [loading, setLoading] = useState(true);     // Loading state
-  const [filterTag, setFilterTag] = useState(null); // Tag filter
-  const [searchQuery, setSearchQuery] = useState(""); // Search query
-  const [quickFocused, setQuickFocused] = useState(false); // Quick dump focus state
-  const quickRef = useRef(null);                    // Reference to quick dump textarea
+  const [ideas, setIdeas] = useState([]);
+  const [view, setView] = useState("list");
+  const [activeId, setActiveId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [filterTag, setFilterTag] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("newest");
+  const [quickFocused, setQuickFocused] = useState(false);
+  const quickRef = useRef(null);
+  const [charCount, setCharCount] = useState(0);
 
-  // Load ideas from Supabase on component mount
-  useEffect(() => {
-    loadIdeas();
-  }, []);
+  useEffect(() => { loadIdeas(); }, []);
 
-  // Fetch ideas from database
   async function loadIdeas() {
     try {
       const data = await fetchIdeas();
@@ -158,24 +184,27 @@ export default function Bucket({ onLogout }) {
     setLoading(false);
   }
 
-  // Get the currently active idea object
   const activeIdea = ideas.find((i) => i.id === activeId);
-  
-  // Get all unique tags from all ideas
   const allTags = [...new Set(ideas.flatMap((i) => i.tags || []))];
 
-  // Filter ideas based on selected tag and search query
+  // Sort and filter
   const filtered = ideas
     .filter((i) => !filterTag || (i.tags || []).includes(filterTag))
     .filter((i) => {
       if (!searchQuery.trim()) return true;
       const q = searchQuery.toLowerCase();
-      return i.title.toLowerCase().includes(q) || 
-             (i.thought || "").toLowerCase().includes(q) || 
-             (i.tags || []).some((t) => t.toLowerCase().includes(q));
+      return i.title.toLowerCase().includes(q) ||
+        (i.thought || "").toLowerCase().includes(q) ||
+        (i.tags || []).some((t) => t.toLowerCase().includes(q));
+    })
+    .sort((a, b) => {
+      if (sortBy === "newest") return new Date(b.updated_at) - new Date(a.updated_at);
+      if (sortBy === "oldest") return new Date(a.updated_at) - new Date(b.updated_at);
+      if (sortBy === "brew") return calcBrewProgress(b) - calcBrewProgress(a);
+      if (sortBy === "alpha") return a.title.localeCompare(b.title);
+      return 0;
     });
 
-  // Quick dump: Create a new idea from the main page textarea
   async function quickDump() {
     const val = quickRef.current?.value?.trim();
     if (!val) return;
@@ -183,19 +212,18 @@ export default function Bucket({ onLogout }) {
       const newIdea = await createIdea({ title: val });
       setIdeas([newIdea, ...ideas]);
       quickRef.current.value = "";
+      setCharCount(0);
       setQuickFocused(false);
     } catch (e) {
       console.error("Failed to create:", e);
     }
   }
 
-  // Update an existing idea
   async function handleUpdateIdea(id, fn) {
     const idea = ideas.find((i) => i.id === id);
     if (!idea) return;
     const updated = { ...idea };
     fn(updated);
-    // Only send the mutable fields (not timestamps or user_id)
     const payload = {
       title: updated.title,
       thought: updated.thought,
@@ -213,7 +241,6 @@ export default function Bucket({ onLogout }) {
     }
   }
 
-  // Delete an idea
   async function handleDeleteIdea(id) {
     try {
       await dbDeleteIdea(id);
@@ -225,7 +252,6 @@ export default function Bucket({ onLogout }) {
     }
   }
 
-  // Share an idea (generates a shareable link)
   async function handleShareIdea(idea) {
     try {
       const token = await createShareLink(idea.id);
@@ -240,163 +266,273 @@ export default function Bucket({ onLogout }) {
         alert("Share link copied!");
       }
     } catch (e) {
-      // Fallback to text share
-      let text = `💡 ${idea.title}\n`;
-      if (idea.thought) text += `\n${idea.thought}\n`;
-      text += `\n— from shitbucket`;
+      let text = `💡 ${idea.title}\\n`;
+      if (idea.thought) text += `\\n${idea.thought}\\n`;
+      text += `\\n— from shitbucket`;
       navigator.clipboard.writeText(text);
       alert("Copied to clipboard!");
     }
   }
 
-  // Logout user
-  async function handleLogout() {
+  async function handleGetOut() {
     await supabase.auth.signOut();
     onLogout();
   }
 
-  // Loading screen
   if (loading) {
     return (
-      <div className="min-h-screen bg-bucket-bg flex flex-col items-center justify-center gap-4">
-        <img src="/shitbucket-header-pic.png" alt="Shitbucket" className="w-8 h-8 object-contain" />
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center gap-4">
+        <img src="/shitbucket-header-pic.png" alt="Shitbucket" className="w-16 h-16 object-contain" />
         <div className="w-48 h-1.5 bg-[#1a1200] rounded-full overflow-hidden">
           <div className="h-full rounded-full animate-pulse" style={{ width: "60%", background: "linear-gradient(90deg, #992600, #b34d00, #997300)" }} />
         </div>
-        <div className="text-bucket-muted text-xs tracking-widest">loading your shit...</div>
+        <div className="text-zinc-600 text-xs tracking-widest">loading your shit...</div>
       </div>
     );
   }
 
   // ============================================================
-  // LIST VIEW - Main page showing all ideas
+  // LIST VIEW
   // ============================================================
   if (view === "list") {
     return (
-      <div className="min-h-screen bg-bucket-bg pb-24 max-w-xl mx-auto">
-        
-        {/* HEADER with Logo, Title, Stats, Logout, and CLOCK */}
-        <div className="flex justify-between items-center px-4 pt-5 pb-2">
-          {/* Left side: Logo + App Name */}
-          <div className="flex items-center gap-2.5">
-            <img src="/shitbucket-header-pic.png" alt="Shitbucket" className="w-8 h-8 object-contain" />
-            <span className="text-xl font-extrabold" style={{ background: "linear-gradient(135deg, #cc5500, #b38600)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>shitbucket</span>
-          </div>
-          
-          {/* Right side: Clock, Idea Count, Logout Button */}
-          <div className="flex items-center gap-3">
-            <LiveClock />  {/* <-- CLOCK ADDED HERE */}
-            <span className="text-[11px] text-bucket-muted">{ideas.length} idea{ideas.length !== 1 ? "s" : ""}</span>
-            <button onClick={handleLogout} className="text-[11px] text-bucket-muted hover:text-bucket-accent-dim">logout</button>
-          </div>
-        </div>
+      <div className="min-h-screen bg-black text-white pb-24 relative overflow-hidden max-w-xl mx-auto">
 
-        {/* QUICK DUMP SECTION - Textarea for quickly adding ideas */}
-        <div className="px-4 pt-1 pb-4">
-          <textarea
-            ref={quickRef}
-            className="w-full bg-bucket-card rounded-xl px-3.5 py-3.5 text-white text-base outline-none resize-none transition-all"
-            style={{
-              borderWidth: 2,
-              borderStyle: "solid",
-              borderColor: quickFocused ? "#804000" : "#1a1400",
-              boxShadow: quickFocused ? "0 0 12px #ff6a0011" : "none",
-              lineHeight: 1.5,
-            }}
-            placeholder="what's in your head?"
-            rows={3}
-            onFocus={() => setQuickFocused(true)}
-            onBlur={() => setQuickFocused(false)}
-            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); quickDump(); } }}
+        {/* Top glow */}
+        <div
+          className="absolute top-0 left-0 right-0 h-[320px] pointer-events-none"
+          style={{
+            background: "radial-gradient(circle at top center, rgba(255,106,0,0.12), transparent 60%)",
+          }}
+        />
+
+        {/* HEADER */}
+        <div className="relative px-4 pt-5 pb-2 flex flex-col items-center">
+          {/* Top row: time + get out */}
+          <div className="w-full flex justify-between items-center mb-6">
+            <div className="bg-[#111111] border border-[#222] rounded-xl px-4 py-2.5">
+              <LiveClock />
+            </div>
+
+            <button
+              onClick={handleGetOut}
+              className="flex items-center gap-2 bg-[#111111] border border-[#222] rounded-xl px-4 py-2.5 hover:border-[#333] transition text-[13px] text-zinc-400"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+              get out
+            </button>
+          </div>
+
+          {/* Logo */}
+          <img
+            src="/shitbucket-header-pic.png"
+            alt="Shitbucket"
+            className="w-40 md:w-48 object-contain drop-shadow-[0_0_35px_rgba(255,106,0,0.18)]"
           />
-          <button onClick={quickDump} className="w-full mt-2.5 bg-[#0a0a08] border border-bucket-border text-bucket-accent rounded-xl py-3.5 text-[15px] font-bold tracking-wide">
-            🪣 dump in bucket
-          </button>
-        </div>
 
-        {/* SEARCH & FILTER SECTION - Only show if there are ideas */}
-        {ideas.length > 0 && (
-          <>
-            {/* Search input */}
-            <div className="px-4 pb-2 relative">
+          <p className="text-zinc-500 text-sm mt-3 tracking-wide">
+            idea dumping ground
+          </p>
+
+          {/* Stats row */}
+          <div className="flex items-center justify-between w-full mt-8 gap-3">
+            <div className="bg-[#111111] border border-[#222] rounded-xl px-4 py-3 text-[13px] text-zinc-400 flex items-center gap-2 flex-1">
+              <span>{ideas.length} idea{ideas.length !== 1 ? "s" : ""}</span>
+              <span>💡</span>
+            </div>
+
+            <div className="relative flex-1">
               <input
-                className="w-full bg-bucket-card border border-bucket-border rounded-lg px-3 py-2.5 text-bucket-text text-[13px] outline-none"
-                placeholder="search the bucket..."
+                className="w-full bg-[#111111] border border-[#222] rounded-xl px-4 py-3 text-[13px] text-white outline-none placeholder:text-zinc-600 focus:border-[#333] transition"
+                placeholder="search for $ ideas"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
               {searchQuery && (
-                <button onClick={() => setSearchQuery("")} className="absolute right-6 top-2.5 text-bucket-muted text-sm">✕</button>
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-600 text-xs hover:text-zinc-400"
+                >
+                  ✕
+                </button>
               )}
             </div>
+          </div>
+        </div>
 
-            {/* Tag filter buttons */}
-            {allTags.length > 0 && (
-              <div className="flex gap-1.5 px-4 pb-3 overflow-x-auto">
-                <button
-                  className="shrink-0 border rounded-full px-3 py-1 text-[11px]"
-                  style={{ background: !filterTag ? "#ff6a0033" : "transparent", borderColor: !filterTag ? "#ff6a0066" : "#1a1400", color: !filterTag ? "#ff6a00" : "#665530" }}
-                  onClick={() => setFilterTag(null)}
-                >all</button>
-                {allTags.map((t) => (
-                  <button
-                    key={t}
-                    className="shrink-0 border rounded-full px-3 py-1 text-[11px]"
-                    style={{ background: filterTag === t ? hashColor(t) + "22" : "transparent", borderColor: filterTag === t ? hashColor(t) + "66" : "#1a1400", color: filterTag === t ? hashColor(t) : "#665530" }}
-                    onClick={() => setFilterTag(filterTag === t ? null : t)}
-                  >{t}</button>
-                ))}
+        {/* QUICK DUMP */}
+        <div className="relative px-4 pt-6">
+          <div className="rounded-3xl bg-[#0d0d0d] border border-[#1a1a1a] p-5 shadow-[0_0_25px_rgba(255,106,0,0.03)]">
+            <div className="mb-3">
+              <h2 className="text-lg font-semibold text-white">
+                What\\'s in your head?
+              </h2>
+              <div className="flex justify-between items-center mt-1">
+                <p className="text-sm text-zinc-500">
+                  Write it down. Get it out.
+                </p>
+                <span className="text-[11px] text-zinc-600">
+                  {charCount} / 500
+                </span>
               </div>
-            )}
-
-            {/* Section title */}
-            <div className="px-4 pb-1.5">
-              <div className="text-[11px] text-bucket-muted uppercase tracking-[2px]">your ideas</div>
             </div>
-          </>
+
+            <textarea
+              ref={quickRef}
+              rows={4}
+              maxLength={500}
+              placeholder="Type your idea here..."
+              onFocus={() => setQuickFocused(true)}
+              onBlur={() => setQuickFocused(false)}
+              onChange={(e) => setCharCount(e.target.value.length)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  quickDump();
+                }
+              }}
+              className="w-full rounded-2xl bg-black px-4 py-4 text-white resize-none outline-none placeholder:text-zinc-700 transition-all text-[14px] leading-relaxed"
+              style={{
+                border: `2px solid ${quickFocused ? "#ff6a00" : "#1a1a1a"}`,
+                boxShadow: quickFocused ? "0 0 20px rgba(255,106,0,0.08)" : "none",
+              }}
+            />
+
+            <button
+              onClick={quickDump}
+              className="mt-4 ml-auto flex items-center gap-2 rounded-2xl bg-[#ff6a00] px-6 py-3 font-semibold text-black hover:brightness-110 transition shadow-[0_0_25px_rgba(255,106,0,0.18)] text-[14px]"
+            >
+              🪣 Dump in bucket
+            </button>
+          </div>
+        </div>
+
+        {/* TAG FILTERS */}
+        {allTags.length > 0 && (
+          <div className="flex gap-1.5 px-4 pt-5 overflow-x-auto scrollbar-hide">
+            <button
+              className="shrink-0 border rounded-full px-3.5 py-1.5 text-[11px] transition"
+              style={{
+                background: !filterTag ? "#ff6a0018" : "transparent",
+                borderColor: !filterTag ? "#ff6a0040" : "#222",
+                color: !filterTag ? "#ff6a00" : "#666",
+              }}
+              onClick={() => setFilterTag(null)}
+            >
+              all
+            </button>
+            {allTags.map((t) => (
+              <button
+                key={t}
+                className="shrink-0 border rounded-full px-3.5 py-1.5 text-[11px] transition"
+                style={{
+                  background: filterTag === t ? hashColor(t) + "18" : "transparent",
+                  borderColor: filterTag === t ? hashColor(t) + "40" : "#222",
+                  color: filterTag === t ? hashColor(t) : "#666",
+                }}
+                onClick={() => setFilterTag(filterTag === t ? null : t)}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
         )}
 
-        {/* IDEAS CARDS LIST - Display each idea as a clickable card */}
-        <div className="px-4">
+        {/* SECTION HEADER */}
+        {ideas.length > 0 && (
+          <div className="flex items-center justify-between px-4 pt-6 pb-2">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">💡</span>
+              <span className="text-[14px] font-semibold text-white">Your Ideas</span>
+            </div>
+            <SortDropdown value={sortBy} onChange={setSortBy} />
+          </div>
+        )}
+
+        {/* IDEA LIST */}
+        <div className="px-4 pt-2 space-y-3">
           {filtered.length === 0 && ideas.length > 0 && (
-            <div className="text-center text-bucket-muted text-[13px] py-16">nothing matches.</div>
+            <div className="text-center text-zinc-600 text-[13px] py-16">
+              nothing matches your search.
+            </div>
           )}
           {filtered.map((idea) => {
             const brew = calcBrewProgress(idea);
             const stage = getBrewStage(brew);
-            const tasksDone = (idea.tasks || []).filter(t => t.done).length;
+            const tasksDone = (idea.tasks || []).filter((t) => t.done).length;
             const tasksTotal = (idea.tasks || []).length;
+
             return (
               <button
                 key={idea.id}
-                className="block w-full text-left bg-bucket-card border border-bucket-border rounded-xl px-4 py-3.5 mb-2 cursor-pointer"
-                onClick={() => { setActiveId(idea.id); setView("detail"); }}
+                onClick={() => {
+                  setActiveId(idea.id);
+                  setView("detail");
+                }}
+                className="w-full text-left rounded-2xl bg-[#0d0d0d] border border-[#1a1a1a] p-5 transition-all hover:border-[#2a2a2a] group"
               >
-                {/* Idea title and timestamp */}
+                {/* Title + menu dots */}
                 <div className="flex justify-between items-start gap-3">
-                  <div className="text-sm font-bold text-white leading-snug flex-1">{idea.title}</div>
-                  <div className="text-[10px] text-bucket-muted whitespace-nowrap">{timeAgo(idea.updated_at)}</div>
-                </div>
-                
-                {/* Main thought preview (if exists) */}
-                {idea.thought && <div className="text-xs text-bucket-text-dim mt-1.5 leading-relaxed">{idea.thought.length > 80 ? idea.thought.slice(0, 80) + "..." : idea.thought}</div>}
-                
-                {/* Brew progress bar */}
-                <div className="flex items-center gap-2 mt-2.5">
-                  <div className="flex-1 h-1 bg-[#1a1200] rounded-full overflow-hidden">
-                    <div className="h-full rounded-full transition-all duration-300" style={{ width: brew + "%", background: "linear-gradient(90deg, #992600, #b34d00, #997300)" }} />
+                  <div className="text-[15px] font-semibold leading-snug text-white flex-1">
+                    {idea.title}
                   </div>
-                  <span className="text-[11px] text-bucket-muted whitespace-nowrap">{stage.emoji} {brew}%</span>
+                  <span className="text-zinc-600 text-lg leading-none group-hover:text-zinc-500 transition">⋯</span>
                 </div>
-                
-                {/* Metadata badges (tags, thoughts count, tasks, links) */}
-                <div className="flex gap-1.5 mt-2 flex-wrap items-center">
-                  {(idea.tags || []).map((t) => (
-                    <span key={t} className="text-[10px] px-2 py-0.5 rounded-lg font-semibold" style={{ background: hashColor(t) + "18", color: hashColor(t) }}>{t}</span>
+
+                {/* Timestamp */}
+                <div className="text-[11px] text-zinc-600 mt-2">
+                  {timeAgo(idea.updated_at)}
+                </div>
+
+                {/* Progress bar */}
+                <div className="mt-4 flex items-center gap-3">
+                  <div className="flex-1 h-1 rounded-full bg-[#1a1a1a] overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{
+                        width: `${brew}%`,
+                        background: "linear-gradient(90deg, #ff6a00, #ff8c32)",
+                      }}
+                    />
+                  </div>
+                  <span className="text-[11px] text-zinc-500 whitespace-nowrap">
+                    {stage.emoji} {brew}%
+                  </span>
+                </div>
+
+                {/* Tags & meta */}
+                <div className="flex gap-2 mt-3 flex-wrap items-center">
+                  {(idea.tags || []).map((tag) => (
+                    <span
+                      key={tag}
+                      className="text-[10px] px-2 py-1 rounded-md font-medium"
+                      style={{
+                        background: `${hashColor(tag)}15`,
+                        color: hashColor(tag),
+                      }}
+                    >
+                      {tag}
+                    </span>
                   ))}
-                  {(idea.thoughts || []).length > 0 && <span className="text-[10px] text-bucket-muted">💭 {idea.thoughts.length}</span>}
-                  {tasksTotal > 0 && <span className="text-[10px] text-bucket-muted">☑ {tasksDone}/{tasksTotal}</span>}
-                  {(idea.links || []).length > 0 && <span className="text-[10px] text-bucket-muted">🔗 {idea.links.length}</span>}
+                  {tasksTotal > 0 && (
+                    <span className="text-[10px] text-zinc-600">
+                      ☑ {tasksDone}/{tasksTotal}
+                    </span>
+                  )}
+                  {(idea.thoughts || []).length > 0 && (
+                    <span className="text-[10px] text-zinc-600">
+                      💭 {idea.thoughts.length}
+                    </span>
+                  )}
+                  {(idea.links || []).length > 0 && (
+                    <span className="text-[10px] text-zinc-600">
+                      🔗 {idea.links.length}
+                    </span>
+                  )}
                 </div>
               </button>
             );
@@ -407,7 +543,7 @@ export default function Bucket({ onLogout }) {
   }
 
   // ============================================================
-  // DETAIL VIEW - Shows full details of a single idea
+  // DETAIL VIEW
   // ============================================================
   if (view === "detail" && activeIdea) {
     return (
@@ -425,10 +561,9 @@ export default function Bucket({ onLogout }) {
 }
 
 // ============================================================
-// DETAIL VIEW COMPONENT - Full page view for editing one idea
+// DETAIL VIEW
 // ============================================================
 function DetailView({ idea, onBack, onUpdate, onDelete, onShare }) {
-  // Local state for form inputs
   const [newThought, setNewThought] = useState("");
   const [newTag, setNewTag] = useState("");
   const [showAddLink, setShowAddLink] = useState(false);
@@ -444,7 +579,6 @@ function DetailView({ idea, onBack, onUpdate, onDelete, onShare }) {
   const brew = calcBrewProgress(idea);
   const stage = getBrewStage(brew);
 
-  // ---- Thought functions ----
   function addThought() {
     if (!newThought.trim()) return;
     onUpdate((i) => { i.thoughts = [...(i.thoughts || []), { id: genId(), text: newThought.trim(), ts: Date.now() }]; });
@@ -452,7 +586,6 @@ function DetailView({ idea, onBack, onUpdate, onDelete, onShare }) {
   }
   function removeThought(tid) { onUpdate((i) => { i.thoughts = (i.thoughts || []).filter((t) => t.id !== tid); }); }
 
-  // ---- Tag functions ----
   function addTag() {
     const t = newTag.trim().toLowerCase();
     if (!t || (idea.tags || []).includes(t)) return;
@@ -461,7 +594,6 @@ function DetailView({ idea, onBack, onUpdate, onDelete, onShare }) {
   }
   function removeTag(tag) { onUpdate((i) => { i.tags = (i.tags || []).filter((t) => t !== tag); }); }
 
-  // ---- Link functions ----
   function addLink() {
     if (!linkUrl.trim()) return;
     let url = linkUrl.trim();
@@ -471,7 +603,6 @@ function DetailView({ idea, onBack, onUpdate, onDelete, onShare }) {
   }
   function removeLink(lid) { onUpdate((i) => { i.links = (i.links || []).filter((l) => l.id !== lid); }); }
 
-  // ---- Custom field functions ----
   function addField() {
     if (!fieldName.trim()) return;
     onUpdate((i) => { i.fields = [...(i.fields || []), { id: genId(), name: fieldName.trim(), type: fieldType, value: fieldType === "checkbox" ? false : "" }]; });
@@ -480,7 +611,6 @@ function DetailView({ idea, onBack, onUpdate, onDelete, onShare }) {
   function updateField(fid, value) { onUpdate((i) => { i.fields = (i.fields || []).map((f) => f.id === fid ? { ...f, value } : f); }); }
   function removeField(fid) { onUpdate((i) => { i.fields = (i.fields || []).filter((f) => f.id !== fid); }); }
 
-  // ---- Task functions ----
   function addTask() {
     if (!newTask.trim()) return;
     onUpdate((i) => { i.tasks = [...(i.tasks || []), { id: genId(), text: newTask.trim(), done: false, ts: Date.now() }]; });
@@ -490,62 +620,63 @@ function DetailView({ idea, onBack, onUpdate, onDelete, onShare }) {
   function removeTask(tid) { onUpdate((i) => { i.tasks = (i.tasks || []).filter((t) => t.id !== tid); }); }
 
   return (
-    <div className="min-h-screen bg-bucket-bg pb-24 max-w-xl mx-auto">
-      
-      {/* DETAIL VIEW HEADER - Back button, share, and menu */}
-      <div className="flex justify-between items-center px-4 py-4 border-b border-bucket-border">
-        <button onClick={onBack} className="text-bucket-accent-dim text-[13px]">← back</button>
+    <div className="min-h-screen bg-black text-white pb-24 max-w-xl mx-auto">
+
+      {/* Header */}
+      <div className="flex justify-between items-center px-4 py-4 border-b border-[#1a1a1a]">
+        <button onClick={onBack} className="text-zinc-500 text-[13px] hover:text-white transition">← back</button>
         <div className="flex gap-2">
-          <button onClick={onShare} className="border border-bucket-border text-bucket-accent-dim text-base px-2.5 py-1 rounded-md">↗</button>
-          <button onClick={() => setShowMenu(!showMenu)} className="border border-bucket-border text-bucket-accent-dim text-base px-2.5 py-1 rounded-md">⋯</button>
+          <button onClick={onShare} className="border border-[#222] text-zinc-500 hover:text-white hover:border-[#333] text-base px-2.5 py-1.5 rounded-lg transition">↗</button>
+          <button onClick={() => setShowMenu(!showMenu)} className="border border-[#222] text-zinc-500 hover:text-white hover:border-[#333] text-base px-2.5 py-1.5 rounded-lg transition">⋯</button>
         </div>
       </div>
 
-      {/* DELETE CONFIRMATION MENU */}
+      {/* Menu */}
       {showMenu && (
-        <div className="bg-[#111100] border border-bucket-border rounded-lg mx-4 mt-1 p-1">
+        <div className="bg-[#111] border border-[#222] rounded-xl mx-4 mt-2 p-1 overflow-hidden">
           {!confirmDelete ? (
-            <button className="block w-full text-left text-bucket-text text-[13px] px-3 py-2 rounded-md" onClick={() => setConfirmDelete(true)}>🗑 delete idea</button>
+            <button className="block w-full text-left text-zinc-400 text-[13px] px-3 py-2.5 rounded-lg hover:bg-[#1a1a1a] transition" onClick={() => setConfirmDelete(true)}>
+              🗑 delete idea
+            </button>
           ) : (
-            <div className="flex items-center gap-2 px-2 py-1">
+            <div className="flex items-center gap-2 px-3 py-2">
               <span className="text-red-500 text-[13px]">sure?</span>
-              <button className="text-red-500 text-[13px] px-2 py-1" onClick={onDelete}>yes, delete</button>
-              <button className="text-bucket-muted text-[13px] px-2 py-1" onClick={() => { setConfirmDelete(false); setShowMenu(false); }}>cancel</button>
+              <button className="text-red-500 text-[13px] px-2 py-1 hover:underline" onClick={onDelete}>yes, delete</button>
+              <button className="text-zinc-600 text-[13px] px-2 py-1 hover:text-zinc-400" onClick={() => { setConfirmDelete(false); setShowMenu(false); }}>cancel</button>
             </div>
           )}
         </div>
       )}
 
-      {/* IDEA CONTENT */}
+      {/* Content */}
       <div className="px-4 pb-10">
-        {/* Title and timestamps */}
-        <h1 className="text-2xl font-extrabold text-white leading-snug pt-4 pb-1">{idea.title}</h1>
-        <div className="text-[11px] text-bucket-muted mb-4">
+        <h1 className="text-[22px] font-bold text-white leading-snug pt-5 pb-1">{idea.title}</h1>
+        <div className="text-[11px] text-zinc-600 mb-5">
           created {new Date(idea.created_at).toLocaleDateString()} · updated {timeAgo(idea.updated_at)}
         </div>
 
-        {/* Brew status section */}
-        <div className="bg-bucket-card border border-bucket-border rounded-xl p-3.5 mb-5">
-          <div className="flex justify-between items-center mb-1.5">
-            <span className="text-xs text-bucket-muted uppercase tracking-widest">brew status</span>
-            <span className="text-[13px] text-bucket-accent">{stage.emoji} {stage.label}</span>
+        {/* Brew status */}
+        <div className="bg-[#0d0d0d] border border-[#1a1a1a] rounded-2xl p-4 mb-5">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-[11px] text-zinc-500 uppercase tracking-widest font-medium">brew status</span>
+            <span className="text-[13px] text-[#ff6a00] font-medium">{stage.emoji} {stage.label}</span>
           </div>
-          <div className="w-full h-1.5 bg-[#1a1200] rounded-full overflow-hidden">
-            <div className="h-full rounded-full transition-all duration-300" style={{ width: brew + "%", background: "linear-gradient(90deg, #992600, #b34d00, #997300)" }} />
+          <div className="w-full h-1.5 bg-[#1a1a1a] rounded-full overflow-hidden">
+            <div className="h-full rounded-full transition-all duration-500" style={{ width: brew + "%", background: "linear-gradient(90deg, #ff6a00, #ff8c32)" }} />
           </div>
-          <div className="text-[11px] text-bucket-muted mt-1 text-right">{brew}% brewed</div>
+          <div className="text-[11px] text-zinc-600 mt-1.5 text-right">{brew}% brewed</div>
         </div>
 
-        {/* Tags section */}
+        {/* Tags */}
         <div className="mb-6">
-          <div className="flex flex-wrap gap-1.5 items-center">
+          <div className="flex flex-wrap gap-2 items-center">
             {(idea.tags || []).map((t) => (
-              <span key={t} className="inline-flex items-center gap-1 text-xs px-3 py-1 rounded-xl font-semibold" style={{ background: hashColor(t) + "18", color: hashColor(t), border: `1px solid ${hashColor(t)}33` }}>
-                {t}<button onClick={() => removeTag(t)} className="opacity-60 text-sm">×</button>
+              <span key={t} className="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-xl font-medium" style={{ background: hashColor(t) + "15", color: hashColor(t), border: `1px solid ${hashColor(t)}30` }}>
+                {t}<button onClick={() => removeTag(t)} className="opacity-50 hover:opacity-100 text-sm ml-0.5">×</button>
               </span>
             ))}
             <input
-              className="bg-transparent border border-dashed border-bucket-border-hover rounded-xl px-2.5 py-1 text-bucket-muted text-xs outline-none w-20"
+              className="bg-transparent border border-dashed border-[#333] rounded-xl px-3 py-1.5 text-zinc-500 text-xs outline-none w-24 focus:border-[#555] transition"
               placeholder="+ tag"
               value={newTag}
               onChange={(e) => setNewTag(e.target.value)}
@@ -554,99 +685,99 @@ function DetailView({ idea, onBack, onUpdate, onDelete, onShare }) {
           </div>
         </div>
 
-        {/* Tasks section */}
+        {/* Tasks */}
         <Section label="tasks">
           {(idea.tasks || []).map((t) => (
-            <div key={t.id} className="flex items-center gap-2.5 py-2.5 border-b border-bucket-border" style={{ opacity: t.done ? 0.5 : 1 }}>
+            <div key={t.id} className="flex items-center gap-3 py-3 border-b border-[#1a1a1a]" style={{ opacity: t.done ? 0.4 : 1 }}>
               <button onClick={() => toggleTask(t.id)} className="shrink-0">
-                <div className="w-[18px] h-[18px] rounded flex items-center justify-center transition-all" style={{ border: `2px solid ${t.done ? "#ff6a00" : "#2a2000"}`, background: t.done ? "#ff6a00" : "transparent" }}>
+                <div className="w-5 h-5 rounded-md flex items-center justify-center transition-all" style={{ border: `2px solid ${t.done ? "#ff6a00" : "#333"}`, background: t.done ? "#ff6a00" : "transparent" }}>
                   {t.done && <span className="text-black text-xs font-bold">✓</span>}
                 </div>
               </button>
-              <span className="flex-1 text-[13px] text-bucket-text" style={{ textDecoration: t.done ? "line-through" : "none" }}>{t.text}</span>
-              <button onClick={() => removeTask(t.id)} className="text-bucket-muted text-base px-1">×</button>
+              <span className="flex-1 text-[13px] text-zinc-300" style={{ textDecoration: t.done ? "line-through" : "none" }}>{t.text}</span>
+              <button onClick={() => removeTask(t.id)} className="text-zinc-700 hover:text-zinc-500 text-base px-1 transition">×</button>
             </div>
           ))}
-          <div className="flex gap-2 items-center mt-2">
-            <input className="flex-1 bg-bucket-card border border-bucket-border rounded-lg px-3 py-2.5 text-bucket-text text-[13px] outline-none" placeholder="add a task..." value={newTask} onChange={(e) => setNewTask(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addTask()} />
-            {newTask.trim() && <button onClick={addTask} className="bg-[#0a0a08] border border-bucket-border text-bucket-accent-dim rounded-md px-3.5 py-1.5 text-xs font-semibold">add</button>}
+          <div className="flex gap-2 items-center mt-3">
+            <input className="flex-1 bg-[#0d0d0d] border border-[#1a1a1a] rounded-xl px-3 py-2.5 text-zinc-300 text-[13px] outline-none focus:border-[#333] transition placeholder:text-zinc-700" placeholder="add a task..." value={newTask} onChange={(e) => setNewTask(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addTask()} />
+            {newTask.trim() && <button onClick={addTask} className="bg-[#111] border border-[#222] text-[#ff6a00] rounded-xl px-4 py-2.5 text-xs font-semibold hover:border-[#333] transition">add</button>}
           </div>
         </Section>
 
-        {/* Thoughts section */}
+        {/* Thoughts */}
         <Section label="thoughts">
           {(idea.thoughts || []).map((t) => (
-            <div key={t.id} className="bg-bucket-card border border-bucket-border rounded-xl px-3.5 py-2.5 mb-1.5">
-              <div className="text-[13px] text-bucket-text leading-relaxed">{t.text}</div>
-              <div className="flex justify-between items-center mt-1.5">
-                <span className="text-[10px] text-bucket-muted">{timeAgo(t.ts)}</span>
-                <button onClick={() => removeThought(t.id)} className="text-bucket-muted text-base px-1">×</button>
+            <div key={t.id} className="bg-[#0d0d0d] border border-[#1a1a1a] rounded-xl px-4 py-3 mb-2">
+              <div className="text-[13px] text-zinc-300 leading-relaxed">{t.text}</div>
+              <div className="flex justify-between items-center mt-2">
+                <span className="text-[10px] text-zinc-600">{timeAgo(t.ts)}</span>
+                <button onClick={() => removeThought(t.id)} className="text-zinc-700 hover:text-zinc-500 text-base px-1 transition">×</button>
               </div>
             </div>
           ))}
-          <textarea className="w-full bg-bucket-card border border-bucket-border rounded-lg px-3 py-2.5 text-bucket-text text-[13px] outline-none resize-none mt-2" placeholder="add a thought..." value={newThought} onChange={(e) => setNewThought(e.target.value)} rows={2} />
-          {newThought.trim() && <button onClick={addThought} className="bg-[#0a0a08] border border-bucket-border text-bucket-accent-dim rounded-md px-3.5 py-1.5 text-xs font-semibold mt-1.5">add</button>}
+          <textarea className="w-full bg-[#0d0d0d] border border-[#1a1a1a] rounded-xl px-4 py-3 text-zinc-300 text-[13px] outline-none resize-none mt-2 focus:border-[#333] transition placeholder:text-zinc-700" placeholder="add a thought..." value={newThought} onChange={(e) => setNewThought(e.target.value)} rows={2} />
+          {newThought.trim() && <button onClick={addThought} className="bg-[#111] border border-[#222] text-[#ff6a00] rounded-xl px-4 py-2 text-xs font-semibold mt-2 hover:border-[#333] transition">add</button>}
         </Section>
 
-        {/* Links section */}
+        {/* Links */}
         <Section label="links">
           {(idea.links || []).map((l) => (
-            <div key={l.id} className="flex justify-between items-center py-2 border-b border-bucket-border">
-              <a href={l.url} target="_blank" rel="noreferrer" className="text-bucket-accent text-[13px] no-underline break-all flex-1">{l.label || l.url}</a>
-              <button onClick={() => removeLink(l.id)} className="text-bucket-muted text-base px-1 ml-2">×</button>
+            <div key={l.id} className="flex justify-between items-center py-2.5 border-b border-[#1a1a1a]">
+              <a href={l.url} target="_blank" rel="noreferrer" className="text-[#ff6a00] text-[13px] no-underline break-all flex-1 hover:underline">{l.label || l.url}</a>
+              <button onClick={() => removeLink(l.id)} className="text-zinc-700 hover:text-zinc-500 text-base px-1 ml-2 transition">×</button>
             </div>
           ))}
           {!showAddLink ? (
-            <button onClick={() => setShowAddLink(true)} className="w-full border border-dashed border-bucket-border-hover rounded-lg py-2.5 text-bucket-muted text-xs mt-1">+ add link</button>
+            <button onClick={() => setShowAddLink(true)} className="w-full border border-dashed border-[#333] rounded-xl py-3 text-zinc-600 text-xs mt-1 hover:border-[#555] transition">+ add link</button>
           ) : (
             <div className="flex flex-col gap-2 mt-2">
-              <input className="w-full bg-[#080804] border border-bucket-border rounded-md px-2.5 py-2 text-bucket-text text-[13px] outline-none" placeholder="url" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} />
-              <input className="w-full bg-[#080804] border border-bucket-border rounded-md px-2.5 py-2 text-bucket-text text-[13px] outline-none" placeholder="label (optional)" value={linkLabel} onChange={(e) => setLinkLabel(e.target.value)} />
+              <input className="w-full bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl px-3 py-2.5 text-zinc-300 text-[13px] outline-none focus:border-[#333] transition placeholder:text-zinc-700" placeholder="url" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} />
+              <input className="w-full bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl px-3 py-2.5 text-zinc-300 text-[13px] outline-none focus:border-[#333] transition placeholder:text-zinc-700" placeholder="label (optional)" value={linkLabel} onChange={(e) => setLinkLabel(e.target.value)} />
               <div className="flex gap-2">
-                <button onClick={addLink} className="bg-[#0a0a08] border border-bucket-border text-bucket-accent-dim rounded-md px-3.5 py-1.5 text-xs font-semibold">add</button>
-                <button onClick={() => setShowAddLink(false)} className="text-bucket-muted text-xs">cancel</button>
+                <button onClick={addLink} className="bg-[#111] border border-[#222] text-[#ff6a00] rounded-xl px-4 py-2 text-xs font-semibold hover:border-[#333] transition">add</button>
+                <button onClick={() => setShowAddLink(false)} className="text-zinc-600 text-xs hover:text-zinc-400 transition">cancel</button>
               </div>
             </div>
           )}
         </Section>
 
-        {/* Custom fields section */}
+        {/* Custom fields */}
         <Section label="custom fields">
           {(idea.fields || []).map((f) => (
-            <div key={f.id} className="bg-bucket-card border border-bucket-border rounded-xl p-3 mb-1.5">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-[11px] text-bucket-accent uppercase tracking-wide">{f.name}</span>
-                <button onClick={() => removeField(f.id)} className="text-bucket-muted text-base px-1">×</button>
+            <div key={f.id} className="bg-[#0d0d0d] border border-[#1a1a1a] rounded-xl p-4 mb-2">
+              <div className="flex justify-between items-center mb-2.5">
+                <span className="text-[11px] text-[#ff6a00] uppercase tracking-wide font-semibold">{f.name}</span>
+                <button onClick={() => removeField(f.id)} className="text-zinc-700 hover:text-zinc-500 text-base px-1 transition">×</button>
               </div>
-              {f.type === "text" && <input className="w-full bg-[#080804] border border-bucket-border rounded-md px-2.5 py-2 text-bucket-text text-[13px] outline-none" value={f.value || ""} onChange={(e) => updateField(f.id, e.target.value)} placeholder="enter value..." />}
-              {f.type === "number" && <input className="w-full bg-[#080804] border border-bucket-border rounded-md px-2.5 py-2 text-bucket-text text-[13px] outline-none" type="number" value={f.value || ""} onChange={(e) => updateField(f.id, e.target.value)} placeholder="0" />}
+              {f.type === "text" && <input className="w-full bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl px-3 py-2.5 text-zinc-300 text-[13px] outline-none focus:border-[#333] transition placeholder:text-zinc-700" value={f.value || ""} onChange={(e) => updateField(f.id, e.target.value)} placeholder="enter value..." />}
+              {f.type === "number" && <input className="w-full bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl px-3 py-2.5 text-zinc-300 text-[13px] outline-none focus:border-[#333] transition placeholder:text-zinc-700" type="number" value={f.value || ""} onChange={(e) => updateField(f.id, e.target.value)} placeholder="0" />}
               {f.type === "checkbox" && (
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <div className="w-[18px] h-[18px] rounded flex items-center justify-center cursor-pointer" style={{ border: `2px solid ${f.value ? "#ff6a00" : "#2a2000"}`, background: f.value ? "#ff6a00" : "transparent" }} onClick={() => updateField(f.id, !f.value)}>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <div className="w-5 h-5 rounded-md flex items-center justify-center cursor-pointer transition-all" style={{ border: `2px solid ${f.value ? "#ff6a00" : "#333"}`, background: f.value ? "#ff6a00" : "transparent" }} onClick={() => updateField(f.id, !f.value)}>
                     {f.value && <span className="text-black text-xs font-bold">✓</span>}
                   </div>
-                  <span className="text-[13px]" style={{ color: f.value ? "#ff6a00" : "#665530" }}>{f.value ? "yes" : "no"}</span>
+                  <span className="text-[13px]" style={{ color: f.value ? "#ff6a00" : "#666" }}>{f.value ? "yes" : "no"}</span>
                 </label>
               )}
-              {f.type === "link" && <input className="w-full bg-[#080804] border border-bucket-border rounded-md px-2.5 py-2 text-bucket-text text-[13px] outline-none" value={f.value || ""} onChange={(e) => updateField(f.id, e.target.value)} placeholder="https://..." />}
+              {f.type === "link" && <input className="w-full bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl px-3 py-2.5 text-zinc-300 text-[13px] outline-none focus:border-[#333] transition placeholder:text-zinc-700" value={f.value || ""} onChange={(e) => updateField(f.id, e.target.value)} placeholder="https://..." />}
             </div>
           ))}
           {!showAddField ? (
-            <button onClick={() => setShowAddField(true)} className="w-full border border-dashed border-bucket-border-hover rounded-lg py-2.5 text-bucket-muted text-xs mt-1">+ add field</button>
+            <button onClick={() => setShowAddField(true)} className="w-full border border-dashed border-[#333] rounded-xl py-3 text-zinc-600 text-xs mt-1 hover:border-[#555] transition">+ add field</button>
           ) : (
             <div className="flex flex-col gap-2 mt-2">
-              <input className="w-full bg-[#080804] border border-bucket-border rounded-md px-2.5 py-2 text-bucket-text text-[13px] outline-none" placeholder="field name (e.g. Budget)" value={fieldName} onChange={(e) => setFieldName(e.target.value)} />
+              <input className="w-full bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl px-3 py-2.5 text-zinc-300 text-[13px] outline-none focus:border-[#333] transition placeholder:text-zinc-700" placeholder="field name (e.g. Budget)" value={fieldName} onChange={(e) => setFieldName(e.target.value)} />
               <div className="flex gap-1.5">
                 {FIELD_TYPES.map((ft) => (
-                  <button key={ft.key} className="flex flex-col items-center gap-0.5 px-3 py-2 border rounded-lg flex-1" style={{ background: fieldType === ft.key ? "#ff6a0033" : "transparent", borderColor: fieldType === ft.key ? "#ff6a0066" : "#1a1400", color: fieldType === ft.key ? "#ff6a00" : "#665530" }} onClick={() => setFieldType(ft.key)}>
-                    <span>{ft.icon}</span>
+                  <button key={ft.key} className="flex flex-col items-center gap-0.5 px-3 py-2.5 border rounded-xl flex-1 transition" style={{ background: fieldType === ft.key ? "#ff6a0015" : "transparent", borderColor: fieldType === ft.key ? "#ff6a0040" : "#1a1a1a", color: fieldType === ft.key ? "#ff6a00" : "#666" }} onClick={() => setFieldType(ft.key)}>
+                    <span className="text-sm">{ft.icon}</span>
                     <span className="text-[10px]">{ft.label}</span>
                   </button>
                 ))}
               </div>
               <div className="flex gap-2">
-                <button onClick={addField} className="bg-[#0a0a08] border border-bucket-border text-bucket-accent-dim rounded-md px-3.5 py-1.5 text-xs font-semibold">add</button>
-                <button onClick={() => setShowAddField(false)} className="text-bucket-muted text-xs">cancel</button>
+                <button onClick={addField} className="bg-[#111] border border-[#222] text-[#ff6a00] rounded-xl px-4 py-2 text-xs font-semibold hover:border-[#333] transition">add</button>
+                <button onClick={() => setShowAddField(false)} className="text-zinc-600 text-xs hover:text-zinc-400 transition">cancel</button>
               </div>
             </div>
           )}
@@ -657,12 +788,14 @@ function DetailView({ idea, onBack, onUpdate, onDelete, onShare }) {
 }
 
 // ============================================================
-// SECTION COMPONENT - Reusable section wrapper with label
+// SECTION COMPONENT
 // ============================================================
 function Section({ label, children }) {
   return (
     <div className="mb-6">
-      <div className="text-[11px] text-bucket-accent uppercase tracking-[2px] font-semibold mb-2.5">{label}</div>
+      <div className="text-[11px] text-[#ff6a00] uppercase tracking-[2px] font-semibold mb-3">
+        {label}
+      </div>
       {children}
     </div>
   );
