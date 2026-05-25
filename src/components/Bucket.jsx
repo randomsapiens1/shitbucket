@@ -51,9 +51,9 @@ export default function Bucket({ onLogout }) {
       return 0;
     });
 
-  async function handleDump(val) {
+  async function handleDump(title, tags = []) {
     try {
-      const newIdea = await createIdea({ title: val });
+      const newIdea = await createIdea({ title, tags });
       setIdeas(prev => [newIdea, ...prev]);
     } catch (e) {
       console.error("Failed to create:", e);
@@ -146,6 +146,7 @@ export default function Bucket({ onLogout }) {
     return (
       <DetailView
         idea={activeIdea}
+        allTags={allTags}
         onBack={() => { setView("list"); setActiveId(null); }}
         onUpdate={(fn) => handleUpdateIdea(activeId, fn)}
         onDelete={() => handleDeleteIdea(activeId)}

@@ -1,8 +1,6 @@
 "use client";
 import { useState } from "react";
-import { calcBrewProgress, getBrewStage } from "@/lib/brew";
 import { genId, timeAgo } from "@/lib/utils";
-import BrewStatus from "./BrewStatus";
 import TagsSection from "./TagsSection";
 import TasksSection from "./TasksSection";
 import ThoughtsSection from "./ThoughtsSection";
@@ -10,14 +8,11 @@ import LinksSection from "./LinksSection";
 import CustomFieldsSection from "./CustomFieldsSection";
 import DetailMenu from "./DetailMenu";
 
-export default function DetailView({ idea, onBack, onUpdate, onDelete, onShare }) {
+export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, onShare }) {
   const [newThought, setNewThought] = useState("");
   const [newTag, setNewTag] = useState("");
   const [newTask, setNewTask] = useState("");
   const [showMenu, setShowMenu] = useState(false);
-
-  const brew = calcBrewProgress(idea);
-  const stage = getBrewStage(brew);
 
   // --- Thoughts ---
   function addThought() {
@@ -30,8 +25,8 @@ export default function DetailView({ idea, onBack, onUpdate, onDelete, onShare }
   }
 
   // --- Tags ---
-  function addTag() {
-    const t = newTag.trim().toLowerCase();
+  function addTag(overrideTag) {
+    const t = (overrideTag || newTag).trim().toLowerCase();
     if (!t || (idea.tags || []).includes(t)) return;
     onUpdate(i => { i.tags = [...(i.tags || []), t]; });
     setNewTag("");
@@ -93,10 +88,9 @@ export default function DetailView({ idea, onBack, onUpdate, onDelete, onShare }
           created {new Date(idea.created_at).toLocaleDateString()} · updated {timeAgo(idea.updated_at)}
         </div>
 
-        <BrewStatus brew={brew} stage={stage} />
-
         <TagsSection
           tags={idea.tags}
+          allTags={allTags}
           newTag={newTag}
           setNewTag={setNewTag}
           onAdd={addTag}

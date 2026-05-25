@@ -1,6 +1,8 @@
 export const TAG_COLORS = [
   "#ff6a00", "#ff3d00", "#ffab00", "#ff6d3a", "#e85d04",
   "#ff8800", "#d45500", "#ffcc02", "#ff4400", "#c75000",
+  "#00cc88", "#00b4d8", "#7b2cbf", "#ef476f", "#06d6a0",
+  "#ffd166", "#118ab2", "#073b4c", "#9d4edd", "#5a189a",
 ];
 
 export function hashColor(str) {

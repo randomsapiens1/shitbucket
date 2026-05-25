@@ -151,7 +151,7 @@ export default function ListView({
       </div>
 
       {/* Quick dump */}
-      <QuickDump onDump={onDump} />
+      <QuickDump onDump={onDump} allTags={allTags} />
 
       {/* Tag filters */}
       {allTags.length > 0 && (
