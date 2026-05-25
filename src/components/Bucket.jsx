@@ -3,21 +3,29 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import { fetchIdeas, createIdea, updateIdea as dbUpdateIdea, deleteIdea as dbDeleteIdea, createShareLink } from "@/lib/db";
 
+// ============================================================
+// UTILITY FUNCTIONS
+// ============================================================
+
+// Color palette for tags - each tag gets a unique color based on its name
 const TAG_COLORS = [
   "#ff6a00", "#ff3d00", "#ffab00", "#ff6d3a", "#e85d04",
   "#ff8800", "#d45500", "#ffcc02", "#ff4400", "#c75000",
 ];
 
+// Generate a consistent color for a tag based on its text
 function hashColor(str) {
   let h = 0;
   for (let i = 0; i < str.length; i++) h = ((h << 5) - h + str.charCodeAt(i)) | 0;
   return TAG_COLORS[Math.abs(h) % TAG_COLORS.length];
 }
 
+// Generate a unique ID for tasks, thoughts, etc.
 function genId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
 
+// Convert a timestamp to human-readable format (e.g., "2h ago", "just now")
 function timeAgo(ts) {
   const d = typeof ts === "string" ? new Date(ts) : new Date(ts);
   const s = Math.floor((Date.now() - d.getTime()) / 1000);
@@ -28,6 +36,10 @@ function timeAgo(ts) {
   return d.toLocaleDateString();
 }
 
+// ============================================================
+// BREW STAGES (Progress tracking for each idea)
+// ============================================================
+
 const BREW_STAGES = [
   { min: 0, label: "raw dump", emoji: "💩" },
   { min: 15, label: "starting to stink", emoji: "🦨" },
@@ -37,26 +49,32 @@ const BREW_STAGES = [
   { min: 95, label: "pure gold", emoji: "✨" },
 ];
 
+// Get the current brew stage based on progress percentage
 function getBrewStage(pct) {
   let stage = BREW_STAGES[0];
   for (const s of BREW_STAGES) if (pct >= s.min) stage = s;
   return stage;
 }
 
+// Calculate how "brewed" an idea is (0-100%) based on completed fields
 function calcBrewProgress(idea) {
   let score = 0;
-  if (idea.thought) score += 10;
-  score += Math.min((idea.thoughts || []).length * 6, 30);
-  if ((idea.tags || []).length > 0) score += 10;
-  if ((idea.links || []).length > 0) score += 10;
+  if (idea.thought) score += 10;                          // Has main thought
+  score += Math.min((idea.thoughts || []).length * 6, 30); // Additional thoughts (max 30%)
+  if ((idea.tags || []).length > 0) score += 10;          // Has tags
+  if ((idea.links || []).length > 0) score += 10;         // Has links
   const filledFields = (idea.fields || []).filter(f => f.type === "checkbox" ? f.value : f.value?.toString().trim());
-  score += Math.min(filledFields.length * 5, 15);
+  score += Math.min(filledFields.length * 5, 15);         // Custom fields (max 15%)
   const tasks = idea.tasks || [];
-  if (tasks.length > 0) score += 10;
+  if (tasks.length > 0) score += 10;                      // Has tasks
   const done = tasks.filter(t => t.done).length;
-  if (tasks.length > 0) score += Math.round((done / tasks.length) * 15);
+  if (tasks.length > 0) score += Math.round((done / tasks.length) * 15); // Task completion (max 15%)
   return Math.min(score, 100);
 }
+
+// ============================================================
+// FIELD TYPES for custom fields
+// ============================================================
 
 const FIELD_TYPES = [
   { key: "text", label: "Text", icon: "Aa" },
@@ -65,21 +83,71 @@ const FIELD_TYPES = [
   { key: "link", label: "Link", icon: "🔗" },
 ];
 
-export default function Bucket({ onLogout }) {
-  const [ideas, setIdeas] = useState([]);
-  const [view, setView] = useState("list");
-  const [activeId, setActiveId] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [filterTag, setFilterTag] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [quickFocused, setQuickFocused] = useState(false);
-  const quickRef = useRef(null);
+// ============================================================
+// LIVE CLOCK COMPONENT - Shows current time and bedtime warning
+// ============================================================
 
-  // Load ideas from Supabase
+function LiveClock() {
+  const [time, setTime] = useState(new Date());
+  const [currentHour, setCurrentHour] = useState(new Date().getHours());
+
+  // Update clock every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = new Date();
+      setTime(now);
+      setCurrentHour(now.getHours());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Define late night hours (10 PM to 5 AM)
+  const isLateNight = currentHour >= 22 || currentHour <= 5; // 10 PM to 5 AM
+
+  // Format time as HH:MM AM/PM
+  const formatTime = (date) => {
+    return date.toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: true 
+    });
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      <div className={`text-sm font-mono ${isLateNight ? 'text-red-400 animate-pulse' : 'text-gray-400'}`}>
+        {formatTime(time)}
+      </div>
+      {isLateNight && (
+        <div className="text-[10px] bg-red-900/50 text-red-300 px-1.5 py-0.5 rounded-full whitespace-nowrap">
+          ⚠️ GO TO SLEEP
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================
+// MAIN BUCKET COMPONENT
+// ============================================================
+
+export default function Bucket({ onLogout }) {
+  // State management
+  const [ideas, setIdeas] = useState([]);           // All user's ideas
+  const [view, setView] = useState("list");         // Current view: "list" or "detail"
+  const [activeId, setActiveId] = useState(null);   // Currently selected idea ID
+  const [loading, setLoading] = useState(true);     // Loading state
+  const [filterTag, setFilterTag] = useState(null); // Tag filter
+  const [searchQuery, setSearchQuery] = useState(""); // Search query
+  const [quickFocused, setQuickFocused] = useState(false); // Quick dump focus state
+  const quickRef = useRef(null);                    // Reference to quick dump textarea
+
+  // Load ideas from Supabase on component mount
   useEffect(() => {
     loadIdeas();
   }, []);
 
+  // Fetch ideas from database
   async function loadIdeas() {
     try {
       const data = await fetchIdeas();
@@ -90,18 +158,24 @@ export default function Bucket({ onLogout }) {
     setLoading(false);
   }
 
+  // Get the currently active idea object
   const activeIdea = ideas.find((i) => i.id === activeId);
+  
+  // Get all unique tags from all ideas
   const allTags = [...new Set(ideas.flatMap((i) => i.tags || []))];
 
+  // Filter ideas based on selected tag and search query
   const filtered = ideas
     .filter((i) => !filterTag || (i.tags || []).includes(filterTag))
     .filter((i) => {
       if (!searchQuery.trim()) return true;
       const q = searchQuery.toLowerCase();
-      return i.title.toLowerCase().includes(q) || (i.thought || "").toLowerCase().includes(q) || (i.tags || []).some((t) => t.toLowerCase().includes(q));
+      return i.title.toLowerCase().includes(q) || 
+             (i.thought || "").toLowerCase().includes(q) || 
+             (i.tags || []).some((t) => t.toLowerCase().includes(q));
     });
 
-  // Quick dump from main page
+  // Quick dump: Create a new idea from the main page textarea
   async function quickDump() {
     const val = quickRef.current?.value?.trim();
     if (!val) return;
@@ -115,13 +189,13 @@ export default function Bucket({ onLogout }) {
     }
   }
 
-  // Update idea
+  // Update an existing idea
   async function handleUpdateIdea(id, fn) {
     const idea = ideas.find((i) => i.id === id);
     if (!idea) return;
     const updated = { ...idea };
     fn(updated);
-    // Only send the mutable fields
+    // Only send the mutable fields (not timestamps or user_id)
     const payload = {
       title: updated.title,
       thought: updated.thought,
@@ -139,7 +213,7 @@ export default function Bucket({ onLogout }) {
     }
   }
 
-  // Delete idea
+  // Delete an idea
   async function handleDeleteIdea(id) {
     try {
       await dbDeleteIdea(id);
@@ -151,7 +225,7 @@ export default function Bucket({ onLogout }) {
     }
   }
 
-  // Share idea
+  // Share an idea (generates a shareable link)
   async function handleShareIdea(idea) {
     try {
       const token = await createShareLink(idea.id);
@@ -175,16 +249,17 @@ export default function Bucket({ onLogout }) {
     }
   }
 
-  // Logout
+  // Logout user
   async function handleLogout() {
     await supabase.auth.signOut();
     onLogout();
   }
 
+  // Loading screen
   if (loading) {
     return (
       <div className="min-h-screen bg-bucket-bg flex flex-col items-center justify-center gap-4">
-       <img src="/logo-shitBucket.png" alt="" className="w-7 h-7" />
+        <img src="/shitbucket-header-pic.png" alt="Shitbucket" className="w-8 h-8 object-contain" />
         <div className="w-48 h-1.5 bg-[#1a1200] rounded-full overflow-hidden">
           <div className="h-full rounded-full animate-pulse" style={{ width: "60%", background: "linear-gradient(90deg, #992600, #b34d00, #997300)" }} />
         </div>
@@ -193,23 +268,30 @@ export default function Bucket({ onLogout }) {
     );
   }
 
-  // ========== LIST VIEW ==========
+  // ============================================================
+  // LIST VIEW - Main page showing all ideas
+  // ============================================================
   if (view === "list") {
     return (
       <div className="min-h-screen bg-bucket-bg pb-24 max-w-xl mx-auto">
-        {/* Header */}
+        
+        {/* HEADER with Logo, Title, Stats, Logout, and CLOCK */}
         <div className="flex justify-between items-center px-4 pt-5 pb-2">
+          {/* Left side: Logo + App Name */}
           <div className="flex items-center gap-2.5">
-            <img src="/logo-shitBucket.png" alt="" className="w-7 h-7" />
+            <img src="/shitbucket-header-pic.png" alt="Shitbucket" className="w-8 h-8 object-contain" />
             <span className="text-xl font-extrabold" style={{ background: "linear-gradient(135deg, #cc5500, #b38600)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>shitbucket</span>
           </div>
+          
+          {/* Right side: Clock, Idea Count, Logout Button */}
           <div className="flex items-center gap-3">
+            <LiveClock />  {/* <-- CLOCK ADDED HERE */}
             <span className="text-[11px] text-bucket-muted">{ideas.length} idea{ideas.length !== 1 ? "s" : ""}</span>
             <button onClick={handleLogout} className="text-[11px] text-bucket-muted hover:text-bucket-accent-dim">logout</button>
           </div>
         </div>
 
-        {/* Quick dump */}
+        {/* QUICK DUMP SECTION - Textarea for quickly adding ideas */}
         <div className="px-4 pt-1 pb-4">
           <textarea
             ref={quickRef}
@@ -232,9 +314,10 @@ export default function Bucket({ onLogout }) {
           </button>
         </div>
 
-        {/* Search + tags */}
+        {/* SEARCH & FILTER SECTION - Only show if there are ideas */}
         {ideas.length > 0 && (
           <>
+            {/* Search input */}
             <div className="px-4 pb-2 relative">
               <input
                 className="w-full bg-bucket-card border border-bucket-border rounded-lg px-3 py-2.5 text-bucket-text text-[13px] outline-none"
@@ -247,6 +330,7 @@ export default function Bucket({ onLogout }) {
               )}
             </div>
 
+            {/* Tag filter buttons */}
             {allTags.length > 0 && (
               <div className="flex gap-1.5 px-4 pb-3 overflow-x-auto">
                 <button
@@ -265,13 +349,14 @@ export default function Bucket({ onLogout }) {
               </div>
             )}
 
+            {/* Section title */}
             <div className="px-4 pb-1.5">
               <div className="text-[11px] text-bucket-muted uppercase tracking-[2px]">your ideas</div>
             </div>
           </>
         )}
 
-        {/* Cards */}
+        {/* IDEAS CARDS LIST - Display each idea as a clickable card */}
         <div className="px-4">
           {filtered.length === 0 && ideas.length > 0 && (
             <div className="text-center text-bucket-muted text-[13px] py-16">nothing matches.</div>
@@ -287,17 +372,24 @@ export default function Bucket({ onLogout }) {
                 className="block w-full text-left bg-bucket-card border border-bucket-border rounded-xl px-4 py-3.5 mb-2 cursor-pointer"
                 onClick={() => { setActiveId(idea.id); setView("detail"); }}
               >
+                {/* Idea title and timestamp */}
                 <div className="flex justify-between items-start gap-3">
                   <div className="text-sm font-bold text-white leading-snug flex-1">{idea.title}</div>
                   <div className="text-[10px] text-bucket-muted whitespace-nowrap">{timeAgo(idea.updated_at)}</div>
                 </div>
+                
+                {/* Main thought preview (if exists) */}
                 {idea.thought && <div className="text-xs text-bucket-text-dim mt-1.5 leading-relaxed">{idea.thought.length > 80 ? idea.thought.slice(0, 80) + "..." : idea.thought}</div>}
+                
+                {/* Brew progress bar */}
                 <div className="flex items-center gap-2 mt-2.5">
                   <div className="flex-1 h-1 bg-[#1a1200] rounded-full overflow-hidden">
                     <div className="h-full rounded-full transition-all duration-300" style={{ width: brew + "%", background: "linear-gradient(90deg, #992600, #b34d00, #997300)" }} />
                   </div>
                   <span className="text-[11px] text-bucket-muted whitespace-nowrap">{stage.emoji} {brew}%</span>
                 </div>
+                
+                {/* Metadata badges (tags, thoughts count, tasks, links) */}
                 <div className="flex gap-1.5 mt-2 flex-wrap items-center">
                   {(idea.tags || []).map((t) => (
                     <span key={t} className="text-[10px] px-2 py-0.5 rounded-lg font-semibold" style={{ background: hashColor(t) + "18", color: hashColor(t) }}>{t}</span>
@@ -314,7 +406,9 @@ export default function Bucket({ onLogout }) {
     );
   }
 
-  // ========== DETAIL VIEW ==========
+  // ============================================================
+  // DETAIL VIEW - Shows full details of a single idea
+  // ============================================================
   if (view === "detail" && activeIdea) {
     return (
       <DetailView
@@ -330,8 +424,11 @@ export default function Bucket({ onLogout }) {
   return null;
 }
 
-// ========== DETAIL VIEW COMPONENT ==========
+// ============================================================
+// DETAIL VIEW COMPONENT - Full page view for editing one idea
+// ============================================================
 function DetailView({ idea, onBack, onUpdate, onDelete, onShare }) {
+  // Local state for form inputs
   const [newThought, setNewThought] = useState("");
   const [newTag, setNewTag] = useState("");
   const [showAddLink, setShowAddLink] = useState(false);
@@ -347,12 +444,15 @@ function DetailView({ idea, onBack, onUpdate, onDelete, onShare }) {
   const brew = calcBrewProgress(idea);
   const stage = getBrewStage(brew);
 
+  // ---- Thought functions ----
   function addThought() {
     if (!newThought.trim()) return;
     onUpdate((i) => { i.thoughts = [...(i.thoughts || []), { id: genId(), text: newThought.trim(), ts: Date.now() }]; });
     setNewThought("");
   }
   function removeThought(tid) { onUpdate((i) => { i.thoughts = (i.thoughts || []).filter((t) => t.id !== tid); }); }
+
+  // ---- Tag functions ----
   function addTag() {
     const t = newTag.trim().toLowerCase();
     if (!t || (idea.tags || []).includes(t)) return;
@@ -360,6 +460,8 @@ function DetailView({ idea, onBack, onUpdate, onDelete, onShare }) {
     setNewTag("");
   }
   function removeTag(tag) { onUpdate((i) => { i.tags = (i.tags || []).filter((t) => t !== tag); }); }
+
+  // ---- Link functions ----
   function addLink() {
     if (!linkUrl.trim()) return;
     let url = linkUrl.trim();
@@ -368,6 +470,8 @@ function DetailView({ idea, onBack, onUpdate, onDelete, onShare }) {
     setLinkUrl(""); setLinkLabel(""); setShowAddLink(false);
   }
   function removeLink(lid) { onUpdate((i) => { i.links = (i.links || []).filter((l) => l.id !== lid); }); }
+
+  // ---- Custom field functions ----
   function addField() {
     if (!fieldName.trim()) return;
     onUpdate((i) => { i.fields = [...(i.fields || []), { id: genId(), name: fieldName.trim(), type: fieldType, value: fieldType === "checkbox" ? false : "" }]; });
@@ -375,6 +479,8 @@ function DetailView({ idea, onBack, onUpdate, onDelete, onShare }) {
   }
   function updateField(fid, value) { onUpdate((i) => { i.fields = (i.fields || []).map((f) => f.id === fid ? { ...f, value } : f); }); }
   function removeField(fid) { onUpdate((i) => { i.fields = (i.fields || []).filter((f) => f.id !== fid); }); }
+
+  // ---- Task functions ----
   function addTask() {
     if (!newTask.trim()) return;
     onUpdate((i) => { i.tasks = [...(i.tasks || []), { id: genId(), text: newTask.trim(), done: false, ts: Date.now() }]; });
@@ -385,7 +491,8 @@ function DetailView({ idea, onBack, onUpdate, onDelete, onShare }) {
 
   return (
     <div className="min-h-screen bg-bucket-bg pb-24 max-w-xl mx-auto">
-      {/* Top bar */}
+      
+      {/* DETAIL VIEW HEADER - Back button, share, and menu */}
       <div className="flex justify-between items-center px-4 py-4 border-b border-bucket-border">
         <button onClick={onBack} className="text-bucket-accent-dim text-[13px]">← back</button>
         <div className="flex gap-2">
@@ -394,6 +501,7 @@ function DetailView({ idea, onBack, onUpdate, onDelete, onShare }) {
         </div>
       </div>
 
+      {/* DELETE CONFIRMATION MENU */}
       {showMenu && (
         <div className="bg-[#111100] border border-bucket-border rounded-lg mx-4 mt-1 p-1">
           {!confirmDelete ? (
@@ -408,13 +516,15 @@ function DetailView({ idea, onBack, onUpdate, onDelete, onShare }) {
         </div>
       )}
 
+      {/* IDEA CONTENT */}
       <div className="px-4 pb-10">
+        {/* Title and timestamps */}
         <h1 className="text-2xl font-extrabold text-white leading-snug pt-4 pb-1">{idea.title}</h1>
         <div className="text-[11px] text-bucket-muted mb-4">
           created {new Date(idea.created_at).toLocaleDateString()} · updated {timeAgo(idea.updated_at)}
         </div>
 
-        {/* Brew */}
+        {/* Brew status section */}
         <div className="bg-bucket-card border border-bucket-border rounded-xl p-3.5 mb-5">
           <div className="flex justify-between items-center mb-1.5">
             <span className="text-xs text-bucket-muted uppercase tracking-widest">brew status</span>
@@ -426,7 +536,7 @@ function DetailView({ idea, onBack, onUpdate, onDelete, onShare }) {
           <div className="text-[11px] text-bucket-muted mt-1 text-right">{brew}% brewed</div>
         </div>
 
-        {/* Tags */}
+        {/* Tags section */}
         <div className="mb-6">
           <div className="flex flex-wrap gap-1.5 items-center">
             {(idea.tags || []).map((t) => (
@@ -444,7 +554,7 @@ function DetailView({ idea, onBack, onUpdate, onDelete, onShare }) {
           </div>
         </div>
 
-        {/* Tasks */}
+        {/* Tasks section */}
         <Section label="tasks">
           {(idea.tasks || []).map((t) => (
             <div key={t.id} className="flex items-center gap-2.5 py-2.5 border-b border-bucket-border" style={{ opacity: t.done ? 0.5 : 1 }}>
@@ -463,7 +573,7 @@ function DetailView({ idea, onBack, onUpdate, onDelete, onShare }) {
           </div>
         </Section>
 
-        {/* Thoughts */}
+        {/* Thoughts section */}
         <Section label="thoughts">
           {(idea.thoughts || []).map((t) => (
             <div key={t.id} className="bg-bucket-card border border-bucket-border rounded-xl px-3.5 py-2.5 mb-1.5">
@@ -478,7 +588,7 @@ function DetailView({ idea, onBack, onUpdate, onDelete, onShare }) {
           {newThought.trim() && <button onClick={addThought} className="bg-[#0a0a08] border border-bucket-border text-bucket-accent-dim rounded-md px-3.5 py-1.5 text-xs font-semibold mt-1.5">add</button>}
         </Section>
 
-        {/* Links */}
+        {/* Links section */}
         <Section label="links">
           {(idea.links || []).map((l) => (
             <div key={l.id} className="flex justify-between items-center py-2 border-b border-bucket-border">
@@ -500,7 +610,7 @@ function DetailView({ idea, onBack, onUpdate, onDelete, onShare }) {
           )}
         </Section>
 
-        {/* Custom fields */}
+        {/* Custom fields section */}
         <Section label="custom fields">
           {(idea.fields || []).map((f) => (
             <div key={f.id} className="bg-bucket-card border border-bucket-border rounded-xl p-3 mb-1.5">
@@ -546,6 +656,9 @@ function DetailView({ idea, onBack, onUpdate, onDelete, onShare }) {
   );
 }
 
+// ============================================================
+// SECTION COMPONENT - Reusable section wrapper with label
+// ============================================================
 function Section({ label, children }) {
   return (
     <div className="mb-6">
