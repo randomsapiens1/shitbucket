@@ -7,4 +7,11 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error("Missing Supabase env vars. Check .env.local");
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    storageKey: "shitbucket-auth",
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+  },
+});
