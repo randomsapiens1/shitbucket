@@ -65,7 +65,7 @@ function generateToken() {
 
 export async function createShareLink(ideaId) {
   const token = generateToken();
-  const { data, error } = await supabase
+  const { data: _data, error } = await supabase
     .from("shared_links")
     .insert({ idea_id: ideaId, token })
     .select()

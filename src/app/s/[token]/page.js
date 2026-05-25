@@ -73,7 +73,7 @@ export default function SharedIdeaPage() {
     return (
       <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center gap-4 px-4">
         <div className="text-4xl">🪣</div>
-        <p className="text-[#665530] text-sm text-center">this idea doesn't exist or the link has expired.</p>
+        <p className="text-[#665530] text-sm text-center">this idea doesn&apos;t exist or the link has expired.</p>
         <a href="/" className="text-[#b35900] text-xs underline">go to shitbucket</a>
       </div>
     );
