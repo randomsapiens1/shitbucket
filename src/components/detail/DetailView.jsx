@@ -103,6 +103,14 @@ export default function DetailView({ idea, onBack, onUpdate, onDelete, onShare }
           onRemove={removeTag}
         />
 
+        <ThoughtsSection
+          thoughts={idea.thoughts}
+          newThought={newThought}
+          setNewThought={setNewThought}
+          onAdd={addThought}
+          onRemove={removeThought}
+        />
+
         <TasksSection
           tasks={idea.tasks}
           newTask={newTask}
@@ -110,14 +118,6 @@ export default function DetailView({ idea, onBack, onUpdate, onDelete, onShare }
           onAdd={addTask}
           onToggle={toggleTask}
           onRemove={removeTask}
-        />
-
-        <ThoughtsSection
-          thoughts={idea.thoughts}
-          newThought={newThought}
-          setNewThought={setNewThought}
-          onAdd={addThought}
-          onRemove={removeThought}
         />
 
         <LinksSection
