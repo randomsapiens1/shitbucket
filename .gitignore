@@ -1,0 +1,6 @@
+public/icon-192.png
+public/icon-512.png
+node_modules
+.next
+.env.local
+.vercel
