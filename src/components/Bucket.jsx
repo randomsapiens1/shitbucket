@@ -184,7 +184,7 @@ export default function Bucket({ onLogout }) {
   if (loading) {
     return (
       <div className="min-h-screen bg-bucket-bg flex flex-col items-center justify-center gap-4">
-        <div className="text-5xl">🪣</div>
+       <img src="/logo-shitBucket.png" alt="" className="w-7 h-7" />
         <div className="w-48 h-1.5 bg-[#1a1200] rounded-full overflow-hidden">
           <div className="h-full rounded-full animate-pulse" style={{ width: "60%", background: "linear-gradient(90deg, #992600, #b34d00, #997300)" }} />
         </div>
@@ -200,7 +200,7 @@ export default function Bucket({ onLogout }) {
         {/* Header */}
         <div className="flex justify-between items-center px-4 pt-5 pb-2">
           <div className="flex items-center gap-2.5">
-            <span className="text-2xl">🪣</span>
+            <img src="/logo-shitBucket.png" alt="" className="w-7 h-7" />
             <span className="text-xl font-extrabold" style={{ background: "linear-gradient(135deg, #cc5500, #b38600)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>shitbucket</span>
           </div>
           <div className="flex items-center gap-3">
