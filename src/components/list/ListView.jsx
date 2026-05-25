@@ -1,9 +1,31 @@
 "use client";
+import { useState, useEffect, useRef } from "react";
 import LiveClock from "@/components/ui/LiveClock";
 import SortDropdown from "@/components/ui/SortDropdown";
 import QuickDump from "@/components/list/QuickDump";
 import TagFilter from "@/components/list/TagFilter";
 import IdeaCard from "@/components/list/IdeaCard";
+
+function playBeep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    // Three short ascending beeps
+    [0, 0.25, 0.5].forEach((offset, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = "sine";
+      osc.frequency.value = 520 + i * 120; // 520 → 640 → 760 Hz
+      gain.gain.setValueAtTime(0.4, ctx.currentTime + offset);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + offset + 0.2);
+      osc.start(ctx.currentTime + offset);
+      osc.stop(ctx.currentTime + offset + 0.2);
+    });
+  } catch (_e) {
+    // AudioContext unavailable (e.g. SSR)
+  }
+}
 
 export default function ListView({
   ideas,
@@ -18,9 +40,50 @@ export default function ListView({
   onDump,
   onSelectIdea,
   onLogout,
+  sessionStart,
 }) {
+  const [lateNight, setLateNight] = useState(false);
+  const [showWarning, setShowWarning] = useState(false);
+  const triggered = useRef(false);
+
+  useEffect(() => {
+    function check() {
+      const now = new Date();
+      const hour = now.getHours();
+      const elapsed = Date.now() - sessionStart;
+      const isLateHour = hour >= 2 && hour < 6;
+      const isLongSession = elapsed >= 30 * 60 * 1000;
+
+      if (isLateHour && isLongSession && !triggered.current) {
+        triggered.current = true;
+        setLateNight(true);
+        setShowWarning(true);
+        playBeep(); // plays once and stops
+        setTimeout(() => setShowWarning(false), 5000); // banner auto-dismisses after 5s
+      }
+    }
+
+    check();
+    const id = setInterval(check, 30_000);
+    return () => clearInterval(id);
+  }, [sessionStart]);
+
   return (
     <div className="min-h-screen bg-black text-white pb-24 relative overflow-hidden max-w-xl mx-auto">
+
+      {/* Late night warning banner */}
+      {showWarning && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-[#ff6a00] text-black text-[13px] font-bold px-5 py-3 rounded-2xl shadow-[0_0_30px_rgba(255,106,0,0.6)] animate-bounce">
+          <span>🚨</span>
+          <span>it&apos;s past 2am. go to sleep.</span>
+          <button
+            onClick={() => setShowWarning(false)}
+            className="ml-1 opacity-60 hover:opacity-100 text-base leading-none"
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {/* Top glow */}
       <div
@@ -36,16 +99,21 @@ export default function ListView({
           <div className="bg-[#111111] border border-[#222] rounded-xl px-4 py-2.5">
             <LiveClock />
           </div>
+
           <button
             onClick={onLogout}
-            className="flex items-center gap-2 bg-[#111111] border border-[#222] rounded-xl px-4 py-2.5 hover:border-[#333] transition text-[13px] text-zinc-400"
+            className={`flex items-center gap-2 rounded-xl px-4 py-2.5 transition text-[13px] ${
+              lateNight
+                ? "late-night-btn"
+                : "bg-[#111111] border border-[#222] text-zinc-400 hover:border-[#333]"
+            }`}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
               <polyline points="16 17 21 12 16 7"/>
               <line x1="21" y1="12" x2="9" y2="12"/>
             </svg>
-            get out
+            {lateNight ? "🚨 get out" : "get out"}
           </button>
         </div>
 

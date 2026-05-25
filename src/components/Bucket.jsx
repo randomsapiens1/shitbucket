@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import { fetchIdeas, createIdea, updateIdea as dbUpdateIdea, deleteIdea as dbDeleteIdea, createShareLink } from "@/lib/db";
 import { calcBrewProgress } from "@/lib/brew";
@@ -15,6 +15,7 @@ export default function Bucket({ onLogout }) {
   const [filterTag, setFilterTag] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("newest");
+  const sessionStart = useRef(Date.now());
 
   useEffect(() => { loadIdeas(); }, []);
 
@@ -136,6 +137,7 @@ export default function Bucket({ onLogout }) {
         onDump={handleDump}
         onSelectIdea={(id) => { setActiveId(id); setView("detail"); }}
         onLogout={handleLogout}
+        sessionStart={sessionStart.current}
       />
     );
   }
