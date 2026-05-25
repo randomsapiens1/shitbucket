@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import Auth from "@/components/Auth";
 import Bucket from "@/components/Bucket";
+import LoadingScreen from "@/components/ui/LoadingScreen";
 
 export default function Home() {
   const [session, setSession] = useState(null);
@@ -28,11 +29,7 @@ export default function Home() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
-        <div className="text-5xl">🪣</div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   if (!session) {

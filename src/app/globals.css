@@ -53,6 +53,43 @@ input, textarea, button {
   }
 }
 
+@keyframes logo-breathe {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 20px rgba(255, 106, 0, 0.2));
+  }
+  50% {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 40px rgba(255, 106, 0, 0.5));
+  }
+}
+
+@keyframes logo-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-breathe {
+  animation: logo-breathe 3s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: logo-float 4s ease-in-out infinite;
+}
+
+@keyframes loading-bar {
+  0% { transform: translateX(-150%); }
+  100% { transform: translateX(250%); }
+}
+
+.animate-loading-bar {
+  animation: loading-bar 2s ease-in-out infinite;
+}
+
 .late-night-btn {
   animation: late-night-pulse 1.2s ease-in-out infinite;
   color: #000 !important;
