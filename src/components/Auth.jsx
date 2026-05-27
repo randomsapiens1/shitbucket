@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 
-export default function Auth() {
+export default function Auth({ theme }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
@@ -37,7 +37,11 @@ export default function Auth() {
     <div className="min-h-screen bg-bucket-bg flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-10">
-          <img src="/logo-shitBucket.png" alt="shitbucket" className="w-16 h-16 mx-auto mb-3" />
+          <img 
+            src={theme === "dark" ? "/logo-shitBucket.png" : "/app-logo.png"} 
+            alt="shitbucket" 
+            className="w-20 h-20 mx-auto mb-3 object-contain" 
+          />
           <h1
             className="text-2xl font-extrabold tracking-tight"
             style={{

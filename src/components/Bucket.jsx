@@ -8,7 +8,7 @@ import ListView from "@/components/list/ListView";
 import DetailView from "@/components/detail/DetailView";
 import SettingsView from "@/components/detail/SettingsView";
 
-export default function Bucket({ onLogout }) {
+export default function Bucket({ onLogout, theme, setTheme }) {
   const [ideas, setIdeas] = useState([]);
   const [view, setView] = useState("list");
   const [activeId, setActiveId] = useState(null);
@@ -16,24 +16,16 @@ export default function Bucket({ onLogout }) {
   const [filterTag, setFilterTag] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("newest");
-  const [theme, setTheme] = useState("dark");
   const [fontSize, setFontSize] = useState(16);
   const sessionStart = useRef(Date.now());
 
   useEffect(() => { loadIdeas(); }, []);
 
-  // Sync theme and font size with localStorage and DOM
+  // Sync font size with localStorage and DOM
   useEffect(() => {
-    const savedTheme = localStorage.getItem("shitbucket-theme") || "dark";
     const savedSize = parseInt(localStorage.getItem("shitbucket-font-size") || "16");
-    setTheme(savedTheme);
     setFontSize(savedSize);
   }, []);
-
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("shitbucket-theme", theme);
-  }, [theme]);
 
   useEffect(() => {
     document.documentElement.style.setProperty("--base-font-size", `${fontSize}px`);

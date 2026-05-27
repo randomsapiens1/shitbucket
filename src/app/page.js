@@ -8,6 +8,18 @@ import LoadingScreen from "@/components/ui/LoadingScreen";
 export default function Home() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [theme, setTheme] = useState("dark");
+
+  useEffect(() => {
+    // Sync theme with localStorage and DOM
+    const savedTheme = localStorage.getItem("shitbucket-theme") || "dark";
+    setTheme(savedTheme);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("shitbucket-theme", theme);
+  }, [theme]);
 
   useEffect(() => {
     // Handle the OAuth redirect first
@@ -29,12 +41,18 @@ export default function Home() {
   }, []);
 
   if (loading) {
-    return <LoadingScreen />;
+    return <LoadingScreen theme={theme} />;
   }
 
   if (!session) {
-    return <Auth />;
+    return <Auth theme={theme} />;
   }
 
-  return <Bucket onLogout={() => setSession(null)} />;
+  return (
+    <Bucket
+      onLogout={() => setSession(null)}
+      theme={theme}
+      setTheme={setTheme}
+    />
+  );
 }
