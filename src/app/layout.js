@@ -5,8 +5,8 @@ export const metadata = {
   description: "dump your ideas",
   manifest: "/manifest.json",
   icons: {
-    icon: "/logo-shitBucket.png",
-    apple: "/logo-shitBucket.png",
+    icon: "/app-logo.png",
+    apple: "/app-logo.png",
   },
   appleWebApp: {
     capable: true,
@@ -16,7 +16,7 @@ export const metadata = {
 };
 
 export const viewport = {
-  themeColor: "#050505",
+  themeColor: "#0c0c0c",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,

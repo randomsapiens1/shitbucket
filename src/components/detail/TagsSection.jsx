@@ -45,7 +45,7 @@ export default function TagsSection({ tags, allTags = [], newTag, setNewTag, onA
         
         <div className="relative">
           <input
-            className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-full px-4 py-1.5 text-zinc-400 text-[11px] font-medium outline-none w-28 focus:border-[#333] focus:text-zinc-200 transition-all placeholder:text-zinc-700"
+            className="bg-bucket-card border border-bucket-border rounded-full px-4 py-1.5 text-bucket-text-dim text-[11px] font-medium outline-none w-28 focus:border-bucket-border-hover focus:text-bucket-text transition-all placeholder:text-bucket-muted"
             placeholder="+ tag"
             value={newTag}
             onFocus={() => setShowSuggestions(true)}
@@ -62,8 +62,8 @@ export default function TagsSection({ tags, allTags = [], newTag, setNewTag, onA
           />
 
           {showSuggestions && suggestions.length > 0 && (
-            <div className="absolute top-full left-0 mt-2 w-40 bg-[#0d0d0d] border border-[#222] rounded-xl py-2 z-50 shadow-2xl backdrop-blur-sm">
-              <div className="px-3 pb-1 mb-1 border-b border-[#222] text-[9px] text-zinc-600 uppercase font-bold tracking-widest">
+            <div className="absolute top-full left-0 mt-2 w-40 bg-bucket-card border border-bucket-border rounded-xl py-2 z-50 shadow-2xl backdrop-blur-sm">
+              <div className="px-3 pb-1 mb-1 border-b border-bucket-border text-[9px] text-bucket-muted uppercase font-bold tracking-widest">
                 Suggestions
               </div>
               {suggestions.map(s => (
@@ -76,7 +76,7 @@ export default function TagsSection({ tags, allTags = [], newTag, setNewTag, onA
                     // DetailView's addTag doesn't take an argument, so we update state then call it
                     // Actually, let's update it to be more robust
                   }}
-                  className="w-full text-left px-3 py-1.5 text-xs text-zinc-400 hover:bg-[#1a1a1a] hover:text-white transition-colors"
+                  className="w-full text-left px-3 py-1.5 text-xs text-bucket-text-dim hover:bg-bucket-bg hover:text-bucket-text transition-colors"
                 >
                   {s}
                 </button>

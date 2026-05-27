@@ -6,6 +6,7 @@ import { calcBrewProgress } from "@/lib/brew";
 import LoadingScreen from "@/components/ui/LoadingScreen";
 import ListView from "@/components/list/ListView";
 import DetailView from "@/components/detail/DetailView";
+import SettingsView from "@/components/detail/SettingsView";
 
 export default function Bucket({ onLogout }) {
   const [ideas, setIdeas] = useState([]);
@@ -15,9 +16,29 @@ export default function Bucket({ onLogout }) {
   const [filterTag, setFilterTag] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("newest");
+  const [theme, setTheme] = useState("dark");
+  const [fontSize, setFontSize] = useState(16);
   const sessionStart = useRef(Date.now());
 
   useEffect(() => { loadIdeas(); }, []);
+
+  // Sync theme and font size with localStorage and DOM
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("shitbucket-theme") || "dark";
+    const savedSize = parseInt(localStorage.getItem("shitbucket-font-size") || "16");
+    setTheme(savedTheme);
+    setFontSize(savedSize);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("shitbucket-theme", theme);
+  }, [theme]);
+
+  useEffect(() => {
+    document.documentElement.style.setProperty("--base-font-size", `${fontSize}px`);
+    localStorage.setItem("shitbucket-font-size", fontSize.toString());
+  }, [fontSize]);
 
   async function loadIdeas() {
     try {
@@ -134,10 +155,23 @@ export default function Bucket({ onLogout }) {
         setSearchQuery={setSearchQuery}
         sortBy={sortBy}
         setSortBy={setSortBy}
+        theme={theme}
+        setTheme={setTheme}
         onDump={handleDump}
         onSelectIdea={(id) => { setActiveId(id); setView("detail"); }}
+        onOpenSettings={() => setView("settings")}
         onLogout={handleLogout}
         sessionStart={sessionStart.current}
+      />
+    );
+  }
+
+  if (view === "settings") {
+    return (
+      <SettingsView
+        fontSize={fontSize}
+        setFontSize={setFontSize}
+        onBack={() => setView("list")}
       />
     );
   }

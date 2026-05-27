@@ -26,7 +26,7 @@ export default function SortDropdown({ value, onChange }) {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 text-[12px] text-zinc-500 bg-[#111111] border border-[#222] rounded-lg px-3 py-1.5 hover:border-[#333] transition"
+        className="flex items-center gap-1.5 text-[12px] text-bucket-text-dim bg-bucket-card border border-bucket-border rounded-lg px-3 py-1.5 hover:border-bucket-border-hover transition"
       >
         {current}
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
@@ -35,13 +35,13 @@ export default function SortDropdown({ value, onChange }) {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1 bg-[#111111] border border-[#222] rounded-lg py-1 z-50 min-w-[120px]">
+        <div className="absolute right-0 top-full mt-1 bg-bucket-card border border-bucket-border rounded-lg py-1 z-50 min-w-[120px]">
           {OPTIONS.map(o => (
             <button
               key={o.key}
               onClick={() => { onChange(o.key); setOpen(false); }}
               className={`block w-full text-left px-3 py-1.5 text-[12px] transition ${
-                value === o.key ? "text-[#ff6a00]" : "text-zinc-400 hover:text-white"
+                value === o.key ? "text-bucket-accent" : "text-bucket-text-dim hover:text-bucket-text"
               }`}
             >
               {o.label}

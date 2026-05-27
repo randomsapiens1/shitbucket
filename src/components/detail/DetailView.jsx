@@ -68,14 +68,14 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
   }
 
   return (
-    <div className="min-h-screen bg-black text-white pb-24 max-w-xl mx-auto">
+    <div className="min-h-screen bg-bucket-bg text-bucket-text pb-24 max-w-xl mx-auto">
 
       {/* Header */}
-      <div className="flex justify-between items-center px-4 py-4 border-b border-[#1a1a1a]">
-        <button onClick={onBack} className="text-zinc-500 text-[13px] hover:text-white transition">← back</button>
+      <div className="flex justify-between items-center px-4 py-4 border-b border-bucket-border">
+        <button onClick={onBack} className="text-bucket-text-dim text-[13px] hover:text-bucket-text transition">← back</button>
         <div className="flex gap-2">
-          <button onClick={onShare} className="border border-[#222] text-zinc-500 hover:text-white hover:border-[#333] text-base px-2.5 py-1.5 rounded-lg transition">↗</button>
-          <button onClick={() => setShowMenu(!showMenu)} className="border border-[#222] text-zinc-500 hover:text-white hover:border-[#333] text-base px-2.5 py-1.5 rounded-lg transition">⋯</button>
+          <button onClick={onShare} className="border border-bucket-border text-bucket-text-dim hover:text-bucket-text hover:border-bucket-border-hover text-base px-2.5 py-1.5 rounded-lg transition">↗</button>
+          <button onClick={() => setShowMenu(!showMenu)} className="border border-bucket-border text-bucket-text-dim hover:text-bucket-text hover:border-bucket-border-hover text-base px-2.5 py-1.5 rounded-lg transition">⋯</button>
         </div>
       </div>
 
@@ -83,8 +83,8 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
 
       {/* Content */}
       <div className="px-4 pb-10">
-        <h1 className="text-[22px] font-bold text-white leading-snug pt-5 pb-1">{idea.title}</h1>
-        <div className="text-[11px] text-zinc-600 mb-5">
+        <h1 className="text-[22px] font-bold text-bucket-text leading-snug pt-5 pb-1">{idea.title}</h1>
+        <div className="text-[11px] text-bucket-muted mb-5">
           created {new Date(idea.created_at).toLocaleDateString()} · updated {timeAgo(idea.updated_at)}
         </div>
 

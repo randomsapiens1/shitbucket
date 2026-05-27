@@ -10,30 +10,30 @@ export default function IdeaCard({ idea, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="w-full text-left rounded-2xl bg-[#0d0d0d] border border-[#1a1a1a] p-5 transition-all hover:border-[#2a2a2a] group"
+      className="w-full text-left rounded-2xl bg-bucket-card border border-bucket-border p-5 transition-all hover:border-bucket-border-hover group"
     >
       {/* Title */}
       <div className="flex justify-between items-start gap-3">
-        <div className="text-[15px] font-semibold leading-snug text-white flex-1">
+        <div className="text-[15px] font-semibold leading-snug text-bucket-text flex-1">
           {idea.title}
         </div>
-        <span className="text-zinc-600 text-lg leading-none group-hover:text-zinc-500 transition">⋯</span>
+        <span className="text-bucket-muted text-lg leading-none group-hover:text-bucket-text-dim transition">⋯</span>
       </div>
 
       {/* Timestamp */}
-      <div className="text-[11px] text-zinc-600 mt-2">
+      <div className="text-[11px] text-bucket-muted mt-2">
         {timeAgo(idea.updated_at)}
       </div>
 
       {/* Brew progress bar */}
       <div className="mt-4 flex items-center gap-3">
-        <div className="flex-1 h-1 rounded-full bg-[#1a1a1a] overflow-hidden">
+        <div className="flex-1 h-1 rounded-full bg-bucket-bg overflow-hidden">
           <div
             className="h-full rounded-full transition-all duration-500"
-            style={{ width: `${brew}%`, background: "linear-gradient(90deg, #ff6a00, #ff8c32)" }}
+            style={{ width: `${brew}%`, background: "linear-gradient(90deg, var(--bucket-accent), #ff8c32)" }}
           />
         </div>
-        <span className="text-[11px] text-zinc-500 whitespace-nowrap">
+        <span className="text-[11px] text-bucket-text-dim whitespace-nowrap">
           {stage.emoji} {brew}%
         </span>
       </div>
@@ -50,13 +50,13 @@ export default function IdeaCard({ idea, onClick }) {
           </span>
         ))}
         {tasksTotal > 0 && (
-          <span className="text-[10px] text-zinc-600">☑ {tasksDone}/{tasksTotal}</span>
+          <span className="text-[10px] text-bucket-muted">☑ {tasksDone}/{tasksTotal}</span>
         )}
         {(idea.thoughts || []).length > 0 && (
-          <span className="text-[10px] text-zinc-600">💭 {idea.thoughts.length}</span>
+          <span className="text-[10px] text-bucket-muted">💭 {idea.thoughts.length}</span>
         )}
         {(idea.links || []).length > 0 && (
-          <span className="text-[10px] text-zinc-600">🔗 {idea.links.length}</span>
+          <span className="text-[10px] text-bucket-muted">🔗 {idea.links.length}</span>
         )}
       </div>
     </button>

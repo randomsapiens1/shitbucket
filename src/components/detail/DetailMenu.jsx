@@ -7,10 +7,10 @@ export default function DetailMenu({ show, onClose, onDelete }) {
   if (!show) return null;
 
   return (
-    <div className="bg-[#111] border border-[#222] rounded-xl mx-4 mt-2 p-1 overflow-hidden">
+    <div className="bg-bucket-card border border-bucket-border rounded-xl mx-4 mt-2 p-1 overflow-hidden">
       {!confirmDelete ? (
         <button
-          className="block w-full text-left text-zinc-400 text-[13px] px-3 py-2.5 rounded-lg hover:bg-[#1a1a1a] transition"
+          className="block w-full text-left text-bucket-text-dim text-[13px] px-3 py-2.5 rounded-lg hover:bg-bucket-bg transition"
           onClick={() => setConfirmDelete(true)}
         >
           🗑 delete idea
@@ -25,7 +25,7 @@ export default function DetailMenu({ show, onClose, onDelete }) {
             yes, delete
           </button>
           <button
-            className="text-zinc-600 text-[13px] px-2 py-1 hover:text-zinc-400"
+            className="text-bucket-muted text-[13px] px-2 py-1 hover:text-bucket-text-dim"
             onClick={() => { setConfirmDelete(false); onClose(); }}
           >
             cancel

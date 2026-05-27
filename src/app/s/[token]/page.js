@@ -63,7 +63,7 @@ export default function SharedIdeaPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+      <div className="min-h-screen bg-bucket-bg flex items-center justify-center">
         <div className="text-5xl">🪣</div>
       </div>
     );
@@ -71,10 +71,10 @@ export default function SharedIdeaPage() {
 
   if (error || !idea) {
     return (
-      <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center gap-4 px-4">
+      <div className="min-h-screen bg-bucket-bg flex flex-col items-center justify-center gap-4 px-4">
         <div className="text-4xl">🪣</div>
-        <p className="text-[#665530] text-sm text-center">this idea doesn&apos;t exist or the link has expired.</p>
-        <a href="/" className="text-[#b35900] text-xs underline">go to shitbucket</a>
+        <p className="text-bucket-muted text-sm text-center">this idea doesn&apos;t exist or the link has expired.</p>
+        <a href="/" className="text-bucket-accent-dim text-xs underline">go to shitbucket</a>
       </div>
     );
   }
@@ -85,22 +85,22 @@ export default function SharedIdeaPage() {
   const tasksTotal = (idea.tasks || []).length;
 
   return (
-    <div className="min-h-screen bg-[#050505] text-[#e8dcc8] font-mono max-w-xl mx-auto px-4 py-6 pb-20">
+    <div className="min-h-screen bg-bucket-bg text-bucket-text font-mono max-w-xl mx-auto px-4 py-6 pb-20">
       <div className="flex items-center gap-2 mb-6">
         <span className="text-xl">🪣</span>
         <span className="text-sm font-bold" style={{ background: "linear-gradient(135deg, #cc5500, #b38600)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>shitbucket</span>
-        <span className="text-[10px] text-[#665530] ml-auto">shared idea</span>
+        <span className="text-[10px] text-bucket-muted ml-auto">shared idea</span>
       </div>
 
-      <h1 className="text-2xl font-extrabold text-white leading-snug mb-2">{idea.title}</h1>
+      <h1 className="text-2xl font-extrabold text-bucket-text leading-snug mb-2">{idea.title}</h1>
 
       {/* Brew */}
-      <div className="bg-[#0c0c0c] border border-[#1a1400] rounded-xl p-3.5 mb-5">
+      <div className="bg-bucket-card border border-bucket-border rounded-xl p-3.5 mb-5">
         <div className="flex justify-between items-center mb-1.5">
-          <span className="text-xs text-[#665530] uppercase tracking-widest">brew status</span>
-          <span className="text-[13px] text-[#ff6a00]">{stage.emoji} {stage.label}</span>
+          <span className="text-xs text-bucket-muted uppercase tracking-widest">brew status</span>
+          <span className="text-[13px] text-bucket-accent">{stage.emoji} {stage.label}</span>
         </div>
-        <div className="w-full h-1.5 bg-[#1a1200] rounded-full overflow-hidden">
+        <div className="w-full h-1.5 bg-bucket-border rounded-full overflow-hidden">
           <div className="h-full rounded-full" style={{ width: brew + "%", background: "linear-gradient(90deg, #992600, #b34d00, #997300)" }} />
         </div>
       </div>
@@ -117,9 +117,9 @@ export default function SharedIdeaPage() {
       {/* Tasks */}
       {tasksTotal > 0 && (
         <div className="mb-5">
-          <div className="text-[11px] text-[#ff6a00] uppercase tracking-[2px] font-semibold mb-2">tasks ({tasksDone}/{tasksTotal})</div>
+          <div className="text-[11px] text-bucket-accent uppercase tracking-[2px] font-semibold mb-2">tasks ({tasksDone}/{tasksTotal})</div>
           {idea.tasks.map((t) => (
-            <div key={t.id} className="flex items-center gap-2.5 py-2 border-b border-[#1a1400]" style={{ opacity: t.done ? 0.5 : 1 }}>
+            <div key={t.id} className="flex items-center gap-2.5 py-2 border-b border-bucket-border" style={{ opacity: t.done ? 0.5 : 1 }}>
               <span className="text-[13px]">{t.done ? "☑" : "☐"}</span>
               <span className="text-[13px]" style={{ textDecoration: t.done ? "line-through" : "none" }}>{t.text}</span>
             </div>
@@ -130,9 +130,9 @@ export default function SharedIdeaPage() {
       {/* Thoughts */}
       {(idea.thoughts || []).length > 0 && (
         <div className="mb-5">
-          <div className="text-[11px] text-[#ff6a00] uppercase tracking-[2px] font-semibold mb-2">thoughts</div>
+          <div className="text-[11px] text-bucket-accent uppercase tracking-[2px] font-semibold mb-2">thoughts</div>
           {idea.thoughts.map((t, i) => (
-            <div key={i} className="bg-[#0c0c0c] border border-[#1a1400] rounded-xl px-3.5 py-2.5 mb-1.5">
+            <div key={i} className="bg-bucket-card border border-bucket-border rounded-xl px-3.5 py-2.5 mb-1.5">
               <div className="text-[13px] leading-relaxed">{t.text}</div>
             </div>
           ))}
@@ -142,9 +142,9 @@ export default function SharedIdeaPage() {
       {/* Links */}
       {(idea.links || []).length > 0 && (
         <div className="mb-5">
-          <div className="text-[11px] text-[#ff6a00] uppercase tracking-[2px] font-semibold mb-2">links</div>
+          <div className="text-[11px] text-bucket-accent uppercase tracking-[2px] font-semibold mb-2">links</div>
           {idea.links.map((l, i) => (
-            <a key={i} href={l.url} target="_blank" rel="noreferrer" className="block text-[#ff6a00] text-[13px] py-1.5 no-underline break-all">{l.label || l.url}</a>
+            <a key={i} href={l.url} target="_blank" rel="noreferrer" className="block text-bucket-accent text-[13px] py-1.5 no-underline break-all">{l.label || l.url}</a>
           ))}
         </div>
       )}
@@ -152,10 +152,10 @@ export default function SharedIdeaPage() {
       {/* Fields */}
       {(idea.fields || []).length > 0 && (
         <div className="mb-5">
-          <div className="text-[11px] text-[#ff6a00] uppercase tracking-[2px] font-semibold mb-2">details</div>
+          <div className="text-[11px] text-bucket-accent uppercase tracking-[2px] font-semibold mb-2">details</div>
           {idea.fields.map((f, i) => (
-            <div key={i} className="flex justify-between py-1.5 border-b border-[#1a1400]">
-              <span className="text-[11px] text-[#665530] uppercase">{f.name}</span>
+            <div key={i} className="flex justify-between py-1.5 border-b border-bucket-border">
+              <span className="text-[11px] text-bucket-muted uppercase">{f.name}</span>
               <span className="text-[13px]">{f.type === "checkbox" ? (f.value ? "yes" : "no") : f.value || "—"}</span>
             </div>
           ))}
@@ -163,7 +163,7 @@ export default function SharedIdeaPage() {
       )}
 
       <div className="text-center mt-10">
-        <a href="/" className="text-[#b35900] text-xs">start your own shitbucket →</a>
+        <a href="/" className="text-bucket-accent-dim text-xs">start your own shitbucket →</a>
       </div>
     </div>
   );

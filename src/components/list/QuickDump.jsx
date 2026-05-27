@@ -52,12 +52,12 @@ export default function QuickDump({ onDump, allTags = [] }) {
 
   return (
     <div className="relative px-4 pt-6" ref={containerRef}>
-      <div className="rounded-3xl bg-[#0d0d0d] border border-[#1a1a1a] p-5 shadow-[0_0_25px_rgba(255,106,0,0.03)]">
+      <div className="rounded-3xl bg-bucket-card border border-bucket-border p-5 shadow-[0_0_25px_rgba(255,106,0,0.03)]">
         <div className="mb-3">
-          <h2 className="text-lg font-semibold text-white">What's in your head?</h2>
+          <h2 className="text-lg font-semibold text-bucket-text">What's in your head?</h2>
           <div className="flex justify-between items-center mt-1">
-            <p className="text-sm text-zinc-500">Write it down. Get it out.</p>
-            <span className="text-[11px] text-zinc-600">{charCount} / 500</span>
+            <p className="text-sm text-bucket-text-dim">Write it down. Get it out.</p>
+            <span className="text-[11px] text-bucket-muted">{charCount} / 500</span>
           </div>
         </div>
 
@@ -75,9 +75,9 @@ export default function QuickDump({ onDump, allTags = [] }) {
               handleDump();
             }
           }}
-          className="w-full rounded-2xl bg-black px-4 py-4 text-white resize-none outline-none placeholder:text-zinc-700 transition-all text-[14px] leading-relaxed"
+          className="w-full rounded-2xl bg-bucket-bg px-4 py-4 text-bucket-text resize-none outline-none placeholder:text-bucket-muted transition-all text-[14px] leading-relaxed"
           style={{
-            border:    `2px solid ${focused ? "#ff6a00" : "#1a1a1a"}`,
+            border:    `2px solid ${focused ? "var(--bucket-accent)" : "var(--bucket-border)"}`,
             boxShadow: focused ? "0 0 20px rgba(255,106,0,0.08)" : "none",
           }}
         />
@@ -99,7 +99,7 @@ export default function QuickDump({ onDump, allTags = [] }) {
           
           <div className="relative">
             <input
-              className="w-full bg-black border border-[#1a1a1a] rounded-xl px-4 py-2.5 text-[13px] text-zinc-300 outline-none focus:border-[#333] transition placeholder:text-zinc-700"
+              className="w-full bg-bucket-bg border border-bucket-border rounded-xl px-4 py-2.5 text-[13px] text-bucket-text outline-none focus:border-bucket-border-hover transition placeholder:text-bucket-muted"
               placeholder="Add tags (press Enter)..."
               value={tagInput}
               onFocus={() => setShowSuggestions(true)}
@@ -116,12 +116,12 @@ export default function QuickDump({ onDump, allTags = [] }) {
             />
             
             {showSuggestions && suggestions.length > 0 && (
-              <div className="absolute bottom-full left-0 mb-2 w-full bg-[#0d0d0d] border border-[#222] rounded-xl py-2 z-50 shadow-2xl">
+              <div className="absolute bottom-full left-0 mb-2 w-full bg-bucket-card border border-bucket-border rounded-xl py-2 z-50 shadow-2xl">
                 {suggestions.map(s => (
                   <button
                     key={s}
                     onClick={() => addTag(s)}
-                    className="w-full text-left px-4 py-2 text-[13px] text-zinc-400 hover:bg-[#1a1a1a] hover:text-white transition"
+                    className="w-full text-left px-4 py-2 text-[13px] text-bucket-text-dim hover:bg-bucket-bg hover:text-bucket-text transition"
                   >
                     {s}
                   </button>
@@ -133,7 +133,7 @@ export default function QuickDump({ onDump, allTags = [] }) {
 
         <button
           onClick={handleDump}
-          className="mt-5 w-full flex items-center justify-center gap-2 rounded-2xl bg-[#ff6a00] px-6 py-3.5 font-bold text-black hover:brightness-110 transition shadow-[0_0_25px_rgba(255,106,0,0.18)] text-[14px]"
+          className="mt-5 w-full flex items-center justify-center gap-2 rounded-2xl bg-bucket-accent px-6 py-3.5 font-bold text-black hover:brightness-110 transition shadow-[0_0_25px_rgba(255,106,0,0.18)] text-[14px]"
         >
           🪣 Dump in bucket
         </button>

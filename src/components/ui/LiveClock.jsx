@@ -14,7 +14,7 @@ export default function LiveClock() {
     .toLowerCase();
 
   return (
-    <span className="text-[13px] text-zinc-400 font-medium">
+    <span className="text-[13px] text-bucket-text-dim font-medium">
       time: {formatted}
     </span>
   );

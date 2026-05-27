@@ -3,12 +3,45 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* Day Mode (Default) */
+    --bg: #fcfcfc;
+    --card: #ffffff;
+    --border: #e5e5e5;
+    --border-hover: #d4d4d4;
+    --muted: #a1a1aa;
+    --text: #18181b;
+    --text-dim: #71717a;
+    --accent: #ff6a00;
+    --accent-dim: #ff8c32;
+    --header-glow: rgba(255, 106, 0, 0.08);
+    --base-font-size: 16px;
+  }
+
+  [data-theme='dark'] {
+    /* Night Mode */
+    --bg: #050505;
+    --card: #0c0c0c;
+    --border: #1a1400;
+    --border-hover: #2a2000;
+    --muted: #665530;
+    --text: #e8dcc8;
+    --text-dim: #776644;
+    --accent: #ff6a00;
+    --accent-dim: #b35900;
+    --header-glow: rgba(255, 106, 0, 0.12);
+  }
+
   @font-face {
     font-family: 'JetBrains Mono';
     font-style: normal;
     font-display: swap;
     src: url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
   }
+}
+
+html {
+  font-size: var(--base-font-size);
 }
 
 * {
@@ -18,12 +51,13 @@
 }
 
 body {
-  background: #050505;
-  color: #e8dcc8;
+  background: var(--bg);
+  color: var(--text);
   font-family: 'JetBrains Mono', monospace;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overscroll-behavior: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 input, textarea, button {

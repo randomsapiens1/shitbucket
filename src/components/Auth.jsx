@@ -71,7 +71,7 @@ export default function Auth() {
         <button
           onClick={handleSubmit}
           disabled={loading}
-          className="w-full mt-4 bg-[#0a0a08] border border-bucket-border text-bucket-accent rounded-lg py-3 text-sm font-bold tracking-wide disabled:opacity-40"
+          className="w-full mt-4 bg-bucket-bg border border-bucket-border text-bucket-accent rounded-lg py-3 text-sm font-bold tracking-wide disabled:opacity-40"
         >
           {loading ? "..." : isSignUp ? "create account" : "log in"}
         </button>

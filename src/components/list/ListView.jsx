@@ -37,8 +37,11 @@ export default function ListView({
   setSearchQuery,
   sortBy,
   setSortBy,
+  theme,
+  setTheme,
   onDump,
   onSelectIdea,
+  onOpenSettings,
   onLogout,
   sessionStart,
 }) {
@@ -69,11 +72,11 @@ export default function ListView({
   }, [sessionStart]);
 
   return (
-    <div className="min-h-screen bg-black text-white pb-24 relative overflow-hidden max-w-xl mx-auto">
+    <div className="min-h-screen bg-bucket-bg text-bucket-text pb-24 relative overflow-hidden max-w-xl mx-auto">
 
       {/* Late night warning banner */}
       {showWarning && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-[#ff6a00] text-black text-[13px] font-bold px-5 py-3 rounded-2xl shadow-[0_0_30px_rgba(255,106,0,0.6)] animate-bounce">
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-bucket-accent text-black text-[13px] font-bold px-5 py-3 rounded-2xl shadow-[0_0_30px_rgba(255,106,0,0.6)] animate-bounce">
           <span>🚨</span>
           <span>it&apos;s past 2am. go to sleep.</span>
           <button
@@ -88,16 +91,40 @@ export default function ListView({
       {/* Top glow */}
       <div
         className="absolute top-0 left-0 right-0 h-[320px] pointer-events-none"
-        style={{ background: "radial-gradient(circle at top center, rgba(255,106,0,0.12), transparent 60%)" }}
+        style={{ background: `radial-gradient(circle at top center, ${theme === 'dark' ? 'rgba(255,106,0,0.12)' : 'rgba(255,106,0,0.06)'}, transparent 60%)` }}
       />
 
       {/* HEADER */}
       <div className="relative px-4 pt-5 pb-2 flex flex-col items-center">
 
-        {/* Top bar: clock + logout */}
+        {/* Top bar: theme + settings + logout */}
         <div className="w-full flex justify-between items-center mb-6">
-          <div className="bg-[#111111] border border-[#222] rounded-xl px-4 py-2.5">
-            <LiveClock />
+          <div className="flex gap-2">
+            <button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="bg-bucket-card border border-bucket-border rounded-xl p-2.5 text-bucket-text-dim hover:text-bucket-text transition shadow-sm"
+              title="Toggle Theme"
+            >
+              {theme === "dark" ? (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+              ) : (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+              )}
+            </button>
+
+            <button
+              onClick={onOpenSettings}
+              className="bg-bucket-card border border-bucket-border rounded-xl p-2.5 text-bucket-text-dim hover:text-bucket-text transition shadow-sm"
+              title="Settings"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+              </svg>
+            </button>
           </div>
 
           <button
@@ -105,7 +132,7 @@ export default function ListView({
             className={`flex items-center gap-2 rounded-xl px-4 py-2.5 transition text-[13px] ${
               lateNight
                 ? "late-night-btn"
-                : "bg-[#111111] border border-[#222] text-zinc-400 hover:border-[#333]"
+                : "bg-bucket-card border border-bucket-border text-bucket-text-dim hover:text-bucket-text hover:border-bucket-border-hover"
             }`}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -119,21 +146,21 @@ export default function ListView({
 
         {/* Logo */}
         <img
-          src="/shitbucket-header-pic.png"
+          src={theme === "dark" ? "/shitbucket-header-pic.png" : "/shit bucket - day.png"}
           alt="Shitbucket"
           className="w-40 md:w-48 object-contain drop-shadow-[0_0_35px_rgba(255,106,0,0.18)]"
         />
-        <p className="text-zinc-500 text-sm mt-3 tracking-wide">idea dumping ground</p>
+        <p className="text-bucket-text-dim text-sm mt-3 tracking-wide">idea dumping ground</p>
 
         {/* Stats + search */}
         <div className="flex items-center justify-between w-full mt-8 gap-3">
-          <div className="bg-[#111111] border border-[#222] rounded-xl px-4 py-3 text-[13px] text-zinc-400 flex items-center gap-2 flex-1">
+          <div className="bg-bucket-card border border-bucket-border rounded-xl px-4 py-3 text-[13px] text-bucket-text-dim flex items-center gap-2 flex-1">
             <span>{ideas.length} idea{ideas.length !== 1 ? "s" : ""}</span>
             <span>💡</span>
           </div>
           <div className="relative flex-1">
             <input
-              className="w-full bg-[#111111] border border-[#222] rounded-xl px-4 py-3 text-[13px] text-white outline-none placeholder:text-zinc-600 focus:border-[#333] transition"
+              className="w-full bg-bucket-card border border-bucket-border rounded-xl px-4 py-3 text-[13px] text-bucket-text outline-none placeholder:text-bucket-muted focus:border-bucket-border-hover transition"
               placeholder="search for $ ideas"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -141,7 +168,7 @@ export default function ListView({
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-600 text-xs hover:text-zinc-400"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-bucket-muted text-xs hover:text-bucket-text-dim"
               >
                 ✕
               </button>
@@ -163,7 +190,7 @@ export default function ListView({
         <div className="flex items-center justify-between px-4 pt-6 pb-2">
           <div className="flex items-center gap-2">
             <span className="text-lg">💡</span>
-            <span className="text-[14px] font-semibold text-white">Your Ideas</span>
+            <span className="text-[14px] font-semibold text-bucket-text">Your Ideas</span>
           </div>
           <SortDropdown value={sortBy} onChange={setSortBy} />
         </div>
@@ -172,7 +199,7 @@ export default function ListView({
       {/* Idea cards */}
       <div className="px-4 pt-2 space-y-3">
         {filtered.length === 0 && ideas.length > 0 && (
-          <div className="text-center text-zinc-600 text-[13px] py-16">
+          <div className="text-center text-bucket-muted text-[13px] py-16">
             nothing matches your search.
           </div>
         )}
