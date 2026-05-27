@@ -145,34 +145,41 @@ export default function ListView({
         </div>
 
         {/* Hero Image */}
-        <div className="w-full flex justify-center mb-4 overflow-hidden">
+        <div className="w-full flex justify-center mb-0 overflow-hidden">
           <img
             src={theme === "dark" ? "/shitBucket-night.png" : "/shitBucket-day.png"}
             alt="Shitbucket"
-            className="w-full max-w-sm h-auto object-contain animate-breathe"
+            className="w-full max-w-sm h-auto object-contain"
           />
         </div>
-        <p className="text-bucket-text-dim text-sm mt-1 tracking-wide">idea dumping ground</p>
 
         {/* Stats + search */}
-        <div className="flex items-center justify-between w-full mt-8 gap-3">
-          <div className="bg-bucket-card border border-bucket-border rounded-xl px-4 py-3 text-[13px] text-bucket-text-dim flex items-center gap-2 flex-1">
-            <span>{ideas.length} idea{ideas.length !== 1 ? "s" : ""}</span>
-            <span>💡</span>
+        <div className="flex items-center justify-between w-full mt-0 gap-2">
+          <div className="bg-bucket-card border border-bucket-border rounded-2xl px-4 py-2.5 text-[12px] font-bold text-bucket-text-dim flex items-center gap-2 shadow-sm whitespace-nowrap">
+            <span className="opacity-70">💡</span>
+            <span>{ideas.length} {ideas.length === 1 ? "idea" : "ideas"}</span>
           </div>
+          
           <div className="relative flex-1">
+            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-bucket-muted pointer-events-none">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+            </div>
             <input
-              className="w-full bg-bucket-card border border-bucket-border rounded-xl px-4 py-3 text-[13px] text-bucket-text outline-none placeholder:text-bucket-muted focus:border-bucket-border-hover transition"
-              placeholder="search for $ ideas"
+              className="w-full bg-bucket-card border border-bucket-border rounded-2xl pl-10 pr-10 py-2.5 text-[13px] text-bucket-text outline-none placeholder:text-bucket-muted focus:border-bucket-accent-dim/30 focus:ring-4 focus:ring-bucket-accent-dim/5 transition-all shadow-sm"
+              placeholder="search your pile..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-bucket-muted text-xs hover:text-bucket-text-dim"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-bucket-muted hover:text-bucket-text-dim transition-colors"
               >
-                ✕
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
               </button>
             )}
           </div>
@@ -192,7 +199,7 @@ export default function ListView({
         <div className="flex items-center justify-between px-4 pt-6 pb-2">
           <div className="flex items-center gap-2">
             <span className="text-lg">💡</span>
-            <span className="text-[14px] font-semibold text-bucket-text">Your Ideas</span>
+            <span className="text-[14px] font-semibold text-bucket-text">the pile</span>
           </div>
           <SortDropdown value={sortBy} onChange={setSortBy} />
         </div>
@@ -202,7 +209,7 @@ export default function ListView({
       <div className="px-4 pt-2 space-y-3">
         {filtered.length === 0 && ideas.length > 0 && (
           <div className="text-center text-bucket-muted text-[13px] py-16">
-            nothing matches your search.
+            nothing here yet.
           </div>
         )}
         {filtered.map(idea => (

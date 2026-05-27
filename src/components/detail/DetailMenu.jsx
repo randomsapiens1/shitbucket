@@ -13,22 +13,21 @@ export default function DetailMenu({ show, onClose, onDelete }) {
           className="block w-full text-left text-bucket-text-dim text-[13px] px-3 py-2.5 rounded-lg hover:bg-bucket-bg transition"
           onClick={() => setConfirmDelete(true)}
         >
-          🗑 delete idea
+          🗑 flush forever?
         </button>
       ) : (
         <div className="flex items-center gap-2 px-3 py-2">
-          <span className="text-red-500 text-[13px]">sure?</span>
           <button
-            className="text-red-500 text-[13px] px-2 py-1 hover:underline"
+            className="text-red-500 text-[13px] font-bold px-2 py-1 hover:underline"
             onClick={onDelete}
           >
-            yes, delete
+            flush
           </button>
           <button
             className="text-bucket-muted text-[13px] px-2 py-1 hover:text-bucket-text-dim"
             onClick={() => { setConfirmDelete(false); onClose(); }}
           >
-            cancel
+            keep
           </button>
         </div>
       )}

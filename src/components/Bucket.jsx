@@ -122,7 +122,7 @@ export default function Bucket({ onLogout, theme, setTheme }) {
     } catch (e) {
       let text = `💡 ${idea.title}\n`;
       if (idea.thought) text += `\n${idea.thought}\n`;
-      text += `\n— from shitbucket`;
+      text += `\n— dumped from shitbucket`;
       navigator.clipboard.writeText(text);
       alert("Copied to clipboard!");
     }

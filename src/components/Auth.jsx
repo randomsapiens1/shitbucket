@@ -40,8 +40,11 @@ export default function Auth({ theme }) {
           <img 
             src={theme === "dark" ? "/shitBucket-night.png" : "/shitBucket-day.png"} 
             alt="shitbucket" 
-            className="w-full h-auto mx-auto mb-6 object-contain animate-breathe" 
+            className="w-full h-auto mx-auto mb-6 object-contain" 
           />
+          <p className="text-bucket-muted text-xs tracking-widest uppercase">
+            your brain has too many tabs open
+          </p>
         </div>
 
         <input

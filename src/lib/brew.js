@@ -1,10 +1,9 @@
 export const BREW_STAGES = [
-  { min: 0,  label: "raw dump",           emoji: "💩" },
-  { min: 15, label: "starting to stink",  emoji: "🦨" },
-  { min: 35, label: "fermenting",         emoji: "🧪" },
-  { min: 55, label: "bubbling up",        emoji: "🫧" },
-  { min: 75, label: "almost cooked",      emoji: "🔥" },
-  { min: 95, label: "pure gold",          emoji: "✨" },
+  { min: 0,  label: "raw",      emoji: "★☆☆☆☆" },
+  { min: 20, label: "maybe",    emoji: "★★☆☆☆" },
+  { min: 45, label: "cooking",  emoji: "★★★☆☆" },
+  { min: 70, label: "slaps",    emoji: "★★★★☆" },
+  { min: 95, label: "gold",     emoji: "★★★★★" },
 ];
 
 export const FIELD_TYPES = [

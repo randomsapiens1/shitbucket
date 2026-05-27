@@ -11,9 +11,9 @@ export default function TasksSection({ tasks, newTask, setNewTask, onAdd, onTogg
         >
           <button onClick={() => onToggle(t.id)} className="shrink-0">
             <div
-              className="w-5 h-5 rounded-md flex items-center justify-center transition-all"
+              className={`w-5 h-5 rounded-md flex items-center justify-center transition-all ${!t.done ? "border-2 border-bucket-border" : ""}`}
               style={{
-                border:     `2px solid ${t.done ? "var(--bucket-accent)" : "var(--bucket-border)"}`,
+                borderColor: t.done ? "var(--bucket-accent)" : undefined,
                 background:  t.done ? "var(--bucket-accent)" : "transparent",
               }}
             >

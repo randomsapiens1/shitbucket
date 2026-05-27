@@ -16,7 +16,7 @@ export default function LinksSection({ links, onAdd, onRemove }) {
   }
 
   return (
-    <Section label="links">
+    <Section label="links & inspo">
       {(links || []).map(l => (
         <div key={l.id} className="flex justify-between items-center py-2.5 border-b border-bucket-border">
           <a

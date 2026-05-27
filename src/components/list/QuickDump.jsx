@@ -54,9 +54,8 @@ export default function QuickDump({ onDump, allTags = [] }) {
     <div className="relative px-4 pt-6" ref={containerRef}>
       <div className="rounded-3xl bg-bucket-card border border-bucket-border p-5 shadow-[0_0_25px_rgba(255,106,0,0.03)]">
         <div className="mb-3">
-          <h2 className="text-lg font-semibold text-bucket-text">What's in your head?</h2>
-          <div className="flex justify-between items-center mt-1">
-            <p className="text-sm text-bucket-text-dim">Write it down. Get it out.</p>
+          <h2 className="text-lg font-semibold text-bucket-text">what are you thinking?</h2>
+          <div className="flex justify-end items-center mt-1">
             <span className="text-[11px] text-bucket-muted">{charCount} / 500</span>
           </div>
         </div>
@@ -65,7 +64,7 @@ export default function QuickDump({ onDump, allTags = [] }) {
           ref={ref}
           rows={3}
           maxLength={500}
-          placeholder="Type your idea here..."
+          placeholder="write it down..."
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           onChange={(e) => setCharCount(e.target.value.length)}
@@ -135,7 +134,7 @@ export default function QuickDump({ onDump, allTags = [] }) {
           onClick={handleDump}
           className="mt-5 w-full flex items-center justify-center gap-2 rounded-2xl bg-bucket-accent px-6 py-3.5 font-bold text-black hover:brightness-110 transition shadow-[0_0_25px_rgba(255,106,0,0.18)] text-[14px]"
         >
-          🪣 Dump in bucket
+          🪣 dump it
         </button>
       </div>
     </div>
