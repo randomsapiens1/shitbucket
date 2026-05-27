@@ -14,6 +14,7 @@ create table public.ideas (
   links jsonb default '[]'::jsonb,
   fields jsonb default '[]'::jsonb,
   tasks jsonb default '[]'::jsonb,
+  pinned boolean default false,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );

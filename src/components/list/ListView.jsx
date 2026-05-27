@@ -43,6 +43,7 @@ export default function ListView({
   onSelectIdea,
   onOpenSettings,
   onLogout,
+  onUpdateIdea,
   sessionStart,
 }) {
   const [lateNight, setLateNight] = useState(false);
@@ -213,7 +214,14 @@ export default function ListView({
           </div>
         )}
         {filtered.map(idea => (
-          <IdeaCard key={idea.id} idea={idea} onClick={() => onSelectIdea(idea.id)} />
+          <IdeaCard 
+            key={idea.id} 
+            idea={idea} 
+            onClick={() => onSelectIdea(idea.id)} 
+            onPin={(pinned) => {
+              onUpdateIdea(idea.id, (i) => { i.pinned = pinned; });
+            }}
+          />
         ))}
       </div>
 

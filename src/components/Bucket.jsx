@@ -57,6 +57,10 @@ export default function Bucket({ onLogout, theme, setTheme }) {
       );
     })
     .sort((a, b) => {
+      // Pinned ideas always come first
+      if (a.pinned && !b.pinned) return -1;
+      if (!a.pinned && b.pinned) return 1;
+
       if (sortBy === "newest") return new Date(b.updated_at) - new Date(a.updated_at);
       if (sortBy === "oldest") return new Date(a.updated_at) - new Date(b.updated_at);
       if (sortBy === "brew")   return calcBrewProgress(b) - calcBrewProgress(a);
@@ -153,6 +157,7 @@ export default function Bucket({ onLogout, theme, setTheme }) {
         onSelectIdea={(id) => { setActiveId(id); setView("detail"); }}
         onOpenSettings={() => setView("settings")}
         onLogout={handleLogout}
+        onUpdateIdea={handleUpdateIdea}
         sessionStart={sessionStart.current}
       />
     );

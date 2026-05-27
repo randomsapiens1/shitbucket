@@ -29,6 +29,7 @@ export async function createIdea(idea) {
       links: idea.links || [],
       fields: idea.fields || [],
       tasks: idea.tasks || [],
+      pinned: idea.pinned || false,
     })
     .select()
     .single();
