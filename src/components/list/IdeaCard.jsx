@@ -1,5 +1,5 @@
 import { calcBrewProgress, getBrewStage } from "@/lib/brew";
-import { hashColor, timeAgo } from "@/lib/utils";
+import { hashColor, timeAgo, formatCountdown } from "@/lib/utils";
 
 export default function IdeaCard({ idea, onClick, onPin }) {
   const brew = calcBrewProgress(idea);
@@ -22,9 +22,19 @@ export default function IdeaCard({ idea, onClick, onPin }) {
           </div>
         </div>
 
-        {/* Timestamp */}
-        <div className="text-[11px] text-bucket-muted mt-2">
-          {timeAgo(idea.updated_at)}
+        {/* Timestamp & Expiry */}
+        <div className="flex items-center gap-2 mt-2">
+          <div className="text-[11px] text-bucket-muted">
+            {timeAgo(idea.updated_at)}
+          </div>
+          {idea.expires_at && (
+            <>
+              <span className="text-bucket-muted text-[10px] opacity-40">•</span>
+              <div className="text-[10px] font-bold text-bucket-accent/80 uppercase tracking-tight">
+                {formatCountdown(idea.expires_at)}
+              </div>
+            </>
+          )}
         </div>
 
         {/* Brew progress bar */}

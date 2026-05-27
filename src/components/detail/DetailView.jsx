@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { genId, timeAgo } from "@/lib/utils";
+import { genId, timeAgo, formatCountdown } from "@/lib/utils";
 import TagsSection from "./TagsSection";
 import TasksSection from "./TasksSection";
 import ThoughtsSection from "./ThoughtsSection";
@@ -84,8 +84,18 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
       {/* Content */}
       <div className="px-4 pb-10">
         <h1 className="text-[22px] font-bold text-bucket-text leading-snug pt-5 pb-1">{idea.title}</h1>
-        <div className="text-[11px] text-bucket-muted mb-5">
-          created {new Date(idea.created_at).toLocaleDateString()} · updated {timeAgo(idea.updated_at)}
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-bucket-muted mb-5">
+          <span>created {new Date(idea.created_at).toLocaleDateString()}</span>
+          <span>•</span>
+          <span>updated {timeAgo(idea.updated_at)}</span>
+          {idea.expires_at && (
+            <>
+              <span>•</span>
+              <span className="text-bucket-accent font-bold uppercase tracking-tight">
+                {formatCountdown(idea.expires_at)}
+              </span>
+            </>
+          )}
         </div>
 
         <TagsSection

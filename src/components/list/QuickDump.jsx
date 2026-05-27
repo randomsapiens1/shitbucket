@@ -7,10 +7,18 @@ export default function QuickDump({ onDump, allTags = [] }) {
   const [charCount, setCharCount] = useState(0);
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState([]);
+  const [expiry, setExpiry] = useState("forever");
   const [showSuggestions, setShowSuggestions] = useState(false);
   
   const ref = useRef(null);
   const containerRef = useRef(null);
+
+  const EXPIRY_OPTIONS = [
+    { label: "keeps forever", value: "forever" },
+    { label: "24h", value: "24h" },
+    { label: "48h", value: "48h" },
+    { label: "1 week", value: "1w" },
+  ];
 
   const suggestions = allTags
     .filter(t => t.toLowerCase().includes(tagInput.toLowerCase()) && !tags.includes(t))
@@ -19,12 +27,20 @@ export default function QuickDump({ onDump, allTags = [] }) {
   function handleDump() {
     const val = ref.current?.value?.trim();
     if (!val) return;
-    onDump(val, tags);
+
+    let expiresAt = null;
+    const now = new Date();
+    if (expiry === "24h") expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
+    if (expiry === "48h") expiresAt = new Date(now.getTime() + 48 * 60 * 60 * 1000).toISOString();
+    if (expiry === "1w")  expiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
+
+    onDump(val, tags, expiresAt);
     ref.current.value = "";
     setCharCount(0);
     setFocused(false);
     setTags([]);
     setTagInput("");
+    setExpiry("forever");
   }
 
   function addTag(tag) {
@@ -80,6 +96,26 @@ export default function QuickDump({ onDump, allTags = [] }) {
             boxShadow: focused ? "0 0 20px rgba(255,106,0,0.08)" : "none",
           }}
         />
+
+        {/* Expiry Selection */}
+        <div className="mt-4">
+          <div className="text-[11px] text-bucket-muted uppercase tracking-wider mb-2 px-1">expiry</div>
+          <div className="flex gap-2">
+            {EXPIRY_OPTIONS.map(opt => (
+              <button
+                key={opt.value}
+                onClick={() => setExpiry(opt.value)}
+                className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all border ${
+                  expiry === opt.value
+                    ? "bg-bucket-accent/10 border-bucket-accent text-bucket-accent shadow-[0_0_15px_rgba(255,106,0,0.1)]"
+                    : "bg-bucket-bg border-bucket-border text-bucket-muted hover:border-bucket-border-hover"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Tags UI */}
         <div className="mt-4">

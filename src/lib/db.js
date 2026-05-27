@@ -1,15 +1,30 @@
 import { supabase } from "./supabase";
 
-// ============ IDEAS ============
+const CORE_COLUMNS = "id, user_id, title, thought, thoughts, tags, links, fields, tasks, pinned, expires_at, created_at, updated_at";
 
 export async function fetchIdeas() {
-  const { data, error } = await supabase
-    .from("ideas")
-    .select("*")
-    .order("updated_at", { ascending: false });
+  try {
+    const { data, error } = await supabase
+      .from("ideas")
+      .select(CORE_COLUMNS)
+      .order("updated_at", { ascending: false });
 
-  if (error) throw error;
-  return data || [];
+    if (error) throw error;
+    return data || [];
+  } catch (e) {
+    const isSchemaError = e.message?.includes("expires_at") || e.message?.includes("pinned") || e.code === "PGRST204";
+    
+    if (isSchemaError) {
+      console.warn("Schema mismatch, using base columns.");
+      const { data, error } = await supabase
+        .from("ideas")
+        .select("id, user_id, title, thought, thoughts, tags, links, fields, tasks, created_at, updated_at")
+        .order("updated_at", { ascending: false });
+      if (error) throw error;
+      return data || [];
+    }
+    throw e;
+  }
 }
 
 export async function createIdea(idea) {
@@ -18,36 +33,63 @@ export async function createIdea(idea) {
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
 
+  const payload = {
+    user_id: user.id,
+    title: idea.title,
+    thought: idea.thought || "",
+    thoughts: idea.thoughts || [],
+    tags: idea.tags || [],
+    links: idea.links || [],
+    fields: idea.fields || [],
+    tasks: idea.tasks || [],
+  };
+
+  // Only send these if they are truthy to avoid schema errors on old databases
+  if (idea.pinned) payload.pinned = true;
+  if (idea.expires_at) payload.expires_at = idea.expires_at;
+
   const { data, error } = await supabase
     .from("ideas")
-    .insert({
-      user_id: user.id,
-      title: idea.title,
-      thought: idea.thought || "",
-      thoughts: idea.thoughts || [],
-      tags: idea.tags || [],
-      links: idea.links || [],
-      fields: idea.fields || [],
-      tasks: idea.tasks || [],
-      pinned: idea.pinned || false,
-    })
-    .select()
+    .insert(payload)
+    .select(CORE_COLUMNS)
     .single();
 
-  if (error) throw error;
+  if (error) {
+    if (error.message?.includes("expires_at") || error.message?.includes("pinned")) {
+      throw new Error("SCHEMA_MISSING: Please run the SQL command provided in the chat to enable Pinned/Expiring ideas.");
+    }
+    throw error;
+  }
   return data;
 }
 
 export async function updateIdea(id, updates) {
-  const { data, error } = await supabase
-    .from("ideas")
-    .update(updates)
-    .eq("id", id)
-    .select()
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from("ideas")
+      .update(updates)
+      .eq("id", id)
+      .select(CORE_COLUMNS)
+      .single();
 
-  if (error) throw error;
-  return data;
+    if (error) throw error;
+    return data;
+  } catch (e) {
+    const isSchemaError = e.message?.includes("expires_at") || e.message?.includes("pinned") || e.code === "PGRST204";
+    
+    if (isSchemaError) {
+      const { pinned, expires_at, ...safeUpdates } = updates;
+      const { data: retryData, error: retryError } = await supabase
+        .from("ideas")
+        .update(safeUpdates)
+        .eq("id", id)
+        .select("id, user_id, title, thought, thoughts, tags, links, fields, tasks, created_at, updated_at")
+        .single();
+      if (retryError) throw retryError;
+      return retryData;
+    }
+    throw e;
+  }
 }
 
 export async function deleteIdea(id) {

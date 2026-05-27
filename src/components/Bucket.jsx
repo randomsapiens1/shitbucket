@@ -21,6 +21,29 @@ export default function Bucket({ onLogout, theme, setTheme }) {
 
   useEffect(() => { loadIdeas(); }, []);
 
+  // Cleanup expired ideas on load (batched)
+  useEffect(() => {
+    if (ideas.length === 0) return;
+    const now = new Date();
+    const expired = ideas.filter(i => i.expires_at && new Date(i.expires_at) <= now);
+    
+    if (expired.length > 0) {
+      const ids = expired.map(i => i.id);
+      // Run cleanup after a small delay to let the initial load settle
+      const timer = setTimeout(async () => {
+        for (const id of ids) {
+          try {
+            await dbDeleteIdea(id);
+          } catch (e) {
+            console.error("Auto-delete failed for:", id, e);
+          }
+        }
+        setIdeas(prev => prev.filter(i => !ids.includes(i.id)));
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [ideas.length]);
+
   // Sync font size with localStorage and DOM
   useEffect(() => {
     const savedSize = parseInt(localStorage.getItem("shitbucket-font-size") || "16");
@@ -68,12 +91,12 @@ export default function Bucket({ onLogout, theme, setTheme }) {
       return 0;
     });
 
-  async function handleDump(title, tags = []) {
+  async function handleDump(title, tags = [], expiresAt = null) {
     try {
-      const newIdea = await createIdea({ title, tags });
+      const newIdea = await createIdea({ title, tags, expires_at: expiresAt });
       setIdeas(prev => [newIdea, ...prev]);
     } catch (e) {
-      console.error("Failed to create:", e);
+      console.error("Failed to create:", e.message || e);
     }
   }
 
@@ -83,13 +106,15 @@ export default function Bucket({ onLogout, theme, setTheme }) {
     const updated = { ...idea };
     fn(updated);
     const payload = {
-      title:    updated.title,
-      thought:  updated.thought,
-      thoughts: updated.thoughts,
-      tags:     updated.tags,
-      links:    updated.links,
-      fields:   updated.fields,
-      tasks:    updated.tasks,
+      title:      updated.title,
+      thought:    updated.thought,
+      thoughts:   updated.thoughts,
+      tags:       updated.tags,
+      links:      updated.links,
+      fields:     updated.fields,
+      tasks:      updated.tasks,
+      pinned:     updated.pinned,
+      expires_at: updated.expires_at,
     };
     try {
       const result = await dbUpdateIdea(id, payload);

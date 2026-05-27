@@ -11,6 +11,20 @@ export function hashColor(str) {
   return TAG_COLORS[Math.abs(h) % TAG_COLORS.length];
 }
 
+export function formatCountdown(date) {
+  const d = new Date(date);
+  const now = new Date();
+  const diff = d - now;
+  if (diff <= 0) return "expired";
+  
+  const h = Math.floor(diff / (1000 * 60 * 60));
+  const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  
+  if (h > 48) return `expires in ${Math.floor(h / 24)}d`;
+  if (h > 0) return `expires in ${h}h`;
+  return `expires in ${m}m`;
+}
+
 export function genId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
