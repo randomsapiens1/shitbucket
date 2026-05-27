@@ -5,8 +5,8 @@ export const metadata = {
   description: "dump your ideas",
   manifest: "/manifest.json",
   icons: {
-    icon: "/app-logo.png",
-    apple: "/app-logo.png",
+    icon: "/logo-shitBucket-night.png",
+    apple: "/logo-shitBucket-night.png",
   },
   appleWebApp: {
     capable: true,
@@ -31,7 +31,7 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-        <link rel="apple-touch-icon" href="/logo-shitBucket.png" />
+        <link rel="apple-touch-icon" href="/logo-shitBucket-night.png" />
       </head>
       <body>{children}</body>
     </html>

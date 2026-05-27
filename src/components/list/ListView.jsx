@@ -144,13 +144,15 @@ export default function ListView({
           </button>
         </div>
 
-        {/* Logo */}
-        <img
-          src={theme === "dark" ? "/logo-shitBucket.png" : "/app-logo.png"}
-          alt="Shitbucket"
-          className="w-24 md:w-32 object-contain drop-shadow-[0_0_35px_rgba(255,106,0,0.18)]"
-        />
-        <p className="text-bucket-text-dim text-sm mt-3 tracking-wide">idea dumping ground</p>
+        {/* Hero Image */}
+        <div className="w-full flex justify-center mb-4 overflow-hidden">
+          <img
+            src={theme === "dark" ? "/shitBucket-night.png" : "/shitBucket-day.png"}
+            alt="Shitbucket"
+            className="w-full max-w-sm h-auto object-contain animate-breathe"
+          />
+        </div>
+        <p className="text-bucket-text-dim text-sm mt-1 tracking-wide">idea dumping ground</p>
 
         {/* Stats + search */}
         <div className="flex items-center justify-between w-full mt-8 gap-3">

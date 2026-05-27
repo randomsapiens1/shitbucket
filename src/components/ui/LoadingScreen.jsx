@@ -10,7 +10,7 @@ export default function LoadingScreen({ theme }) {
       <div className="flex flex-col items-center gap-12 z-10">
         <div className="animate-breathe">
           <img 
-            src={theme === "dark" ? "/logo-shitBucket.png" : "/app-logo.png"} 
+            src={theme === "dark" ? "/logo-shitBucket-night.png" : "/logo-shitBucket-day.png"} 
             alt="Shitbucket" 
             className="w-48 md:w-56 object-contain" 
           />

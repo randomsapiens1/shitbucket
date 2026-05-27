@@ -36,25 +36,12 @@ export default function Auth({ theme }) {
   return (
     <div className="min-h-screen bg-bucket-bg flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <div className="text-center mb-10">
+        <div className="text-center mb-10 overflow-hidden">
           <img 
-            src={theme === "dark" ? "/logo-shitBucket.png" : "/app-logo.png"} 
+            src={theme === "dark" ? "/shitBucket-night.png" : "/shitBucket-day.png"} 
             alt="shitbucket" 
-            className="w-20 h-20 mx-auto mb-3 object-contain" 
+            className="w-full h-auto mx-auto mb-6 object-contain animate-breathe" 
           />
-          <h1
-            className="text-2xl font-extrabold tracking-tight"
-            style={{
-              background: "linear-gradient(135deg, #cc5500, #b38600)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
-            shitbucket
-          </h1>
-          <p className="text-bucket-muted text-xs mt-2 tracking-widest uppercase">
-            dump your ideas
-          </p>
         </div>
 
         <input
