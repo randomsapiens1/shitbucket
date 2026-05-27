@@ -45,7 +45,7 @@ export default function Home() {
   }
 
   if (!session) {
-    return <Auth theme={theme} />;
+    return <Auth theme={theme} setTheme={setTheme} />;
   }
 
   return (
