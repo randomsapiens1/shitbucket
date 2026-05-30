@@ -1,126 +1,102 @@
 # 🪣 shitbucket
 
-Dump your ideas. Brew them over time.
+> "Dump your ideas. Brew them over time."
+
+Shitbucket is a lightweight, mobile-first idea capture tool designed to help you dump raw thoughts quickly and track their "brewing" progress over time. It's built for speed, privacy, and simplicity.
 
 ---
 
-## Setup (15 minutes, $0)
+## ✨ Features
+
+- **🚀 Quick Capture:** Dump ideas in seconds with a 500-character limit.
+- **🧪 Brew Progress:** Automatic progress score (0–100%) based on idea completeness (thoughts, tags, tasks, links, custom fields).
+- **🏷️ Organization:** Tagging system, checklist tasks, and multiple notes (thoughts) per idea.
+- **🔗 Sharing:** Generate unique, public read-only links for any idea.
+- **⏳ Auto-Cleanup:** Support for expiring ideas that delete themselves after a set time.
+- **📱 PWA & Mobile:** Installable as a Progressive Web App or wrap it with Capacitor for native mobile.
+- **🛡️ Secure:** Powered by Supabase Auth and Row-Level Security (RLS).
+- **🌑 Dark Mode:** Optimized for low-light dumping.
+
+---
+
+## 🛠️ Setup (15 minutes, $0)
 
 ### Step 1: Supabase (database + auth)
 
-1. Go to [supabase.com](https://supabase.com) and create a free account
-2. Click **New Project**, name it `shitbucket`, set a database password, pick the closest region (Singapore for BD)
-3. Wait for the project to spin up (~2 min)
-4. Go to **SQL Editor** (left sidebar) and paste the contents of `supabase-schema.sql`, then click **Run**
-5. Go to **Settings > API** and copy:
-   - Project URL (looks like `https://xxxxx.supabase.co`)
-   - `anon` public key (the long one under "Project API keys")
+1. Create a free account at [supabase.com](https://supabase.com).
+2. Create a **New Project** named `shitbucket`.
+3. Go to **SQL Editor** and run the contents of `supabase-schema.sql`.
+4. Go to **Settings > API** and copy your **Project URL** and `anon` **public key**.
 
 ### Step 2: Local setup
 
 ```bash
-# Clone or copy this folder to your machine
+# Clone the repository
+git clone https://github.com/yourusername/shitbucket.git
 cd shitbucket
 
 # Install dependencies
 npm install
 
-# Create your env file
+# Setup environment variables
 cp .env.local.example .env.local
-
-# Paste your Supabase URL and anon key into .env.local
 ```
 
-Edit `.env.local`:
+Edit `.env.local` and paste your Supabase credentials:
 ```
-NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key_here
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
 
-### Step 3: Create app icons
-
-You need two PNG icons for the PWA. Quick way:
-- Go to [favicon.io](https://favicon.io/emoji-favicons/bucket/) or any emoji-to-png tool
-- Download a bucket emoji as 192x192 and 512x512
-- Save as `public/icon-192.png` and `public/icon-512.png`
-
-### Step 4: Run locally
+### Step 3: Run development server
 
 ```bash
 npm run dev
 ```
 
-Open [localhost:3000](http://localhost:3000). You should see the login screen.
+Open [localhost:3000](http://localhost:3000) to see the app.
 
-### Step 5: Configure Supabase Auth
+### Step 4: Configure Supabase Auth
 
-1. In Supabase dashboard, go to **Authentication > URL Configuration**
-2. Set **Site URL** to `http://localhost:3000` (for dev) or your Vercel URL (for prod)
-3. Under **Authentication > Providers**, make sure **Email** is enabled
-4. Under Email settings, you can disable "Confirm email" for faster testing
-
-### Step 6: Deploy to Vercel (free)
-
-```bash
-# Install Vercel CLI if you don't have it
-npm i -g vercel
-
-# Deploy
-vercel
-
-# Follow prompts, then add env vars:
-vercel env add NEXT_PUBLIC_SUPABASE_URL
-vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-# Redeploy with env vars
-vercel --prod
-```
-
-Or just push to GitHub and connect it to Vercel via the dashboard.
-
-After deploying, go back to Supabase **Authentication > URL Configuration** and update the Site URL to your Vercel URL (e.g. `https://shitbucket.vercel.app`). Also add it to the **Redirect URLs** list.
-
-### Step 7: Add to phone home screen
-
-1. Open your Vercel URL on your phone in Safari (iOS) or Chrome (Android)
-2. **iOS**: Tap Share > "Add to Home Screen"
-3. **Android**: Tap the three dots menu > "Add to Home Screen" or "Install app"
-4. It now looks and behaves like a native app
+1. In Supabase, go to **Authentication > URL Configuration**.
+2. Set **Site URL** to `http://localhost:3000` (development) and add your production URL later.
+3. Under **Authentication > Providers**, ensure **Email** is enabled.
 
 ---
 
-## Project structure
+## 🏗️ Project structure
 
 ```
 shitbucket/
-  public/
-    manifest.json     # PWA config
-    sw.js             # Service worker
-    icon-192.png      # App icon (you create this)
-    icon-512.png      # App icon (you create this)
-  src/
-    app/
-      globals.css     # Base styles
-      layout.js       # Root layout with PWA meta
-      page.js         # Main page (auth gate)
-      s/[token]/
-        page.js       # Public shared idea page
-    components/
-      Auth.jsx        # Magic link login
-      Bucket.jsx      # Main app (all the idea UI)
-    lib/
-      supabase.js     # Supabase client init
-      db.js           # Database operations (CRUD)
-  supabase-schema.sql # Run this in Supabase SQL Editor
-  .env.local.example  # Copy to .env.local and fill in
+├── public/           # PWA manifest, service worker, and assets
+├── src/
+│   ├── app/          # Next.js App Router (pages and layouts)
+│   ├── components/   # UI components (Auth, Bucket, List, Detail)
+│   ├── lib/          # Utilities, Supabase client, and DB logic
+│   └── ...
+├── supabase-schema.sql # Database schema and RLS policies
+├── capacitor.config.json # Capacitor configuration for mobile
+└── package.json      # Dependencies and scripts
 ```
 
-## Stack
+## 🚀 Tech Stack
 
-- **Next.js 14** (React framework)
-- **Supabase** (Postgres database + auth + row-level security)
-- **Tailwind CSS** (styling)
-- **Vercel** (hosting)
-- **PWA** (installable on phone)
+- **Next.js 16** (React 18)
+- **Supabase** (Postgres DB + Auth + RLS)
+- **Tailwind CSS** (Styling)
+- **Capacitor** (Native Mobile Bridge)
+- **Vercel** (Hosting)
 
-Total cost: **$0**
+## 🍻 Brewing Stages
+
+| Stage | Range | Emoji |
+|---|---|---|
+| raw | 0–19% | ★☆☆☆☆ |
+| maybe | 20–44% | ★★☆☆☆ |
+| cooking | 45–69% | ★★★☆☆ |
+| slaps | 70–94% | ★★★★☆ |
+| gold | 95–100% | ★★★★★ |
+
+---
+
+Total cost to run: **$0** (on free tiers)
