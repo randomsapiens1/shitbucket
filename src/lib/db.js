@@ -78,7 +78,7 @@ export async function updateIdea(id, updates) {
     const isSchemaError = e.message?.includes("expires_at") || e.message?.includes("pinned") || e.code === "PGRST204";
     
     if (isSchemaError) {
-      const { pinned, expires_at, ...safeUpdates } = updates;
+      const { pinned: _pinned, expires_at: _expires_at, ...safeUpdates } = updates;
       const { data: retryData, error: retryError } = await supabase
         .from("ideas")
         .update(safeUpdates)
