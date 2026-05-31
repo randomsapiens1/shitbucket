@@ -20,8 +20,8 @@ export default function LiveClock() {
   if (!now) {
     return (
       <div
-        className="mx-4 my-3 rounded-[32px]"
-        style={{ height: 130, background: "#111111" }}
+        className="mx-4 my-3 rounded-[24px]"
+        style={{ height: 76, background: "#111111" }}
       />
     );
   }
@@ -30,7 +30,7 @@ export default function LiveClock() {
   const hours   = String(h24 % 12 || 12).padStart(2, "0");
   const mins    = String(now.getMinutes()).padStart(2, "0");
   const ampm    = h24 >= 12 ? "PM" : "AM";
-  const weekday = now.toLocaleDateString("en-US", { weekday: "long" }).toUpperCase();
+  const weekday = now.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase();
   const month   = now.toLocaleDateString("en-US", { month: "short" }).toUpperCase();
   const day     = String(now.getDate()).padStart(2, "0");
   const icon    = getTimeOfDayIcon(h24);
@@ -38,48 +38,45 @@ export default function LiveClock() {
   return (
     <div className="mx-4 my-3">
       <div
-        className="flex items-center transition-transform duration-300 hover:-translate-y-[3px]"
+        className="flex items-center transition-transform duration-300 hover:-translate-y-[2px]"
         style={{
-          borderRadius: 32,
-          padding: "28px 32px",
-          minHeight: 120,
+          borderRadius: 24,
+          padding: "14px 20px",
           background: "linear-gradient(145deg, #111111 0%, #1a1a1a 100%)",
           boxShadow:
-            "0 12px 40px rgba(0,0,0,0.2), 0 3px 10px rgba(0,0,0,0.14), inset 0 1px 0 rgba(255,255,255,0.055)",
+            "0 8px 24px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.055)",
           border: "1px solid rgba(255,255,255,0.055)",
         }}
       >
 
-        {/* ── LEFT: Time (65%) ── */}
-        <div style={{ flex: "0 0 65%" }}>
-          <div className="flex items-baseline" style={{ gap: 10 }}>
-            <span
-              className="tabular-nums leading-none select-none"
-              style={{
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: 68,
-                fontWeight: 800,
-                color: "#F5F3EE",
-                letterSpacing: "-0.03em",
-                textShadow: "0 0 80px rgba(245,243,238,0.07)",
-              }}
-            >
-              {hours}:{mins}
-            </span>
-            <span
-              className="leading-none select-none"
-              style={{
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: 15,
-                fontWeight: 600,
-                color: "rgba(245,243,238,0.28)",
-                letterSpacing: "0.06em",
-                paddingBottom: 6,
-              }}
-            >
-              {ampm}
-            </span>
-          </div>
+        {/* ── LEFT: Time ── */}
+        <div className="flex items-baseline shrink-0" style={{ gap: 6 }}>
+          <span
+            className="tabular-nums leading-none select-none"
+            style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: 46,
+              fontWeight: 800,
+              color: "#F5F3EE",
+              letterSpacing: "-0.03em",
+              textShadow: "0 0 60px rgba(245,243,238,0.07)",
+            }}
+          >
+            {hours}:{mins}
+          </span>
+          <span
+            className="leading-none select-none"
+            style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: 12,
+              fontWeight: 600,
+              color: "rgba(245,243,238,0.28)",
+              letterSpacing: "0.06em",
+              paddingBottom: 4,
+            }}
+          >
+            {ampm}
+          </span>
         </div>
 
         {/* ── CENTER: Divider ── */}
@@ -88,31 +85,31 @@ export default function LiveClock() {
           style={{
             width: 1,
             background: "rgba(255,255,255,0.12)",
-            margin: "0 28px",
+            margin: "0 16px",
           }}
         />
 
-        {/* ── RIGHT: Date (35%) ── */}
+        {/* ── RIGHT: Date ── */}
         <div
-          className="flex-1 flex flex-col justify-center items-end"
-          style={{ gap: 5 }}
+          className="flex-1 min-w-0 flex flex-col justify-center items-end overflow-hidden"
+          style={{ gap: 4 }}
         >
-          {/* Icon + weekday on same row */}
-          <div className="flex items-center gap-2">
+          {/* Icon + weekday */}
+          <div className="flex items-center gap-1.5 w-full justify-end">
             <span
-              className="select-none"
-              style={{ fontSize: 12, color: "rgba(245,243,238,0.3)", lineHeight: 1 }}
+              className="select-none shrink-0"
+              style={{ fontSize: 10, color: "rgba(245,243,238,0.3)", lineHeight: 1 }}
             >
               {icon}
             </span>
             <span
-              className="leading-none"
+              className="leading-none truncate"
               style={{
                 fontFamily: "'JetBrains Mono', monospace",
-                fontSize: 10,
+                fontSize: 9,
                 fontWeight: 700,
                 color: "#FF7A00",
-                letterSpacing: "0.22em",
+                letterSpacing: "0.14em",
                 textTransform: "uppercase",
               }}
             >
@@ -125,7 +122,7 @@ export default function LiveClock() {
             className="leading-none"
             style={{
               fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 22,
+              fontSize: 18,
               fontWeight: 800,
               color: "#F5F3EE",
               letterSpacing: "-0.01em",

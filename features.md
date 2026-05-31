@@ -1,123 +1,240 @@
-# Shitbucket — Features
+# ShitBucket — Features
 
 > "Dump your ideas. Brew them over time."
+
+---
 
 ## Authentication
 
 - Email/password sign up and login via Supabase Auth
-- Persistent sessions stored in localStorage with auto token refresh
-- Row-level security (RLS) — users can only access their own data
-- Logout clears session completely
+- Persistent sessions with auto token refresh
+- Row-level security (RLS) — users can only read and write their own ideas
+- Sign-out clears session; accessible from the hamburger drawer
 
-## Idea Capture
+---
 
-- Quick dump textarea (up to 500 characters) for rapid idea entry
-- Character counter shown while typing
-- One-click creation — new idea is saved immediately
+## Idea Capture (Quick Dump)
 
-## Idea Detail View
+- Textarea (up to 500 characters) for rapid brain-dump entry
+- Live character counter while typing
+- One-tap creation — idea is saved immediately to the database
+- Optional expiry date: set a deadline after which the idea auto-expires
+- Optional tag chips added at dump time
+- Error recovery: graceful fallback if database schema is missing `pinned`/`expires_at` columns
 
-- Editable title
-- Main thought/description field
-- **Tags** — add and remove lowercase tags for categorization
-- **Tasks** — checklist items with checkbox toggle for completion
-- **Thoughts** — multiple notes/reflections attached to an idea
-- **Links** — URLs with optional labels (auto-prefixes `https://` if missing)
-- **Custom Fields** — dynamic metadata with four types:
-  - Text
-  - Number
-  - Checkbox (boolean)
-  - Link
+---
 
-## Brew Progress System
+## Idea List (The Pile)
 
-Automatic progress score (0–100%) calculated from idea completeness:
+- Vertical card stack of all ideas, newest first by default
+- Each card shows: title, last-updated timestamp, brew stage pill, tags, and meta counts
+- **Brew pill** color scales with progress:
+  - Raw (0–19%): grey
+  - Maybe (20–44%): warm peach
+  - Cooking (45–69%): light orange
+  - Slaps (70–94%): orange — `#FF6A00`
+  - Gold (95–100%): deep burnt orange — `#CC5500`
+- Task completion count (☑ done/total)
+- Thought count (💭) and link count (🔗) shown if present
+- Expiry countdown label on cards with a set expiry
+- Press-down micro-interaction: card physically sinks on tap (shadow removed + 4px translate)
 
-| Signal | Points |
-|---|---|
-| Main thought filled | +10% |
-| Each thought added (max 5) | +6% each |
-| Has tags | +10% |
-| Has links | +10% |
-| Filled custom fields (max 3) | +5% each |
-| Has tasks | +10% |
-| Task completion ratio | up to +15% |
+---
 
-Six brewing stages with emoji indicators:
+## Pinning
 
-| Stage | Range | Emoji |
-|---|---|---|
-| raw dump | 0–14% | 💩 |
-| starting to stink | 15–34% | 🦨 |
-| fermenting | 35–54% | 🧪 |
-| bubbling up | 55–74% | 🫧 |
-| almost cooked | 75–94% | 🔥 |
-| pure gold | 95–100% | ✨ |
+- Pin any idea to surface it as a priority
+- Pinned cards get a bold `#FF6A00` left border accent
+- Pin/unpin via the location icon overlaid on the card (visible on hover/tap)
 
-## List View
-
-- Card grid showing all ideas
-- Brew progress bar and stage emoji on each card
-- Task completion indicator (☑ X/Y tasks)
-- Thought count (💭) and link count (🔗) per card
-- All tags displayed inline on cards
-- Live clock displayed in the top-left
-- Idea count shown
+---
 
 ## Search & Filtering
 
-- Full-text search across title, thought content, and tags
-- Tag-based filtering — click any tag to show only matching ideas
-- Sorting options:
+- Full-text search across title, main thought, and tags (real-time, client-side)
+- Tag filter bar: tap any tag to filter the list to matching ideas; tap again to clear
+- Sort dropdown with four options:
   - Newest first (default)
   - Oldest first
-  - Most brewed (highest progress)
+  - Most brewed (highest progress score)
   - A–Z alphabetically
+
+---
+
+## Idea Detail View
+
+- Full-screen detail panel slides in over the list
+- Editable inline title (`text-[24px] font-extrabold`)
+- Main thought/description textarea
+- Context menu (⋯) for share, expiry, and delete actions
+
+### Brew Status
+- Progress bar showing score (0–100%) with gradient fill
+- Stage label displayed next to bar
+
+### Thoughts
+- Multiple time-stamped notes/reflections attached to an idea
+- Each thought shown in a cream-tinted card
+- Add new thoughts; they are stored as an ordered array
+
+### Tasks
+- Checklist items with checkbox toggle
+- Done items visually struck through; checkbox fills orange when complete
+- Task completion ratio feeds into brew score
+
+### Tags
+- Add and remove lowercase tags
+- Each tag shown as a bordered pill chip
+
+### Links
+- Add URLs with optional labels
+- Auto-prefixes `https://` if missing
+- Displayed as tappable bordered rows
+
+### Custom Fields
+- Fully dynamic metadata attached to an idea
+- Four field types: **Text**, **Number**, **Checkbox**, **Link**
+- Inline editing; filled fields contribute to brew score
+
+---
+
+## Brew Progress System
+
+Deterministic 0–100% score computed from idea completeness:
+
+| Signal | Points |
+|---|---|
+| Main thought filled | +10 |
+| Each thought added (max 5) | +6 each |
+| Has tags | +10 |
+| Has links | +10 |
+| Filled custom fields (max 3) | +5 each |
+| Has tasks | +10 |
+| Task completion ratio | up to +15 |
+
+Five stages (star rating displayed on cards):
+
+| Stage | Min % | Stars |
+|---|---|---|
+| raw | 0 | ★☆☆☆☆ |
+| maybe | 20 | ★★☆☆☆ |
+| cooking | 45 | ★★★☆☆ |
+| slaps | 70 | ★★★★☆ |
+| gold | 95 | ★★★★★ |
+
+---
 
 ## Sharing
 
 - Generate a unique token-based shareable link per idea (`/s/[token]`)
 - Public read-only view — accessible without authentication
-- Auto-copy link to clipboard on share
-- Native device share sheet support via Web Share API
-- Public view shows all idea details, brew progress, read-only task checklist, and tags
+- Auto-copy to clipboard; falls back to native device share sheet (Web Share API)
+- Public view shows all idea details: brew pill, tasks (read-only), thoughts, tags, links, custom fields
 
-## Design & UX
+---
 
-- Dark theme with custom bucket color palette (near-black backgrounds, burnt orange accent, cream text)
-- Monospace font (JetBrains Mono)
-- Responsive, mobile-first layout
-- Animated progress bars and smooth hover transitions
-- Color-coded tags (consistent color per tag derived from hash)
-- Delete with confirmation menu
+## Design System
+
+Swiss editorial / brutalist aesthetic — physical, high-contrast, cream on black.
+
+### Colors
+| Token | Value | Usage |
+|---|---|---|
+| `--bg` | `#FFF8EE` | Warm cream — page background |
+| `--card` | `#FFFFFF` | White — card backgrounds |
+| `--border` | `rgba(0,0,0,0.12)` | Subtle internal dividers |
+| `--text` | `#0A0A0A` | Near-black body text |
+| `--accent` | `#FF6A00` | Orange — CTAs, highlights |
+| `--card-lime` | `#CAFF00` | Available in palette |
+| `--card-pink` | `#FFB3D0` | Available in palette |
+| `--card-blue` | `#B3D9FF` | Available in palette |
+| `--card-yellow` | `#FFE9A0` | Available in palette |
+
+### Hard Shadow Utilities
+```
+.shadow-hard     → box-shadow: 4px 4px 0px #000000
+.shadow-hard-sm  → box-shadow: 3px 3px 0px #000000
+.shadow-hard-lg  → box-shadow: 6px 6px 0px #000000
+```
+
+### Typography
+- Monospace throughout: JetBrains Mono → IBM Plex Mono → SF Mono → system monospace
+- Extrabold (`font-extrabold`) for all headings and labels
+- `tracking-[0.15em]` uppercase for section labels
+
+### Card Borders
+- `border-2 border-black` on all interactive cards
+- `rounded-3xl` (24px) for idea cards; `rounded-2xl` for panels and drawers
+
+---
+
+## Live Clock Widget
+
+Premium dark card in the header area:
+
+- Left 65%: current time in 68px monospace, `-0.03em` tracking, cream white (`#F5F3EE`)
+- Center: 1px vertical divider
+- Right 35%: time-of-day icon (☀ morning / ◑ afternoon / ◐ evening / ● night), weekday in orange caps, month + day in 22px extrabold
+- Dark gradient card: `#111111 → #1a1a1a`, 32px radius, soft multi-layer shadow, inset highlight border
+- Hover lifts card -3px (smooth 300ms transition)
+- Hydration-safe: renders placeholder until client-side clock ticks
+
+---
+
+## Header & Navigation
+
+- Fixed top bar: logo image + "ShitBucket" wordmark (left), hamburger button (right)
+- Logo: `/logo-shitBucket-day.png`, always light mode
+- Hamburger opens a slide-in drawer from the right
+
+---
+
+## Hamburger Drawer (Settings)
+
+- 280px right-side drawer over cream background
+- **Account**: shows current user email with initial avatar
+- **Appearance**: font size slider (12–24px, live preview)
+- **Sign out**: at drawer footer with confirmation
+- **Late-night easter egg**: after midnight the sign-out button switches to `"🚨 get out"` with a red pulse style
+
+---
 
 ## PWA & Offline
 
 - Installable as a Progressive Web App (add to home screen)
-- Service worker with network-first caching strategy for offline support
-- Full PWA manifest with app icons and theme colors
-- Apple/iOS meta tags for standalone display
+- Service worker with network-first strategy; falls back to cache for offline reading
+- Full Web App Manifest: app name, icons, display mode, theme color (`#FFF8EE`)
+- Apple/iOS meta tags for standalone display and status bar styling
+
+---
 
 ## Mobile (Capacitor)
 
-- Capacitor configuration for wrapping the PWA as a native iOS/Android app
+- Capacitor config for wrapping as a native iOS/Android app
 - App ID: `com.rajkumar.shitbucket`
+
+---
 
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
 | Frontend | Next.js 16, React 18, Tailwind CSS 3 |
-| Backend/DB | Supabase (PostgreSQL + Auth) |
-| PWA | Service Worker, Web Manifest |
+| Backend / DB | Supabase (PostgreSQL + Auth + RLS) |
+| PWA | Service Worker, Web App Manifest |
 | Mobile | Capacitor |
-| Deployment | Vercel (recommended) |
+| Fonts | JetBrains Mono (Google Fonts) |
+| Deployment | Vercel |
 
-## Database
+---
 
-Two tables:
+## Database Schema
 
-- **ideas** — stores all user idea data including title, thought, thoughts[], tags[], links[], fields[], tasks[], timestamps
-- **shared_links** — maps unique tokens to ideas for public sharing
+**`ideas`** table:
+- `id`, `user_id`, `title`, `thought` (string), `thoughts` (array), `tags` (array), `links` (array), `fields` (array), `tasks` (array)
+- `pinned` (boolean), `expires_at` (timestamp) — optional columns; app degrades gracefully without them
+- `created_at`, `updated_at` — auto-updated via PostgreSQL trigger
 
-Auto-updated `updated_at` timestamp via PostgreSQL trigger on every idea change.
+**`shared_links`** table:
+- `token` (random string), `idea_id` — maps public tokens to private ideas
+- RLS policy allows public read so share links work without authentication

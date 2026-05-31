@@ -87,29 +87,93 @@ export default function ListView({
         lateNight={lateNight}
       />
 
-      {/* Header bar */}
-      <div className="flex items-center justify-between px-4 py-3.5 border-b-2 border-black bg-white">
-        <div className="flex items-center gap-2.5">
-          <img
-            src="/logo-shitBucket-day.png"
-            alt="ShitBucket"
-            className="w-9 h-9 object-contain"
-          />
-          <span className="text-[20px] font-extrabold tracking-tight text-black">
-            ShitBucket
-          </span>
-        </div>
-        <button
-          onClick={() => setShowMenu(true)}
-          className="w-10 h-10 flex items-center justify-center rounded-xl bg-[#FFF8EE] border-2 border-black shadow-hard-sm text-black transition-all active:shadow-none active:translate-x-[3px] active:translate-y-[3px]"
-          title="Menu"
+      {/* ── Header ── */}
+      <div className="sticky top-0 z-30 px-4 pt-4 pb-2 bg-[#FFF8EE]">
+        <div
+          className="flex items-center justify-between"
+          style={{
+            height: 88,
+            borderRadius: 28,
+            padding: "0 20px",
+            background: "#F5F2EA",
+            boxShadow:
+              "0 2px 20px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.7)",
+            border: "1px solid rgba(0,0,0,0.07)",
+          }}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="3" y1="6" x2="21" y2="6"/>
-            <line x1="3" y1="12" x2="21" y2="12"/>
-            <line x1="3" y1="18" x2="21" y2="18"/>
-          </svg>
-        </button>
+          {/* Left: logo tile + wordmark */}
+          <div className="flex items-center gap-3 min-w-0">
+            {/* Logo tile */}
+            <div
+              className="shrink-0 flex items-center justify-center"
+              style={{
+                width: 54,
+                height: 54,
+                borderRadius: 17,
+                background: "#FFFFFF",
+                boxShadow:
+                  "0 2px 10px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.9)",
+                border: "1px solid rgba(0,0,0,0.06)",
+              }}
+            >
+              <img
+                src="/logo-shitBucket-day.png"
+                alt="ShitBucket"
+                style={{ width: 34, height: 34, objectFit: "contain" }}
+              />
+            </div>
+
+            {/* Wordmark */}
+            <span
+              className="leading-none select-none truncate"
+              style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: "clamp(24px, 7.5vw, 44px)",
+                fontWeight: 800,
+                color: "#0A0A0A",
+                letterSpacing: "-0.03em",
+              }}
+            >
+              ShitBucket
+            </span>
+          </div>
+
+          {/* Right: menu button */}
+          <div className="relative shrink-0 ml-3">
+            <button
+              onClick={() => setShowMenu(true)}
+              className="flex items-center justify-center transition-all duration-150 hover:-translate-y-[2px] active:translate-y-[1px]"
+              style={{
+                width: 54,
+                height: 54,
+                borderRadius: 17,
+                background: "#FFFFFF",
+                boxShadow:
+                  "0 2px 10px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.9)",
+                border: "1px solid rgba(0,0,0,0.08)",
+              }}
+              title="Menu"
+            >
+              {/* Staggered-width lines — premium feel */}
+              <svg width="18" height="13" viewBox="0 0 18 13" fill="none">
+                <rect x="0" y="0"  width="18" height="2" rx="1" fill="#0A0A0A"/>
+                <rect x="0" y="5.5" width="13" height="2" rx="1" fill="#0A0A0A"/>
+                <rect x="0" y="11" width="8"  height="2" rx="1" fill="#0A0A0A"/>
+              </svg>
+            </button>
+            {/* Orange notification dot */}
+            <span
+              className="absolute top-[10px] right-[10px] pointer-events-none"
+              style={{
+                width: 7,
+                height: 7,
+                borderRadius: "50%",
+                background: "#FF6A00",
+                border: "1.5px solid #F5F2EA",
+              }}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Time / date bar */}
