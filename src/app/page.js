@@ -27,5 +27,5 @@ export default function Home() {
 
   if (loading) return <LoadingScreen />;
   if (!session) return <Auth />;
-  return <Bucket onLogout={() => setSession(null)} />;
+  return <Bucket onLogout={() => setSession(null)} userId={session?.user?.id} />;
 }

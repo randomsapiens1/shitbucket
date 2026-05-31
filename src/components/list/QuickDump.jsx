@@ -22,6 +22,11 @@ export default function QuickDump({ onDump, allTags = [] }) {
     .filter(t => t.toLowerCase().includes(tagInput.toLowerCase()) && !tags.includes(t))
     .slice(0, 5);
 
+  useEffect(() => {
+    // Auto-focus the textarea on mount for speed
+    if (ref.current) ref.current.focus();
+  }, []);
+
   function handleDump() {
     const val = ref.current?.value?.trim();
     if (!val) return;

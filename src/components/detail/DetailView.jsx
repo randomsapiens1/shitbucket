@@ -7,12 +7,16 @@ import ThoughtsSection from "./ThoughtsSection";
 import LinksSection from "./LinksSection";
 import CustomFieldsSection from "./CustomFieldsSection";
 import DetailMenu from "./DetailMenu";
+import CollaboratorsSection from "./CollaboratorsSection";
 
-export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, onShare }) {
-  const [newThought, setNewThought] = useState("");
-  const [newTag,     setNewTag]     = useState("");
-  const [newTask,    setNewTask]    = useState("");
-  const [showMenu,   setShowMenu]   = useState(false);
+export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, onShare, userId }) {
+  const [newThought,        setNewThought]        = useState("");
+  const [newTag,            setNewTag]            = useState("");
+  const [newTask,           setNewTask]           = useState("");
+  const [showMenu,          setShowMenu]          = useState(false);
+  const [showCollaborators, setShowCollaborators] = useState(false);
+
+  const isOwner = !userId || idea.user_id === userId;
 
   function addThought() {
     if (!newThought.trim()) return;
@@ -80,16 +84,24 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
           >
             ↗
           </button>
-          <button
-            onClick={() => setShowMenu(!showMenu)}
-            className="border-2 border-black text-black font-extrabold text-base px-2.5 py-1.5 rounded-xl shadow-hard-sm transition-all active:shadow-none active:translate-x-[3px] active:translate-y-[3px] hover:bg-black/5"
-          >
-            ⋯
-          </button>
+          {isOwner && (
+            <button
+              onClick={() => setShowMenu(!showMenu)}
+              className="border-2 border-black text-black font-extrabold text-base px-2.5 py-1.5 rounded-xl shadow-hard-sm transition-all active:shadow-none active:translate-x-[3px] active:translate-y-[3px] hover:bg-black/5"
+            >
+              ⋯
+            </button>
+          )}
         </div>
       </div>
 
-      <DetailMenu show={showMenu} onClose={() => setShowMenu(false)} onDelete={onDelete} />
+      <DetailMenu
+        show={showMenu}
+        onClose={() => setShowMenu(false)}
+        onDelete={onDelete}
+        onInvite={() => setShowCollaborators(true)}
+        isOwner={isOwner}
+      />
 
       {/* Content */}
       <div className="px-4 pb-10">
@@ -108,7 +120,16 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
               </span>
             </>
           )}
+          {!isOwner && (
+            <span className="text-[#FF6A00] font-extrabold bg-[#FF6A00]/10 border border-[#FF6A00]/30 rounded-full px-2 py-0.5 uppercase tracking-tight text-[10px]">
+              👥 shared
+            </span>
+          )}
         </div>
+
+        {isOwner && showCollaborators && (
+          <CollaboratorsSection idea={idea} />
+        )}
 
         <TagsSection
           tags={idea.tags}

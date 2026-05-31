@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 
-export default function DetailMenu({ show, onClose, onDelete }) {
+export default function DetailMenu({ show, onClose, onDelete, onInvite, isOwner }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   if (!show) return null;
@@ -9,12 +9,24 @@ export default function DetailMenu({ show, onClose, onDelete }) {
   return (
     <div className="bg-white border-2 border-black rounded-2xl shadow-hard mx-4 mt-2 p-2 overflow-hidden">
       {!confirmDelete ? (
-        <button
-          className="block w-full text-left text-black font-bold text-[13px] px-3 py-2.5 rounded-xl hover:bg-[#FFB3D0] transition"
-          onClick={() => setConfirmDelete(true)}
-        >
-          🗑 flush forever?
-        </button>
+        <>
+          {isOwner && (
+            <button
+              className="block w-full text-left text-black font-bold text-[13px] px-3 py-2.5 rounded-xl hover:bg-[#FFF8EE] transition"
+              onClick={() => { onInvite(); onClose(); }}
+            >
+              👥 invite teammate
+            </button>
+          )}
+          {isOwner && (
+            <button
+              className="block w-full text-left text-black font-bold text-[13px] px-3 py-2.5 rounded-xl hover:bg-[#FFB3D0] transition"
+              onClick={() => setConfirmDelete(true)}
+            >
+              🗑 flush forever?
+            </button>
+          )}
+        </>
       ) : (
         <div className="flex items-center gap-3 px-3 py-2">
           <button

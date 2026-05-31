@@ -7,7 +7,7 @@ export default function BrewStatus({ brew, stage }) {
       </div>
       <div className="w-full h-1.5 bg-bucket-border rounded-full overflow-hidden">
         <div
-          className="h-full rounded-full transition-all duration-500"
+          className="h-full rounded-full transition-all duration-300"
           style={{ width: `${brew}%`, background: "linear-gradient(90deg, #ff6a00, #ff8c32)" }}
         />
       </div>

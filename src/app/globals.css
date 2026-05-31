@@ -80,7 +80,7 @@ input, textarea, button {
 }
 
 .animate-loading-bar {
-  animation: loading-bar 2s ease-in-out infinite;
+  animation: loading-bar 1s ease-in-out infinite;
 }
 
 .late-night-btn {

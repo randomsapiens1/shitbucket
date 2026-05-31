@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { calcBrewProgress, getBrewStage } from "@/lib/brew";
 import { timeAgo, formatCountdown } from "@/lib/utils";
 
@@ -9,7 +10,7 @@ const BREW_PILL = {
   gold:    { bg: "#CC5500", color: "#ffffff" },
 };
 
-export default function IdeaCard({ idea, onClick, onPin }) {
+export default memo(function IdeaCard({ idea, onClick, onPin, userId }) {
   const brew       = calcBrewProgress(idea);
   const stage      = getBrewStage(brew);
   const tasksDone  = (idea.tasks || []).filter(t => t.done).length;
@@ -22,18 +23,23 @@ export default function IdeaCard({ idea, onClick, onPin }) {
         onClick={onClick}
         className={`w-full text-left rounded-3xl border-2 border-black shadow-hard p-5 bg-white transition-all active:shadow-none active:translate-x-[4px] active:translate-y-[4px] ${
           idea.pinned ? "border-l-[6px] border-l-[#FF6A00]" : ""
-        }`}
+        } ${idea.optimistic ? "opacity-60 grayscale-[50%]" : "opacity-100"}`}
       >
         {/* Title */}
         <div className="text-[16px] font-extrabold leading-snug text-black pr-8">
           {idea.title}
         </div>
 
-        {/* Timestamp + expiry */}
+        {/* Timestamp + expiry + shared badge */}
         <div className="flex items-center gap-2 mt-2">
           <span className="text-[11px] font-bold text-black/40">
             {timeAgo(idea.updated_at)}
           </span>
+          {userId && idea.user_id !== userId && (
+            <span className="text-[10px] font-extrabold text-[#FF6A00] bg-[#FF6A00]/10 border border-[#FF6A00]/30 rounded-full px-2 py-0.5 uppercase tracking-tight">
+              👥 shared
+            </span>
+          )}
           {idea.expires_at && (
             <>
               <span className="text-black/20 text-[10px]">•</span>
@@ -95,4 +101,4 @@ export default function IdeaCard({ idea, onClick, onPin }) {
       </button>
     </div>
   );
-}
+});

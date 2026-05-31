@@ -42,6 +42,7 @@ export default function ListView({
   onLogout,
   onUpdateIdea,
   sessionStart,
+  userId,
 }) {
   const [lateNight,   setLateNight]   = useState(false);
   const [showWarning, setShowWarning] = useState(false);
@@ -228,6 +229,7 @@ export default function ListView({
             idea={idea}
             onClick={() => onSelectIdea(idea.id)}
             onPin={(pinned) => onUpdateIdea(idea.id, (i) => { i.pinned = pinned; })}
+            userId={userId}
           />
         ))}
       </div>

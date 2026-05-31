@@ -129,6 +129,65 @@ export async function createShareLink(ideaId) {
   return token;
 }
 
+// ============ COLLABORATION ============
+
+export async function createCollabInvite(ideaId, ideaTitle) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const token = generateToken();
+  const { error } = await supabase
+    .from("collab_invites")
+    .insert({
+      idea_id: ideaId,
+      idea_title: ideaTitle,
+      inviter_email: user.email,
+      inviter_id: user.id,
+      token,
+    });
+
+  if (error) throw error;
+  return token;
+}
+
+export async function getCollabInvite(token) {
+  const { data, error } = await supabase
+    .from("collab_invites")
+    .select("idea_id, idea_title, inviter_email, accepted_at, created_at")
+    .eq("token", token)
+    .single();
+
+  if (error || !data) return null;
+  return data;
+}
+
+export async function acceptCollabInvite(token) {
+  const { error } = await supabase.rpc("accept_collab_invite", { p_token: token });
+  if (error) throw error;
+}
+
+export async function fetchCollaborators(ideaId) {
+  const { data, error } = await supabase
+    .from("idea_collaborators")
+    .select("user_id, user_email, created_at")
+    .eq("idea_id", ideaId);
+
+  if (error) throw error;
+  return data || [];
+}
+
+export async function removeCollaborator(ideaId, userId) {
+  const { error } = await supabase
+    .from("idea_collaborators")
+    .delete()
+    .eq("idea_id", ideaId)
+    .eq("user_id", userId);
+
+  if (error) throw error;
+}
+
+// ============ SHARING ============
+
 export async function getSharedIdea(token) {
   // First get the shared link
   const { data: link, error: linkError } = await supabase
