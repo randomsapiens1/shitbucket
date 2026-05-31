@@ -1,88 +1,91 @@
 import { calcBrewProgress, getBrewStage } from "@/lib/brew";
-import { hashColor, timeAgo, formatCountdown } from "@/lib/utils";
+import { timeAgo, formatCountdown } from "@/lib/utils";
+
+const BREW_PILL = {
+  raw:     { bg: "#EFEFEF", color: "#555555" },
+  maybe:   { bg: "#FFE0CC", color: "#000000" },
+  cooking: { bg: "#FFD4B0", color: "#000000" },
+  slaps:   { bg: "#FF6A00", color: "#ffffff" },
+  gold:    { bg: "#CC5500", color: "#ffffff" },
+};
 
 export default function IdeaCard({ idea, onClick, onPin }) {
-  const brew = calcBrewProgress(idea);
-  const stage = getBrewStage(brew);
-  const tasksDone = (idea.tasks || []).filter(t => t.done).length;
+  const brew       = calcBrewProgress(idea);
+  const stage      = getBrewStage(brew);
+  const tasksDone  = (idea.tasks || []).filter(t => t.done).length;
   const tasksTotal = (idea.tasks || []).length;
+  const pill       = BREW_PILL[stage.label] || BREW_PILL.raw;
 
   return (
     <div className="relative group">
       <button
         onClick={onClick}
-        className={`w-full text-left rounded-2xl bg-bucket-card border transition-all hover:border-bucket-border-hover p-5 ${
-          idea.pinned ? "border-l-4 border-l-bucket-accent border-y-bucket-border border-r-bucket-border" : "border-bucket-border"
+        className={`w-full text-left rounded-3xl border-2 border-black shadow-hard p-5 bg-white transition-all active:shadow-none active:translate-x-[4px] active:translate-y-[4px] ${
+          idea.pinned ? "border-l-[6px] border-l-[#FF6A00]" : ""
         }`}
       >
         {/* Title */}
-        <div className="flex justify-between items-start gap-3 pr-6">
-          <div className="text-[15px] font-semibold leading-snug text-bucket-text flex-1">
-            {idea.title}
-          </div>
+        <div className="text-[16px] font-extrabold leading-snug text-black pr-8">
+          {idea.title}
         </div>
 
-        {/* Timestamp & Expiry */}
+        {/* Timestamp + expiry */}
         <div className="flex items-center gap-2 mt-2">
-          <div className="text-[11px] text-bucket-muted">
+          <span className="text-[11px] font-bold text-black/40">
             {timeAgo(idea.updated_at)}
-          </div>
+          </span>
           {idea.expires_at && (
             <>
-              <span className="text-bucket-muted text-[10px] opacity-40">•</span>
-              <div className="text-[10px] font-bold text-bucket-accent/80 uppercase tracking-tight">
+              <span className="text-black/20 text-[10px]">•</span>
+              <span className="text-[10px] font-extrabold text-[#FF6A00] uppercase tracking-tight">
                 {formatCountdown(idea.expires_at)}
-              </div>
+              </span>
             </>
           )}
         </div>
 
-        {/* Brew progress bar */}
-        <div className="mt-4 flex items-center gap-3">
-          <div className="flex-1 h-1 rounded-full bg-bucket-bg overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all duration-500"
-              style={{ width: `${brew}%`, background: "linear-gradient(90deg, var(--bucket-accent), #ff8c32)" }}
-            />
-          </div>
-          <span className="text-[11px] text-bucket-text-dim whitespace-nowrap">
+        {/* Brew pill + tags */}
+        <div className="mt-3.5 flex items-center gap-2 flex-wrap">
+          <span
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wide border border-black/15 shadow-hard-sm"
+            style={{ backgroundColor: pill.bg, color: pill.color }}
+          >
             {stage.emoji} {brew}%
           </span>
-        </div>
 
-        {/* Tags & meta counts */}
-        <div className="flex gap-2 mt-3 flex-wrap items-center">
           {(idea.tags || []).map(tag => (
             <span
               key={tag}
-              className="text-[10px] px-2 py-1 rounded-md font-medium"
-              style={{ background: `${hashColor(tag)}15`, color: hashColor(tag) }}
+              className="px-2.5 py-1 rounded-full text-[11px] font-bold border border-black/20 bg-[#FFF8EE] text-black"
             >
               {tag}
             </span>
           ))}
-          {tasksTotal > 0 && (
-            <span className="text-[10px] text-bucket-muted">☑ {tasksDone}/{tasksTotal}</span>
-          )}
-          {(idea.thoughts || []).length > 0 && (
-            <span className="text-[10px] text-bucket-muted">💭 {idea.thoughts.length}</span>
-          )}
-          {(idea.links || []).length > 0 && (
-            <span className="text-[10px] text-bucket-muted">🔗 {idea.links.length}</span>
-          )}
         </div>
+
+        {/* Meta counts */}
+        {(tasksTotal > 0 || (idea.thoughts || []).length > 0 || (idea.links || []).length > 0) && (
+          <div className="flex gap-3 mt-3">
+            {tasksTotal > 0 && (
+              <span className="text-[11px] font-bold text-black/40">☑ {tasksDone}/{tasksTotal}</span>
+            )}
+            {(idea.thoughts || []).length > 0 && (
+              <span className="text-[11px] font-bold text-black/40">💭 {idea.thoughts.length}</span>
+            )}
+            {(idea.links || []).length > 0 && (
+              <span className="text-[11px] font-bold text-black/40">🔗 {idea.links.length}</span>
+            )}
+          </div>
+        )}
       </button>
 
-      {/* Pin Toggle */}
+      {/* Pin toggle */}
       <button
-        onClick={(e) => {
-          e.stopPropagation();
-          onPin(!idea.pinned);
-        }}
+        onClick={(e) => { e.stopPropagation(); onPin(!idea.pinned); }}
         className={`absolute top-4 right-4 p-1.5 rounded-lg transition-all ${
-          idea.pinned 
-            ? "text-bucket-accent opacity-100" 
-            : "text-bucket-muted opacity-0 group-hover:opacity-100 hover:text-bucket-text-dim"
+          idea.pinned
+            ? "opacity-100 text-[#FF6A00]"
+            : "opacity-0 group-hover:opacity-40 hover:!opacity-100 text-black/50"
         }`}
         title={idea.pinned ? "Unpin idea" : "Pin idea"}
       >

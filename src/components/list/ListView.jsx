@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import HamburgerMenu from "@/components/ui/HamburgerMenu";
 import LiveClock from "@/components/ui/LiveClock";
 import SortDropdown from "@/components/ui/SortDropdown";
 import QuickDump from "@/components/list/QuickDump";
@@ -9,22 +10,19 @@ import IdeaCard from "@/components/list/IdeaCard";
 function playBeep() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    // Three short ascending beeps
     [0, 0.25, 0.5].forEach((offset, i) => {
-      const osc = ctx.createOscillator();
+      const osc  = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.type = "sine";
-      osc.frequency.value = 520 + i * 120; // 520 → 640 → 760 Hz
+      osc.frequency.value = 520 + i * 120;
       gain.gain.setValueAtTime(0.4, ctx.currentTime + offset);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + offset + 0.2);
       osc.start(ctx.currentTime + offset);
       osc.stop(ctx.currentTime + offset + 0.2);
     });
-  } catch (_e) {
-    // AudioContext unavailable (e.g. SSR)
-  }
+  } catch (_e) {}
 }
 
 export default function ListView({
@@ -37,153 +35,115 @@ export default function ListView({
   setSearchQuery,
   sortBy,
   setSortBy,
-  theme,
-  setTheme,
+  fontSize,
+  setFontSize,
   onDump,
   onSelectIdea,
-  onOpenSettings,
   onLogout,
   onUpdateIdea,
   sessionStart,
 }) {
-  const [lateNight, setLateNight] = useState(false);
+  const [lateNight,   setLateNight]   = useState(false);
   const [showWarning, setShowWarning] = useState(false);
+  const [showMenu,    setShowMenu]    = useState(false);
   const triggered = useRef(false);
 
   useEffect(() => {
     function check() {
-      const now = new Date();
-      const hour = now.getHours();
+      const now     = new Date();
+      const hour    = now.getHours();
       const elapsed = Date.now() - sessionStart;
-      const isLateHour = hour >= 2 && hour < 6;
-      const isLongSession = elapsed >= 30 * 60 * 1000;
-
-      if (isLateHour && isLongSession && !triggered.current) {
+      if (hour >= 2 && hour < 6 && elapsed >= 30 * 60 * 1000 && !triggered.current) {
         triggered.current = true;
         setLateNight(true);
         setShowWarning(true);
-        playBeep(); // plays once and stops
-        setTimeout(() => setShowWarning(false), 5000); // banner auto-dismisses after 5s
+        playBeep();
+        setTimeout(() => setShowWarning(false), 5000);
       }
     }
-
     check();
     const id = setInterval(check, 30_000);
     return () => clearInterval(id);
   }, [sessionStart]);
 
   return (
-    <div className="min-h-screen bg-bucket-bg text-bucket-text pb-24 relative overflow-hidden max-w-xl mx-auto">
+    <div className="min-h-screen bg-[#FFF8EE] text-black pb-24 max-w-xl mx-auto">
 
-      {/* Late night warning banner */}
+      {/* Late night warning */}
       {showWarning && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-bucket-accent text-black text-[13px] font-bold px-5 py-3 rounded-2xl shadow-[0_0_30px_rgba(255,106,0,0.6)] animate-bounce">
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-[#FF6A00] text-black text-[13px] font-extrabold px-5 py-3 rounded-2xl border-2 border-black shadow-hard-lg animate-bounce">
           <span>🚨</span>
           <span>it&apos;s past 2am. go to sleep.</span>
-          <button
-            onClick={() => setShowWarning(false)}
-            className="ml-1 opacity-60 hover:opacity-100 text-base leading-none"
-          >
-            ×
-          </button>
+          <button onClick={() => setShowWarning(false)} className="ml-1 opacity-60 hover:opacity-100 text-base leading-none">×</button>
         </div>
       )}
 
-      {/* Top glow */}
-      <div
-        className="absolute top-0 left-0 right-0 h-[320px] pointer-events-none"
-        style={{ background: `radial-gradient(circle at top center, ${theme === 'dark' ? 'rgba(255,106,0,0.12)' : 'rgba(255,106,0,0.06)'}, transparent 60%)` }}
+      <HamburgerMenu
+        open={showMenu}
+        onClose={() => setShowMenu(false)}
+        fontSize={fontSize}
+        setFontSize={setFontSize}
+        onLogout={onLogout}
+        lateNight={lateNight}
       />
 
-      {/* HEADER */}
-      <div className="relative px-4 pt-5 pb-2 flex flex-col items-center">
-
-        {/* Top bar: theme + settings + logout */}
-        <div className="w-full flex justify-between items-center mb-6">
-          <div className="flex gap-2">
-            <button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="bg-bucket-card border border-bucket-border rounded-xl p-2.5 text-bucket-text-dim hover:text-bucket-text transition shadow-sm"
-              title="Toggle Theme"
-            >
-              {theme === "dark" ? (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-                </svg>
-              ) : (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                </svg>
-              )}
-            </button>
-
-            <button
-              onClick={onOpenSettings}
-              className="bg-bucket-card border border-bucket-border rounded-xl p-2.5 text-bucket-text-dim hover:text-bucket-text transition shadow-sm"
-              title="Settings"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-              </svg>
-            </button>
-          </div>
-
-          <button
-            onClick={onLogout}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2.5 transition text-[13px] ${
-              lateNight
-                ? "late-night-btn"
-                : "bg-bucket-card border border-bucket-border text-bucket-text-dim hover:text-bucket-text hover:border-bucket-border-hover"
-            }`}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-              <polyline points="16 17 21 12 16 7"/>
-              <line x1="21" y1="12" x2="9" y2="12"/>
-            </svg>
-            {lateNight ? "🚨 get out" : "get out"}
-          </button>
-        </div>
-
-        {/* Hero Image */}
-        <div className="w-full flex justify-center mb-0 overflow-hidden">
+      {/* Header bar */}
+      <div className="flex items-center justify-between px-4 py-3.5 border-b-2 border-black bg-white">
+        <div className="flex items-center gap-2.5">
           <img
-            src={theme === "dark" ? "/shitBucket-night.png" : "/shitBucket-day.png"}
-            alt="Shitbucket"
-            className="w-full max-w-sm h-auto object-contain"
+            src="/logo-shitBucket-day.png"
+            alt="ShitBucket"
+            className="w-9 h-9 object-contain"
           />
+          <span className="text-[20px] font-extrabold tracking-tight text-black">
+            ShitBucket
+          </span>
+        </div>
+        <button
+          onClick={() => setShowMenu(true)}
+          className="w-10 h-10 flex items-center justify-center rounded-xl bg-[#FFF8EE] border-2 border-black shadow-hard-sm text-black transition-all active:shadow-none active:translate-x-[3px] active:translate-y-[3px]"
+          title="Menu"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      {/* Time / date bar */}
+      <LiveClock />
+
+      {/* Stats + search */}
+      <div className="px-4 pt-4 pb-2 flex items-center gap-2">
+        <div className="bg-black text-white rounded-xl px-4 py-2.5 text-[12px] font-extrabold flex items-center gap-2 shadow-hard-sm whitespace-nowrap">
+          <span>💡</span>
+          <span>{ideas.length} {ideas.length === 1 ? "idea" : "ideas"}</span>
         </div>
 
-        {/* Stats + search */}
-        <div className="flex items-center justify-between w-full mt-0 gap-2">
-          <div className="bg-bucket-card border border-bucket-border rounded-2xl px-4 py-2.5 text-[12px] font-bold text-bucket-text-dim flex items-center gap-2 shadow-sm whitespace-nowrap">
-            <span className="opacity-70">💡</span>
-            <span>{ideas.length} {ideas.length === 1 ? "idea" : "ideas"}</span>
+        <div className="relative flex-1">
+          <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-black/30 pointer-events-none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
           </div>
-          
-          <div className="relative flex-1">
-            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-bucket-muted pointer-events-none">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          <input
+            className="w-full bg-white border-2 border-black rounded-2xl pl-10 pr-10 py-2.5 text-[13px] font-bold text-black outline-none placeholder:text-black/30 focus:bg-[#FFF8EE] transition shadow-hard-sm"
+            placeholder="search your pile..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-black/40 hover:text-black transition"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
               </svg>
-            </div>
-            <input
-              className="w-full bg-bucket-card border border-bucket-border rounded-2xl pl-10 pr-10 py-2.5 text-[13px] text-bucket-text outline-none placeholder:text-bucket-muted focus:border-bucket-accent-dim/30 focus:ring-4 focus:ring-bucket-accent-dim/5 transition-all shadow-sm"
-              placeholder="search your pile..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-bucket-muted hover:text-bucket-text-dim transition-colors"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                </svg>
-              </button>
-            )}
-          </div>
+            </button>
+          )}
         </div>
       </div>
 
@@ -197,30 +157,32 @@ export default function ListView({
 
       {/* Section header */}
       {ideas.length > 0 && (
-        <div className="flex items-center justify-between px-4 pt-6 pb-2">
-          <div className="flex items-center gap-2">
-            <span className="text-lg">💡</span>
-            <span className="text-[14px] font-semibold text-bucket-text">the pile</span>
-          </div>
+        <div className="flex items-center justify-between px-4 pt-7 pb-3">
+          <span className="text-[22px] font-extrabold uppercase tracking-tight text-black">
+            the pile
+          </span>
           <SortDropdown value={sortBy} onChange={setSortBy} />
         </div>
       )}
 
       {/* Idea cards */}
-      <div className="px-4 pt-2 space-y-3">
+      <div className="px-4 pt-1 space-y-3 pb-4">
         {filtered.length === 0 && ideas.length > 0 && (
-          <div className="text-center text-bucket-muted text-[13px] py-16">
+          <div className="text-center font-bold text-black/30 text-[13px] py-16">
             nothing here yet.
           </div>
         )}
+        {ideas.length === 0 && (
+          <div className="text-center font-bold text-black/30 text-[13px] py-10">
+            your pile is empty. dump something!
+          </div>
+        )}
         {filtered.map(idea => (
-          <IdeaCard 
-            key={idea.id} 
-            idea={idea} 
-            onClick={() => onSelectIdea(idea.id)} 
-            onPin={(pinned) => {
-              onUpdateIdea(idea.id, (i) => { i.pinned = pinned; });
-            }}
+          <IdeaCard
+            key={idea.id}
+            idea={idea}
+            onClick={() => onSelectIdea(idea.id)}
+            onPin={(pinned) => onUpdateIdea(idea.id, (i) => { i.pinned = pinned; })}
           />
         ))}
       </div>

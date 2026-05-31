@@ -7,27 +7,27 @@ export default function DetailMenu({ show, onClose, onDelete }) {
   if (!show) return null;
 
   return (
-    <div className="bg-bucket-card border border-bucket-border rounded-xl mx-4 mt-2 p-1 overflow-hidden">
+    <div className="bg-white border-2 border-black rounded-2xl shadow-hard mx-4 mt-2 p-2 overflow-hidden">
       {!confirmDelete ? (
         <button
-          className="block w-full text-left text-bucket-text-dim text-[13px] px-3 py-2.5 rounded-lg hover:bg-bucket-bg transition"
+          className="block w-full text-left text-black font-bold text-[13px] px-3 py-2.5 rounded-xl hover:bg-[#FFB3D0] transition"
           onClick={() => setConfirmDelete(true)}
         >
           🗑 flush forever?
         </button>
       ) : (
-        <div className="flex items-center gap-2 px-3 py-2">
+        <div className="flex items-center gap-3 px-3 py-2">
           <button
-            className="text-red-500 text-[13px] font-bold px-2 py-1 hover:underline"
+            className="bg-[#FFB3D0] border-2 border-black text-black font-extrabold text-[13px] px-4 py-1.5 rounded-xl shadow-hard-sm transition-all active:shadow-none active:translate-x-[3px] active:translate-y-[3px]"
             onClick={onDelete}
           >
             flush
           </button>
           <button
-            className="text-bucket-muted text-[13px] px-2 py-1 hover:text-bucket-text-dim"
+            className="text-black/50 font-bold text-[13px] hover:text-black transition"
             onClick={() => { setConfirmDelete(false); onClose(); }}
           >
-            keep
+            keep it
           </button>
         </div>
       )}

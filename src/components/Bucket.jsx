@@ -8,35 +8,29 @@ import ListView from "@/components/list/ListView";
 import DetailView from "@/components/detail/DetailView";
 import SettingsView from "@/components/detail/SettingsView";
 
-export default function Bucket({ onLogout, theme, setTheme }) {
-  const [ideas, setIdeas] = useState([]);
-  const [view, setView] = useState("list");
-  const [activeId, setActiveId] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [filterTag, setFilterTag] = useState(null);
+export default function Bucket({ onLogout }) {
+  const [ideas,       setIdeas]       = useState([]);
+  const [view,        setView]        = useState("list");
+  const [activeId,    setActiveId]    = useState(null);
+  const [loading,     setLoading]     = useState(true);
+  const [filterTag,   setFilterTag]   = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState("newest");
-  const [fontSize, setFontSize] = useState(16);
+  const [sortBy,      setSortBy]      = useState("newest");
+  const [fontSize,    setFontSize]    = useState(16);
   const sessionStart = useRef(Date.now());
 
   useEffect(() => { loadIdeas(); }, []);
 
-  // Cleanup expired ideas on load (batched)
+  // Cleanup expired ideas on load
   useEffect(() => {
     if (ideas.length === 0) return;
-    const now = new Date();
+    const now     = new Date();
     const expired = ideas.filter(i => i.expires_at && new Date(i.expires_at) <= now);
-    
     if (expired.length > 0) {
       const ids = expired.map(i => i.id);
-      // Run cleanup after a small delay to let the initial load settle
       const timer = setTimeout(async () => {
         for (const id of ids) {
-          try {
-            await dbDeleteIdea(id);
-          } catch (e) {
-            console.error("Auto-delete failed for:", id, e);
-          }
+          try { await dbDeleteIdea(id); } catch (e) { console.error("Auto-delete failed:", id, e); }
         }
         setIdeas(prev => prev.filter(i => !ids.includes(i.id)));
       }, 2000);
@@ -66,7 +60,7 @@ export default function Bucket({ onLogout, theme, setTheme }) {
   }
 
   const activeIdea = ideas.find(i => i.id === activeId);
-  const allTags = [...new Set(ideas.flatMap(i => i.tags || []))];
+  const allTags    = [...new Set(ideas.flatMap(i => i.tags || []))];
 
   const filtered = ideas
     .filter(i => !filterTag || (i.tags || []).includes(filterTag))
@@ -80,10 +74,8 @@ export default function Bucket({ onLogout, theme, setTheme }) {
       );
     })
     .sort((a, b) => {
-      // Pinned ideas always come first
       if (a.pinned && !b.pinned) return -1;
       if (!a.pinned && b.pinned) return 1;
-
       if (sortBy === "newest") return new Date(b.updated_at) - new Date(a.updated_at);
       if (sortBy === "oldest") return new Date(a.updated_at) - new Date(b.updated_at);
       if (sortBy === "brew")   return calcBrewProgress(b) - calcBrewProgress(a);
@@ -138,7 +130,7 @@ export default function Bucket({ onLogout, theme, setTheme }) {
   async function handleShareIdea(idea) {
     try {
       const token = await createShareLink(idea.id);
-      const url = `${window.location.origin}/s/${token}`;
+      const url   = `${window.location.origin}/s/${token}`;
       if (navigator.share) {
         navigator.share({ title: idea.title, url }).catch(() => {
           navigator.clipboard.writeText(url);
@@ -176,11 +168,10 @@ export default function Bucket({ onLogout, theme, setTheme }) {
         setSearchQuery={setSearchQuery}
         sortBy={sortBy}
         setSortBy={setSortBy}
-        theme={theme}
-        setTheme={setTheme}
+        fontSize={fontSize}
+        setFontSize={setFontSize}
         onDump={handleDump}
         onSelectIdea={(id) => { setActiveId(id); setView("detail"); }}
-        onOpenSettings={() => setView("settings")}
         onLogout={handleLogout}
         onUpdateIdea={handleUpdateIdea}
         sessionStart={sessionStart.current}

@@ -1,4 +1,3 @@
-import { hashColor } from "@/lib/utils";
 import { useState, useRef, useEffect } from "react";
 
 export default function TagsSection({ tags, allTags = [], newTag, setNewTag, onAdd, onRemove }) {
@@ -10,8 +9,8 @@ export default function TagsSection({ tags, allTags = [], newTag, setNewTag, onA
     .slice(0, 5);
 
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
+    function handleClickOutside(e) {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
         setShowSuggestions(false);
       }
     }
@@ -20,63 +19,46 @@ export default function TagsSection({ tags, allTags = [], newTag, setNewTag, onA
   }, []);
 
   return (
-    <div className="mb-8" ref={containerRef}>
+    <div className="mb-5" ref={containerRef}>
+      <p className="text-[10px] font-extrabold uppercase tracking-[0.15em] text-black mb-2">tags</p>
       <div className="flex flex-wrap gap-2 items-center">
         {(tags || []).map(t => (
           <span
             key={t}
-            className="inline-flex items-center gap-1.5 text-[11px] px-3 py-1.5 rounded-full font-bold tracking-tight transition-all hover:brightness-110"
-            style={{
-              background: hashColor(t) + "20",
-              color:      hashColor(t),
-              border:    `1px solid ${hashColor(t)}40`,
-              boxShadow: `0 0 10px ${hashColor(t)}10`,
-            }}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-extrabold bg-black text-white border-2 border-black shadow-hard-sm"
           >
             {t}
-            <button 
-              onClick={() => onRemove(t)} 
-              className="opacity-40 hover:opacity-100 text-[16px] leading-none ml-1 -mt-0.5"
+            <button
+              onClick={() => onRemove(t)}
+              className="opacity-50 hover:opacity-100 text-[14px] leading-none ml-0.5"
             >
               ×
             </button>
           </span>
         ))}
-        
+
         <div className="relative">
           <input
-            className="bg-bucket-card border border-bucket-border rounded-full px-4 py-1.5 text-bucket-text-dim text-[11px] font-medium outline-none w-28 focus:border-bucket-border-hover focus:text-bucket-text transition-all placeholder:text-bucket-muted"
+            className="bg-white border-2 border-black rounded-full px-4 py-1.5 text-black text-[11px] font-extrabold outline-none w-28 placeholder:text-black/30 focus:bg-[#FFF8EE] transition"
             placeholder="+ tag"
             value={newTag}
             onFocus={() => setShowSuggestions(true)}
-            onChange={(e) => {
-              setNewTag(e.target.value);
-              setShowSuggestions(true);
-            }}
+            onChange={(e) => { setNewTag(e.target.value); setShowSuggestions(true); }}
             onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                onAdd();
-                setShowSuggestions(false);
-              }
+              if (e.key === "Enter") { onAdd(); setShowSuggestions(false); }
             }}
           />
 
           {showSuggestions && suggestions.length > 0 && (
-            <div className="absolute top-full left-0 mt-2 w-40 bg-bucket-card border border-bucket-border rounded-xl py-2 z-50 shadow-2xl backdrop-blur-sm">
-              <div className="px-3 pb-1 mb-1 border-b border-bucket-border text-[9px] text-bucket-muted uppercase font-bold tracking-widest">
+            <div className="absolute top-full left-0 mt-2 w-40 bg-white border-2 border-black rounded-xl py-1 z-50 shadow-hard">
+              <p className="px-3 pb-1 mb-1 border-b border-black/10 text-[9px] text-black/40 font-extrabold uppercase tracking-widest">
                 Suggestions
-              </div>
+              </p>
               {suggestions.map(s => (
                 <button
                   key={s}
-                  onClick={() => {
-                    setNewTag(s);
-                    onAdd(s); // Note: addTag in DetailView uses newTag state, but we can pass it or just let it use state
-                    setShowSuggestions(false);
-                    // DetailView's addTag doesn't take an argument, so we update state then call it
-                    // Actually, let's update it to be more robust
-                  }}
-                  className="w-full text-left px-3 py-1.5 text-xs text-bucket-text-dim hover:bg-bucket-bg hover:text-bucket-text transition-colors"
+                  onClick={() => { setNewTag(s); onAdd(s); setShowSuggestions(false); }}
+                  className="w-full text-left px-3 py-2 text-[12px] font-bold text-black hover:bg-[#FF6A00] hover:text-white transition-colors"
                 >
                   {s}
                 </button>

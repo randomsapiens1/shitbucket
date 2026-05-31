@@ -1,23 +1,21 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { hashColor } from "@/lib/utils";
 
 export default function QuickDump({ onDump, allTags = [] }) {
-  const [focused, setFocused] = useState(false);
   const [charCount, setCharCount] = useState(0);
-  const [tagInput, setTagInput] = useState("");
-  const [tags, setTags] = useState([]);
-  const [expiry, setExpiry] = useState("forever");
+  const [tagInput, setTagInput]   = useState("");
+  const [tags, setTags]           = useState([]);
+  const [expiry, setExpiry]       = useState("forever");
   const [showSuggestions, setShowSuggestions] = useState(false);
-  
-  const ref = useRef(null);
+
+  const ref          = useRef(null);
   const containerRef = useRef(null);
 
   const EXPIRY_OPTIONS = [
-    { label: "keeps forever", value: "forever" },
-    { label: "24h", value: "24h" },
-    { label: "48h", value: "48h" },
-    { label: "1 week", value: "1w" },
+    { label: "∞",      value: "forever" },
+    { label: "24h",    value: "24h"     },
+    { label: "48h",    value: "48h"     },
+    { label: "1 week", value: "1w"      },
   ];
 
   const suggestions = allTags
@@ -37,7 +35,6 @@ export default function QuickDump({ onDump, allTags = [] }) {
     onDump(val, tags, expiresAt);
     ref.current.value = "";
     setCharCount(0);
-    setFocused(false);
     setTags([]);
     setTagInput("");
     setExpiry("forever");
@@ -45,20 +42,14 @@ export default function QuickDump({ onDump, allTags = [] }) {
 
   function addTag(tag) {
     const t = (tag || tagInput).trim().toLowerCase();
-    if (t && !tags.includes(t)) {
-      setTags([...tags, t]);
-    }
+    if (t && !tags.includes(t)) setTags([...tags, t]);
     setTagInput("");
     setShowSuggestions(false);
   }
 
-  function removeTag(tag) {
-    setTags(tags.filter(t => t !== tag));
-  }
-
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
+    function handleClickOutside(e) {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
         setShowSuggestions(false);
       }
     }
@@ -67,49 +58,41 @@ export default function QuickDump({ onDump, allTags = [] }) {
   }, []);
 
   return (
-    <div className="relative px-4 pt-6" ref={containerRef}>
-      <div className="rounded-3xl bg-bucket-card border border-bucket-border p-5 shadow-[0_0_25px_rgba(255,106,0,0.03)]">
-        <div className="mb-3">
-          <h2 className="text-lg font-semibold text-bucket-text">what are you thinking?</h2>
-          <div className="flex justify-end items-center mt-1">
-            <span className="text-[11px] text-bucket-muted">{charCount} / 500</span>
-          </div>
+    <div className="relative px-4 pt-5" ref={containerRef}>
+      <div className="rounded-3xl bg-white border-2 border-black shadow-hard p-5">
+
+        {/* Header row */}
+        <div className="flex justify-between items-baseline mb-3">
+          <h2 className="text-[15px] font-extrabold text-black">what are you thinking?</h2>
+          <span className="text-[11px] font-bold text-black/40">{charCount}/500</span>
         </div>
 
+        {/* Textarea */}
         <textarea
           ref={ref}
           rows={3}
           maxLength={500}
           placeholder="write it down..."
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
           onChange={(e) => setCharCount(e.target.value.length)}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleDump();
-            }
+            if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleDump(); }
           }}
-          className="w-full rounded-2xl bg-bucket-bg px-4 py-4 text-bucket-text resize-none outline-none placeholder:text-bucket-muted transition-all text-[14px] leading-relaxed"
-          style={{
-            border:    `2px solid ${focused ? "var(--bucket-accent)" : "var(--bucket-border)"}`,
-            boxShadow: focused ? "0 0 20px rgba(255,106,0,0.08)" : "none",
-          }}
+          className="w-full rounded-2xl border-2 border-black bg-[#FFF8EE] px-4 py-3 text-black font-bold resize-none outline-none placeholder:text-black/30 text-[14px] leading-relaxed focus:border-black transition"
         />
 
-        {/* Expiry Selection */}
+        {/* Expiry */}
         <div className="mt-4">
-          <div className="text-[11px] text-bucket-muted uppercase tracking-wider mb-2 px-1">expiry</div>
-          <div className="flex gap-2">
+          <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-black/40 mb-2">expires</p>
+          <div className="flex gap-2 flex-wrap">
             {EXPIRY_OPTIONS.map(opt => (
               <button
                 key={opt.value}
                 onClick={() => setExpiry(opt.value)}
-                className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all border ${
-                  expiry === opt.value
-                    ? "bg-bucket-accent/10 border-bucket-accent text-bucket-accent shadow-[0_0_15px_rgba(255,106,0,0.1)]"
-                    : "bg-bucket-bg border-bucket-border text-bucket-muted hover:border-bucket-border-hover"
-                }`}
+                className="px-3 py-1.5 rounded-xl text-[11px] font-extrabold border-2 border-black transition-all shadow-hard-sm active:shadow-none active:translate-x-[3px] active:translate-y-[3px]"
+                style={{
+                  background: expiry === opt.value ? "#000" : "#fff",
+                  color:      expiry === opt.value ? "#fff" : "#000",
+                }}
               >
                 {opt.label}
               </button>
@@ -117,46 +100,39 @@ export default function QuickDump({ onDump, allTags = [] }) {
           </div>
         </div>
 
-        {/* Tags UI */}
+        {/* Tags */}
         <div className="mt-4">
-          <div className="flex flex-wrap gap-2 mb-3">
-            {tags.map(t => (
-              <span 
-                key={t} 
-                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold"
-                style={{ background: hashColor(t) + "20", color: hashColor(t), border: `1px solid ${hashColor(t)}40` }}
-              >
-                {t}
-                <button onClick={() => removeTag(t)} className="ml-1 opacity-50 hover:opacity-100">×</button>
-              </span>
-            ))}
-          </div>
-          
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-3">
+              {tags.map(t => (
+                <span
+                  key={t}
+                  className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-extrabold bg-black text-white border-2 border-black"
+                >
+                  {t}
+                  <button onClick={() => setTags(tags.filter(x => x !== t))} className="opacity-60 hover:opacity-100 ml-0.5">×</button>
+                </span>
+              ))}
+            </div>
+          )}
+
           <div className="relative">
             <input
-              className="w-full bg-bucket-bg border border-bucket-border rounded-xl px-4 py-2.5 text-[13px] text-bucket-text outline-none focus:border-bucket-border-hover transition placeholder:text-bucket-muted"
-              placeholder="Add tags (press Enter)..."
+              className="w-full bg-[#FFF8EE] border-2 border-black rounded-xl px-4 py-2.5 text-[13px] font-bold text-black outline-none placeholder:text-black/30 focus:bg-white transition"
+              placeholder="+ add tags (press Enter)"
               value={tagInput}
               onFocus={() => setShowSuggestions(true)}
-              onChange={(e) => {
-                setTagInput(e.target.value);
-                setShowSuggestions(true);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  addTag();
-                }
-              }}
+              onChange={(e) => { setTagInput(e.target.value); setShowSuggestions(true); }}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
             />
-            
+
             {showSuggestions && suggestions.length > 0 && (
-              <div className="absolute bottom-full left-0 mb-2 w-full bg-bucket-card border border-bucket-border rounded-xl py-2 z-50 shadow-2xl">
+              <div className="absolute bottom-full left-0 mb-2 w-full bg-white border-2 border-black rounded-xl py-1 z-50 shadow-hard">
                 {suggestions.map(s => (
                   <button
                     key={s}
                     onClick={() => addTag(s)}
-                    className="w-full text-left px-4 py-2 text-[13px] text-bucket-text-dim hover:bg-bucket-bg hover:text-bucket-text transition"
+                    className="w-full text-left px-4 py-2.5 text-[13px] font-bold text-black hover:bg-[#CAFF00] transition-colors"
                   >
                     {s}
                   </button>
@@ -166,9 +142,10 @@ export default function QuickDump({ onDump, allTags = [] }) {
           </div>
         </div>
 
+        {/* Dump button */}
         <button
           onClick={handleDump}
-          className="mt-5 w-full flex items-center justify-center gap-2 rounded-2xl bg-bucket-accent px-6 py-3.5 font-bold text-black hover:brightness-110 transition shadow-[0_0_25px_rgba(255,106,0,0.18)] text-[14px]"
+          className="mt-5 w-full flex items-center justify-center gap-2 rounded-2xl bg-black text-white px-6 py-3.5 font-extrabold text-[14px] border-2 border-black shadow-hard-sm transition-all active:shadow-none active:translate-x-[3px] active:translate-y-[3px] hover:bg-[#FF6A00] hover:text-white"
         >
           🪣 dump it
         </button>

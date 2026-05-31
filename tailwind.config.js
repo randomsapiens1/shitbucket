@@ -5,15 +5,19 @@ module.exports = {
     extend: {
       colors: {
         bucket: {
-          bg: "var(--bg)",
-          card: "var(--card)",
-          border: "var(--border)",
+          bg:            "var(--bg)",
+          card:          "var(--card)",
+          border:        "var(--border)",
           "border-hover": "var(--border-hover)",
-          muted: "var(--muted)",
-          text: "var(--text)",
-          "text-dim": "var(--text-dim)",
-          accent: "var(--accent)",
-          "accent-dim": "var(--accent-dim)",
+          muted:         "var(--muted)",
+          text:          "var(--text)",
+          "text-dim":    "var(--text-dim)",
+          accent:        "var(--accent)",
+          "accent-dim":  "var(--accent-dim)",
+          lime:          "var(--card-lime)",
+          pink:          "var(--card-pink)",
+          "blue-pastel": "var(--card-blue)",
+          yellow:        "var(--card-yellow)",
         },
       },
       fontFamily: {

@@ -48,19 +48,30 @@ export async function createIdea(idea) {
   if (idea.pinned) payload.pinned = true;
   if (idea.expires_at) payload.expires_at = idea.expires_at;
 
-  const { data, error } = await supabase
-    .from("ideas")
-    .insert(payload)
-    .select(CORE_COLUMNS)
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from("ideas")
+      .insert(payload)
+      .select(CORE_COLUMNS)
+      .single();
 
-  if (error) {
-    if (error.message?.includes("expires_at") || error.message?.includes("pinned")) {
-      throw new Error("SCHEMA_MISSING: Please run the SQL command provided in the chat to enable Pinned/Expiring ideas.");
+    if (error) throw error;
+    return data;
+  } catch (e) {
+    const isSchemaError = e.message?.includes("expires_at") || e.message?.includes("pinned") || e.code === "PGRST204";
+
+    if (isSchemaError) {
+      const { pinned: _p, expires_at: _e, ...safePayload } = payload;
+      const { data: retryData, error: retryError } = await supabase
+        .from("ideas")
+        .insert(safePayload)
+        .select("id, user_id, title, thought, thoughts, tags, links, fields, tasks, created_at, updated_at")
+        .single();
+      if (retryError) throw retryError;
+      return retryData;
     }
-    throw error;
+    throw e;
   }
-  return data;
 }
 
 export async function updateIdea(id, updates) {

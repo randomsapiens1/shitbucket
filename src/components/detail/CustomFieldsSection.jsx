@@ -14,27 +14,29 @@ export default function CustomFieldsSection({ fields, onAdd, onUpdate, onRemove 
     setName(""); setType("text"); setShow(false);
   }
 
+  const inputClass = "w-full bg-[#FFF8EE] border-2 border-black/20 focus:border-black rounded-xl px-3 py-2.5 text-black font-bold text-[13px] outline-none transition placeholder:text-black/30";
+
   return (
     <Section label="custom fields">
       {(fields || []).map(f => (
-        <div key={f.id} className="bg-bucket-card border border-bucket-border rounded-xl p-4 mb-2">
+        <div key={f.id} className="bg-[#FFF8EE] border border-black/15 rounded-xl p-4 mb-2">
           <div className="flex justify-between items-center mb-2.5">
-            <span className="text-[11px] text-bucket-accent uppercase tracking-wide font-semibold">{f.name}</span>
-            <button onClick={() => onRemove(f.id)} className="text-bucket-muted hover:text-bucket-text-dim text-base px-1 transition">×</button>
+            <span className="text-[11px] font-extrabold uppercase tracking-wide text-black">{f.name}</span>
+            <button onClick={() => onRemove(f.id)} className="text-black/30 hover:text-black text-base px-1 transition font-bold">×</button>
           </div>
 
-          {f.type === "text" && (
+          {(f.type === "text" || f.type === "link") && (
             <input
-              className="w-full bg-bucket-bg border border-bucket-border rounded-xl px-3 py-2.5 text-bucket-text text-[13px] outline-none focus:border-bucket-border-hover transition placeholder:text-bucket-muted"
+              className={inputClass}
               value={f.value || ""}
               onChange={(e) => onUpdate(f.id, e.target.value)}
-              placeholder="enter value..."
+              placeholder={f.type === "link" ? "https://..." : "enter value..."}
             />
           )}
           {f.type === "number" && (
             <input
               type="number"
-              className="w-full bg-bucket-bg border border-bucket-border rounded-xl px-3 py-2.5 text-bucket-text text-[13px] outline-none focus:border-bucket-border-hover transition placeholder:text-bucket-muted"
+              className={inputClass}
               value={f.value || ""}
               onChange={(e) => onUpdate(f.id, e.target.value)}
               placeholder="0"
@@ -43,24 +45,16 @@ export default function CustomFieldsSection({ fields, onAdd, onUpdate, onRemove 
           {f.type === "checkbox" && (
             <label className="flex items-center gap-3 cursor-pointer">
               <div
-                className="w-5 h-5 rounded-md flex items-center justify-center cursor-pointer transition-all"
-                style={{ border: `2px solid ${f.value ? "#ff6a00" : "var(--border-hover)"}`, background: f.value ? "#ff6a00" : "transparent" }}
+                className="w-5 h-5 rounded-md border-2 border-black flex items-center justify-center transition-all"
+                style={{ background: f.value ? "#FF6A00" : "transparent" }}
                 onClick={() => onUpdate(f.id, !f.value)}
               >
-                {f.value && <span className="text-black text-xs font-bold">✓</span>}
+                {f.value && <span className="text-black text-xs font-black">✓</span>}
               </div>
-              <span className="text-[13px]" style={{ color: f.value ? "#ff6a00" : "var(--muted)" }}>
+              <span className="text-[13px] font-bold text-black/50">
                 {f.value ? "yes" : "no"}
               </span>
             </label>
-          )}
-          {f.type === "link" && (
-            <input
-              className="w-full bg-bucket-bg border border-bucket-border rounded-xl px-3 py-2.5 text-bucket-text text-[13px] outline-none focus:border-bucket-border-hover transition placeholder:text-bucket-muted"
-              value={f.value || ""}
-              onChange={(e) => onUpdate(f.id, e.target.value)}
-              placeholder="https://..."
-            />
           )}
         </div>
       ))}
@@ -68,14 +62,14 @@ export default function CustomFieldsSection({ fields, onAdd, onUpdate, onRemove 
       {!show ? (
         <button
           onClick={() => setShow(true)}
-          className="w-full border border-dashed border-bucket-border-hover rounded-xl py-3 text-bucket-muted text-xs mt-1 hover:border-bucket-border-hover transition"
+          className="w-full border-2 border-dashed border-black/20 hover:border-black rounded-xl py-3 text-black/40 hover:text-black font-extrabold text-[12px] mt-1 transition"
         >
           + add field
         </button>
       ) : (
         <div className="flex flex-col gap-2 mt-2">
           <input
-            className="w-full bg-bucket-bg border border-bucket-border rounded-xl px-3 py-2.5 text-bucket-text text-[13px] outline-none focus:border-bucket-border-hover transition placeholder:text-bucket-muted"
+            className={inputClass}
             placeholder="field name (e.g. Budget)"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -85,11 +79,11 @@ export default function CustomFieldsSection({ fields, onAdd, onUpdate, onRemove 
               <button
                 key={ft.key}
                 onClick={() => setType(ft.key)}
-                className="flex flex-col items-center gap-0.5 px-3 py-2.5 border rounded-xl flex-1 transition"
+                className="flex flex-col items-center gap-0.5 px-3 py-2.5 border-2 rounded-xl flex-1 font-extrabold transition-all"
                 style={{
-                  background:   type === ft.key ? "rgba(255, 106, 0, 0.08)"  : "transparent",
-                  borderColor:  type === ft.key ? "rgba(255, 106, 0, 0.25)"  : "var(--border)",
-                  color:        type === ft.key ? "var(--accent)"    : "var(--muted)",
+                  background:  type === ft.key ? "#000" : "#fff",
+                  borderColor: "#000",
+                  color:       type === ft.key ? "#fff" : "#000",
                 }}
               >
                 <span className="text-sm">{ft.icon}</span>
@@ -98,8 +92,13 @@ export default function CustomFieldsSection({ fields, onAdd, onUpdate, onRemove 
             ))}
           </div>
           <div className="flex gap-2">
-            <button onClick={handleAdd} className="bg-bucket-card border border-bucket-border text-bucket-accent rounded-xl px-4 py-2 text-xs font-semibold hover:border-bucket-border-hover transition">add</button>
-            <button onClick={() => setShow(false)} className="text-bucket-muted text-xs hover:text-bucket-text-dim transition">cancel</button>
+            <button
+              onClick={handleAdd}
+              className="bg-black text-white border-2 border-black rounded-xl px-4 py-2 text-[12px] font-extrabold shadow-hard-sm transition-all active:shadow-none active:translate-x-[3px] active:translate-y-[3px] hover:bg-[#FF6A00] hover:text-white"
+            >
+              add
+            </button>
+            <button onClick={() => setShow(false)} className="text-black/40 text-[12px] font-bold hover:text-black transition">cancel</button>
           </div>
         </div>
       )}

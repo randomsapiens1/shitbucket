@@ -10,11 +10,10 @@ import DetailMenu from "./DetailMenu";
 
 export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, onShare }) {
   const [newThought, setNewThought] = useState("");
-  const [newTag, setNewTag] = useState("");
-  const [newTask, setNewTask] = useState("");
-  const [showMenu, setShowMenu] = useState(false);
+  const [newTag,     setNewTag]     = useState("");
+  const [newTask,    setNewTask]    = useState("");
+  const [showMenu,   setShowMenu]   = useState(false);
 
-  // --- Thoughts ---
   function addThought() {
     if (!newThought.trim()) return;
     onUpdate(i => { i.thoughts = [...(i.thoughts || []), { id: genId(), text: newThought.trim(), ts: Date.now() }]; });
@@ -24,7 +23,6 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
     onUpdate(i => { i.thoughts = (i.thoughts || []).filter(t => t.id !== tid); });
   }
 
-  // --- Tags ---
   function addTag(overrideTag) {
     const t = (overrideTag || newTag).trim().toLowerCase();
     if (!t || (idea.tags || []).includes(t)) return;
@@ -35,7 +33,6 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
     onUpdate(i => { i.tags = (i.tags || []).filter(t => t !== tag); });
   }
 
-  // --- Links ---
   function addLink({ url, label }) {
     onUpdate(i => { i.links = [...(i.links || []), { id: genId(), url, label }]; });
   }
@@ -43,7 +40,6 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
     onUpdate(i => { i.links = (i.links || []).filter(l => l.id !== lid); });
   }
 
-  // --- Custom fields ---
   function addField({ name, type, value }) {
     onUpdate(i => { i.fields = [...(i.fields || []), { id: genId(), name, type, value }]; });
   }
@@ -54,7 +50,6 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
     onUpdate(i => { i.fields = (i.fields || []).filter(f => f.id !== fid); });
   }
 
-  // --- Tasks ---
   function addTask() {
     if (!newTask.trim()) return;
     onUpdate(i => { i.tasks = [...(i.tasks || []), { id: genId(), text: newTask.trim(), done: false, ts: Date.now() }]; });
@@ -68,14 +63,29 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
   }
 
   return (
-    <div className="min-h-screen bg-bucket-bg text-bucket-text pb-24 max-w-xl mx-auto">
+    <div className="min-h-screen bg-[#FFF8EE] text-black pb-24 max-w-xl mx-auto">
 
       {/* Header */}
-      <div className="flex justify-between items-center px-4 py-4 border-b border-bucket-border">
-        <button onClick={onBack} className="text-bucket-text-dim text-[13px] hover:text-bucket-text transition">← back</button>
+      <div className="flex justify-between items-center px-4 py-4 border-b-2 border-black bg-white">
+        <button
+          onClick={onBack}
+          className="flex items-center gap-1.5 text-black font-extrabold text-[13px] bg-[#FFF8EE] border-2 border-black rounded-xl px-3 py-1.5 shadow-hard-sm transition-all active:shadow-none active:translate-x-[3px] active:translate-y-[3px]"
+        >
+          ← back
+        </button>
         <div className="flex gap-2">
-          <button onClick={onShare} className="border border-bucket-border text-bucket-text-dim hover:text-bucket-text hover:border-bucket-border-hover text-base px-2.5 py-1.5 rounded-lg transition">↗</button>
-          <button onClick={() => setShowMenu(!showMenu)} className="border border-bucket-border text-bucket-text-dim hover:text-bucket-text hover:border-bucket-border-hover text-base px-2.5 py-1.5 rounded-lg transition">⋯</button>
+          <button
+            onClick={onShare}
+            className="border-2 border-black text-black font-extrabold text-base px-2.5 py-1.5 rounded-xl shadow-hard-sm transition-all active:shadow-none active:translate-x-[3px] active:translate-y-[3px] hover:bg-black/5"
+          >
+            ↗
+          </button>
+          <button
+            onClick={() => setShowMenu(!showMenu)}
+            className="border-2 border-black text-black font-extrabold text-base px-2.5 py-1.5 rounded-xl shadow-hard-sm transition-all active:shadow-none active:translate-x-[3px] active:translate-y-[3px] hover:bg-black/5"
+          >
+            ⋯
+          </button>
         </div>
       </div>
 
@@ -83,15 +93,17 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
 
       {/* Content */}
       <div className="px-4 pb-10">
-        <h1 className="text-[22px] font-bold text-bucket-text leading-snug pt-5 pb-1">{idea.title}</h1>
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-bucket-muted mb-5">
+        <h1 className="text-[24px] font-extrabold text-black leading-snug pt-5 pb-1">
+          {idea.title}
+        </h1>
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-bold text-black/40 mb-6">
           <span>created {new Date(idea.created_at).toLocaleDateString()}</span>
           <span>•</span>
           <span>updated {timeAgo(idea.updated_at)}</span>
           {idea.expires_at && (
             <>
               <span>•</span>
-              <span className="text-bucket-accent font-bold uppercase tracking-tight">
+              <span className="text-[#FF6A00] font-extrabold uppercase tracking-tight">
                 {formatCountdown(idea.expires_at)}
               </span>
             </>

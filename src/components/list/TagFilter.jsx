@@ -1,15 +1,12 @@
-import { hashColor } from "@/lib/utils";
-
 export default function TagFilter({ tags, activeTag, onSelect }) {
   return (
-    <div className="flex gap-1.5 px-4 pt-5 overflow-x-auto scrollbar-hide">
+    <div className="flex gap-2 px-4 pt-4 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
       <button
         onClick={() => onSelect(null)}
-        className="shrink-0 border rounded-full px-3.5 py-1.5 text-[11px] transition"
+        className="shrink-0 border-2 border-black rounded-xl px-3.5 py-1.5 text-[11px] font-extrabold transition-all shadow-hard-sm active:shadow-none active:translate-x-[3px] active:translate-y-[3px]"
         style={{
-          background:   !activeTag ? "#ff6a0018"  : "transparent",
-          borderColor:  !activeTag ? "#ff6a0040"  : "#222",
-          color:        !activeTag ? "#ff6a00"    : "#666",
+          background: !activeTag ? "#000" : "#fff",
+          color:      !activeTag ? "#fff" : "#000",
         }}
       >
         all
@@ -19,11 +16,10 @@ export default function TagFilter({ tags, activeTag, onSelect }) {
         <button
           key={t}
           onClick={() => onSelect(activeTag === t ? null : t)}
-          className="shrink-0 border rounded-full px-3.5 py-1.5 text-[11px] transition"
+          className="shrink-0 border-2 border-black rounded-xl px-3.5 py-1.5 text-[11px] font-extrabold transition-all shadow-hard-sm active:shadow-none active:translate-x-[3px] active:translate-y-[3px]"
           style={{
-            background:  activeTag === t ? hashColor(t) + "18" : "transparent",
-            borderColor: activeTag === t ? hashColor(t) + "40" : "#222",
-            color:       activeTag === t ? hashColor(t)        : "#666",
+            background: activeTag === t ? "#000" : "#fff",
+            color:      activeTag === t ? "#fff" : "#000",
           }}
         >
           {t}

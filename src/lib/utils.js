@@ -1,3 +1,15 @@
+const CARD_COLORS = [
+  { bg: "var(--card-lime)",   text: "#0A0A0A" },
+  { bg: "var(--card-pink)",   text: "#0A0A0A" },
+  { bg: "var(--card-blue)",   text: "#0A0A0A" },
+  { bg: "var(--card-yellow)", text: "#0A0A0A" },
+];
+
+export function cardColor(id) {
+  const hash = (id || "").split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  return CARD_COLORS[hash % CARD_COLORS.length];
+}
+
 export const TAG_COLORS = [
   "#ff6a00", "#ff3d00", "#ffab00", "#ff6d3a", "#e85d04",
   "#ff8800", "#d45500", "#ffcc02", "#ff4400", "#c75000",
