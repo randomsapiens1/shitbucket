@@ -88,50 +88,34 @@ export default function ListView({
       />
 
       {/* ── Header ── */}
-      <div className="sticky top-0 z-30 px-4 pt-4 pb-2 bg-[#FFF8EE]">
+      <div className="px-4 pt-4 pb-2">
         <div
           className="flex items-center justify-between"
           style={{
-            height: 88,
-            borderRadius: 28,
-            padding: "0 20px",
+            height: 64,
+            borderRadius: 20,
+            padding: "0 16px",
             background: "#F5F2EA",
             boxShadow:
-              "0 2px 20px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.7)",
+              "0 2px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.7)",
             border: "1px solid rgba(0,0,0,0.07)",
           }}
         >
-          {/* Left: logo tile + wordmark */}
-          <div className="flex items-center gap-3 min-w-0">
-            {/* Logo tile */}
-            <div
-              className="shrink-0 flex items-center justify-center"
-              style={{
-                width: 54,
-                height: 54,
-                borderRadius: 17,
-                background: "#FFFFFF",
-                boxShadow:
-                  "0 2px 10px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.9)",
-                border: "1px solid rgba(0,0,0,0.06)",
-              }}
-            >
-              <img
-                src="/logo-shitBucket-day.png"
-                alt="ShitBucket"
-                style={{ width: 34, height: 34, objectFit: "contain" }}
-              />
-            </div>
-
-            {/* Wordmark */}
+          {/* Left: logo + wordmark */}
+          <div className="flex items-center gap-2.5 min-w-0">
+            <img
+              src="/logo-shitBucket-day.png"
+              alt="ShitBucket"
+              style={{ width: 28, height: 28, objectFit: "contain", flexShrink: 0 }}
+            />
             <span
-              className="leading-none select-none truncate"
+              className="leading-none select-none"
               style={{
                 fontFamily: "'JetBrains Mono', monospace",
-                fontSize: "clamp(24px, 7.5vw, 44px)",
+                fontSize: 18,
                 fontWeight: 800,
                 color: "#0A0A0A",
-                letterSpacing: "-0.03em",
+                letterSpacing: "-0.02em",
               }}
             >
               ShitBucket
@@ -139,34 +123,31 @@ export default function ListView({
           </div>
 
           {/* Right: menu button */}
-          <div className="relative shrink-0 ml-3">
+          <div className="relative shrink-0">
             <button
               onClick={() => setShowMenu(true)}
-              className="flex items-center justify-center transition-all duration-150 hover:-translate-y-[2px] active:translate-y-[1px]"
+              className="flex items-center justify-center transition-all duration-150 active:scale-95"
               style={{
-                width: 54,
-                height: 54,
-                borderRadius: 17,
+                width: 40,
+                height: 40,
+                borderRadius: 13,
                 background: "#FFFFFF",
-                boxShadow:
-                  "0 2px 10px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.9)",
+                boxShadow: "0 1px 6px rgba(0,0,0,0.09), 0 1px 2px rgba(0,0,0,0.05)",
                 border: "1px solid rgba(0,0,0,0.08)",
               }}
               title="Menu"
             >
-              {/* Staggered-width lines — premium feel */}
-              <svg width="18" height="13" viewBox="0 0 18 13" fill="none">
-                <rect x="0" y="0"  width="18" height="2" rx="1" fill="#0A0A0A"/>
-                <rect x="0" y="5.5" width="13" height="2" rx="1" fill="#0A0A0A"/>
-                <rect x="0" y="11" width="8"  height="2" rx="1" fill="#0A0A0A"/>
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+                <rect x="0" y="0"   width="16" height="2" rx="1" fill="#0A0A0A"/>
+                <rect x="0" y="5"   width="11" height="2" rx="1" fill="#0A0A0A"/>
+                <rect x="0" y="10"  width="7"  height="2" rx="1" fill="#0A0A0A"/>
               </svg>
             </button>
-            {/* Orange notification dot */}
             <span
-              className="absolute top-[10px] right-[10px] pointer-events-none"
+              className="absolute top-[8px] right-[8px] pointer-events-none"
               style={{
-                width: 7,
-                height: 7,
+                width: 6,
+                height: 6,
                 borderRadius: "50%",
                 background: "#FF6A00",
                 border: "1.5px solid #F5F2EA",
@@ -180,7 +161,7 @@ export default function ListView({
       <LiveClock />
 
       {/* Stats + search */}
-      <div className="px-4 pt-4 pb-2 flex items-center gap-2">
+      <div className="px-4 pb-2 flex items-center gap-2">
         <div className="bg-black text-white rounded-xl px-4 py-2.5 text-[12px] font-extrabold flex items-center gap-2 shadow-hard-sm whitespace-nowrap">
           <span>💡</span>
           <span>{ideas.length} {ideas.length === 1 ? "idea" : "ideas"}</span>

@@ -70,14 +70,14 @@ export default function QuickDump({ onDump, allTags = [] }) {
         {/* Textarea */}
         <textarea
           ref={ref}
-          rows={3}
+          rows={6}
           maxLength={500}
           placeholder="write it down..."
           onChange={(e) => setCharCount(e.target.value.length)}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleDump(); }
           }}
-          className="w-full rounded-2xl border-2 border-black bg-[#FFF8EE] px-4 py-3 text-black font-bold resize-none outline-none placeholder:text-black/30 text-[14px] leading-relaxed focus:border-black transition"
+          className="w-full rounded-2xl border-2 border-black bg-[#FFF8EE] px-4 py-4 text-black font-bold resize-none outline-none placeholder:text-black/30 text-[15px] leading-relaxed focus:border-black transition"
         />
 
         {/* Expiry */}
@@ -119,7 +119,7 @@ export default function QuickDump({ onDump, allTags = [] }) {
           <div className="relative">
             <input
               className="w-full bg-[#FFF8EE] border-2 border-black rounded-xl px-4 py-2.5 text-[13px] font-bold text-black outline-none placeholder:text-black/30 focus:bg-white transition"
-              placeholder="+ add tags (press Enter)"
+              placeholder="+ add topic (press Enter)"
               value={tagInput}
               onFocus={() => setShowSuggestions(true)}
               onChange={(e) => { setTagInput(e.target.value); setShowSuggestions(true); }}

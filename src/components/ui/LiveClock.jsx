@@ -20,8 +20,8 @@ export default function LiveClock() {
   if (!now) {
     return (
       <div
-        className="mx-4 my-3 rounded-[24px]"
-        style={{ height: 76, background: "#111111" }}
+        className="mx-4 mb-2 rounded-[20px]"
+        style={{ height: 64, background: "#111111" }}
       />
     );
   }
@@ -36,12 +36,13 @@ export default function LiveClock() {
   const icon    = getTimeOfDayIcon(h24);
 
   return (
-    <div className="mx-4 my-3">
+    <div className="mx-4 mb-2">
       <div
         className="flex items-center transition-transform duration-300 hover:-translate-y-[2px]"
         style={{
-          borderRadius: 24,
-          padding: "14px 20px",
+          height: 64,
+          borderRadius: 20,
+          padding: "0 20px",
           background: "linear-gradient(145deg, #111111 0%, #1a1a1a 100%)",
           boxShadow:
             "0 8px 24px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.055)",
@@ -55,7 +56,7 @@ export default function LiveClock() {
             className="tabular-nums leading-none select-none"
             style={{
               fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 46,
+              fontSize: 36,
               fontWeight: 800,
               color: "#F5F3EE",
               letterSpacing: "-0.03em",
@@ -122,7 +123,7 @@ export default function LiveClock() {
             className="leading-none"
             style={{
               fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 18,
+              fontSize: 15,
               fontWeight: 800,
               color: "#F5F3EE",
               letterSpacing: "-0.01em",
