@@ -2,12 +2,23 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 
+function getTimeOfDayIcon(h) {
+  if (h >= 5  && h < 12) return "☀";
+  if (h >= 12 && h < 17) return "◑";
+  if (h >= 17 && h < 21) return "◐";
+  return "●";
+}
+
 export default function HamburgerMenu({ open, onClose, fontSize, setFontSize, onLogout, lateNight }) {
   const [user, setUser] = useState(null);
+  const [now,  setNow]  = useState(null);
 
   useEffect(() => {
     if (open) {
       supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+      setNow(new Date());
+      const t = setInterval(() => setNow(new Date()), 1000);
+      return () => clearInterval(t);
     }
   }, [open]);
 
@@ -42,6 +53,33 @@ export default function HamburgerMenu({ open, onClose, fontSize, setFontSize, on
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-5 py-6 space-y-6">
+
+          {/* Date + Time */}
+          {now && (
+            <div className="bg-white border-2 border-black rounded-2xl shadow-hard p-4 flex items-center justify-between">
+              <div className="flex items-baseline gap-1.5">
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 32, fontWeight: 800, color: "#0A0A0A", letterSpacing: "-0.03em", lineHeight: 1 }}>
+                  {String(now.getHours() % 12 || 12).padStart(2, "0")}:{String(now.getMinutes()).padStart(2, "0")}
+                </span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600, color: "rgba(10,10,10,0.35)", letterSpacing: "0.06em", paddingBottom: 4 }}>
+                  {now.getHours() >= 12 ? "PM" : "AM"}
+                </span>
+              </div>
+              <div className="flex flex-col items-end" style={{ gap: 3 }}>
+                <div className="flex items-center gap-1">
+                  <span style={{ fontSize: 9, color: "rgba(10,10,10,0.35)", lineHeight: 1 }}>
+                    {getTimeOfDayIcon(now.getHours())}
+                  </span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700, color: "#FF6A00", letterSpacing: "0.14em" }}>
+                    {now.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase()}
+                  </span>
+                </div>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, fontWeight: 800, color: "#0A0A0A", letterSpacing: "-0.01em" }}>
+                  {now.toLocaleDateString("en-US", { month: "short" }).toUpperCase()} {String(now.getDate()).padStart(2, "0")}
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* Account */}
           {user && (

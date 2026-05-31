@@ -159,38 +159,22 @@ export default function ListView({
             </span>
           </div>
 
-          {/* Center: clock */}
+          {/* Center: date */}
           <div className="flex-1 flex items-center justify-end gap-3">
             {now && (
-              <>
-                {/* Time */}
-                <div className="flex items-baseline gap-1 shrink-0">
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 22, fontWeight: 800, color: "#0A0A0A", letterSpacing: "-0.03em" }}>
-                    {String(now.getHours() % 12 || 12).padStart(2, "0")}:{String(now.getMinutes()).padStart(2, "0")}
+              <div className="flex flex-col items-end shrink-0" style={{ gap: 2 }}>
+                <div className="flex items-center gap-1">
+                  <span style={{ fontSize: 8, color: "rgba(10,10,10,0.35)", lineHeight: 1 }}>
+                    {getTimeOfDayIcon(now.getHours())}
                   </span>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 600, color: "rgba(10,10,10,0.35)", letterSpacing: "0.06em" }}>
-                    {now.getHours() >= 12 ? "PM" : "AM"}
-                  </span>
-                </div>
-
-                {/* Divider */}
-                <div style={{ width: 1, height: 24, background: "rgba(0,0,0,0.1)", flexShrink: 0 }} />
-
-                {/* Date */}
-                <div className="flex flex-col items-end shrink-0" style={{ gap: 2 }}>
-                  <div className="flex items-center gap-1">
-                    <span style={{ fontSize: 8, color: "rgba(10,10,10,0.35)", lineHeight: 1 }}>
-                      {getTimeOfDayIcon(now.getHours())}
-                    </span>
-                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, fontWeight: 700, color: "#FF6A00", letterSpacing: "0.14em" }}>
-                      {now.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase()}
-                    </span>
-                  </div>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 800, color: "#0A0A0A", letterSpacing: "-0.01em" }}>
-                    {now.toLocaleDateString("en-US", { month: "short" }).toUpperCase()} {String(now.getDate()).padStart(2, "0")}
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, fontWeight: 700, color: "#FF6A00", letterSpacing: "0.14em" }}>
+                    {now.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase()}
                   </span>
                 </div>
-              </>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 800, color: "#0A0A0A", letterSpacing: "-0.01em" }}>
+                  {now.toLocaleDateString("en-US", { month: "short" }).toUpperCase()} {String(now.getDate()).padStart(2, "0")}
+                </span>
+              </div>
             )}
           </div>
 
