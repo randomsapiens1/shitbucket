@@ -21,7 +21,7 @@ export default function LiveClock() {
     return (
       <div
         className="mx-4 mb-2 rounded-[20px]"
-        style={{ height: 64, background: "#111111" }}
+        style={{ height: 64, background: "#F5F2EA" }}
       />
     );
   }
@@ -43,10 +43,10 @@ export default function LiveClock() {
           height: 64,
           borderRadius: 20,
           padding: "0 20px",
-          background: "linear-gradient(145deg, #111111 0%, #1a1a1a 100%)",
+          background: "#F5F2EA",
           boxShadow:
-            "0 8px 24px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.055)",
-          border: "1px solid rgba(255,255,255,0.055)",
+            "0 2px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.7)",
+          border: "1px solid rgba(0,0,0,0.07)",
         }}
       >
 
@@ -58,9 +58,8 @@ export default function LiveClock() {
               fontFamily: "'JetBrains Mono', monospace",
               fontSize: 36,
               fontWeight: 800,
-              color: "#F5F3EE",
+              color: "#0A0A0A",
               letterSpacing: "-0.03em",
-              textShadow: "0 0 60px rgba(245,243,238,0.07)",
             }}
           >
             {hours}:{mins}
@@ -71,7 +70,7 @@ export default function LiveClock() {
               fontFamily: "'JetBrains Mono', monospace",
               fontSize: 12,
               fontWeight: 600,
-              color: "rgba(245,243,238,0.28)",
+              color: "rgba(10,10,10,0.35)",
               letterSpacing: "0.06em",
               paddingBottom: 4,
             }}
@@ -85,7 +84,7 @@ export default function LiveClock() {
           className="self-stretch shrink-0"
           style={{
             width: 1,
-            background: "rgba(255,255,255,0.12)",
+            background: "rgba(0,0,0,0.08)",
             margin: "0 16px",
           }}
         />
@@ -99,7 +98,7 @@ export default function LiveClock() {
           <div className="flex items-center gap-1.5 w-full justify-end">
             <span
               className="select-none shrink-0"
-              style={{ fontSize: 10, color: "rgba(245,243,238,0.3)", lineHeight: 1 }}
+              style={{ fontSize: 10, color: "rgba(10,10,10,0.35)", lineHeight: 1 }}
             >
               {icon}
             </span>
@@ -125,7 +124,7 @@ export default function LiveClock() {
               fontFamily: "'JetBrains Mono', monospace",
               fontSize: 15,
               fontWeight: 800,
-              color: "#F5F3EE",
+              color: "#0A0A0A",
               letterSpacing: "-0.01em",
             }}
           >

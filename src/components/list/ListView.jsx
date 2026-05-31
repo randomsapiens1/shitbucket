@@ -1,11 +1,17 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import HamburgerMenu from "@/components/ui/HamburgerMenu";
-import LiveClock from "@/components/ui/LiveClock";
 import SortDropdown from "@/components/ui/SortDropdown";
 import QuickDump from "@/components/list/QuickDump";
 import TagFilter from "@/components/list/TagFilter";
 import IdeaCard from "@/components/list/IdeaCard";
+
+function getTimeOfDayIcon(h) {
+  if (h >= 5  && h < 12) return "☀";
+  if (h >= 12 && h < 17) return "◑";
+  if (h >= 17 && h < 21) return "◐";
+  return "●";
+}
 
 function playBeep() {
   try {
@@ -43,11 +49,20 @@ export default function ListView({
   onUpdateIdea,
   sessionStart,
   userId,
+  error,
+  onRetry,
 }) {
   const [lateNight,   setLateNight]   = useState(false);
   const [showWarning, setShowWarning] = useState(false);
   const [showMenu,    setShowMenu]    = useState(false);
+  const [now,         setNow]         = useState(null);
   const triggered = useRef(false);
+
+  useEffect(() => {
+    setNow(new Date());
+    const t = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
 
   useEffect(() => {
     function check() {
@@ -68,11 +83,32 @@ export default function ListView({
   }, [sessionStart]);
 
   return (
-    <div className="min-h-screen bg-[#FFF8EE] text-black pb-24 max-w-xl mx-auto">
+    <div className="min-h-screen bg-[#FFF8EE] text-[#121212] pb-24 max-w-xl mx-auto">
+
+      {/* Error state */}
+      {error && (
+        <div className="px-4 pt-4">
+          <div className="bg-red-50 border-2 border-red-500 rounded-2xl p-4 flex flex-col gap-3 shadow-hard-sm">
+            <div className="flex items-start gap-3 text-red-700">
+              <span className="text-xl">⚠️</span>
+              <div>
+                <p className="text-[13px] font-extrabold uppercase tracking-tight">Load Error</p>
+                <p className="text-[12px] font-bold opacity-80">{error}</p>
+              </div>
+            </div>
+            <button
+              onClick={onRetry}
+              className="bg-red-500 text-white font-extrabold text-[12px] px-4 py-2 rounded-xl border-2 border-red-500 shadow-hard-sm active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all"
+            >
+              retry loading
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Late night warning */}
       {showWarning && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-[#FF6A00] text-black text-[13px] font-extrabold px-5 py-3 rounded-2xl border-2 border-black shadow-hard-lg animate-bounce">
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-[#FF6A00] text-[#121212] text-[13px] font-extrabold px-5 py-3 rounded-2xl border-2 border-[#121212] shadow-hard-lg animate-bounce">
           <span>🚨</span>
           <span>it&apos;s past 2am. go to sleep.</span>
           <button onClick={() => setShowWarning(false)} className="ml-1 opacity-60 hover:opacity-100 text-base leading-none">×</button>
@@ -88,10 +124,10 @@ export default function ListView({
         lateNight={lateNight}
       />
 
-      {/* ── Header ── */}
+      {/* ── Header (logo + clock + menu merged) ── */}
       <div className="px-4 pt-4 pb-2">
         <div
-          className="flex items-center justify-between"
+          className="flex items-center gap-3"
           style={{
             height: 64,
             borderRadius: 20,
@@ -103,11 +139,11 @@ export default function ListView({
           }}
         >
           {/* Left: logo + wordmark */}
-          <div className="flex items-center gap-2.5 min-w-0">
+          <div className="flex items-center gap-2.5 shrink-0">
             <img
               src="/logo-shitBucket-day.png"
               alt="ShitBucket"
-              style={{ width: 28, height: 28, objectFit: "contain", flexShrink: 0 }}
+              style={{ width: 28, height: 28, objectFit: "contain" }}
             />
             <span
               className="leading-none select-none"
@@ -121,6 +157,41 @@ export default function ListView({
             >
               ShitBucket
             </span>
+          </div>
+
+          {/* Center: clock */}
+          <div className="flex-1 flex items-center justify-end gap-3">
+            {now && (
+              <>
+                {/* Time */}
+                <div className="flex items-baseline gap-1 shrink-0">
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 22, fontWeight: 800, color: "#0A0A0A", letterSpacing: "-0.03em" }}>
+                    {String(now.getHours() % 12 || 12).padStart(2, "0")}:{String(now.getMinutes()).padStart(2, "0")}
+                  </span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 600, color: "rgba(10,10,10,0.35)", letterSpacing: "0.06em" }}>
+                    {now.getHours() >= 12 ? "PM" : "AM"}
+                  </span>
+                </div>
+
+                {/* Divider */}
+                <div style={{ width: 1, height: 24, background: "rgba(0,0,0,0.1)", flexShrink: 0 }} />
+
+                {/* Date */}
+                <div className="flex flex-col items-end shrink-0" style={{ gap: 2 }}>
+                  <div className="flex items-center gap-1">
+                    <span style={{ fontSize: 8, color: "rgba(10,10,10,0.35)", lineHeight: 1 }}>
+                      {getTimeOfDayIcon(now.getHours())}
+                    </span>
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, fontWeight: 700, color: "#FF6A00", letterSpacing: "0.14em" }}>
+                      {now.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase()}
+                    </span>
+                  </div>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 800, color: "#0A0A0A", letterSpacing: "-0.01em" }}>
+                    {now.toLocaleDateString("en-US", { month: "short" }).toUpperCase()} {String(now.getDate()).padStart(2, "0")}
+                  </span>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Right: menu button */}
@@ -157,9 +228,6 @@ export default function ListView({
           </div>
         </div>
       </div>
-
-      {/* Time / date bar */}
-      <LiveClock />
 
       {/* Stats + search */}
       <div className="px-4 pb-2 flex items-center gap-2">

@@ -111,11 +111,12 @@ alter table public.idea_collaborators enable row level security;
 alter table public.collab_invites enable row level security;
 
 -- idea_collaborators: owner + collaborator can read; only owner can delete
+-- Note: uses invited_by (not a subquery into ideas) to avoid RLS infinite recursion
 create policy "Idea owner and collaborator can read collaborators"
   on public.idea_collaborators for select
   using (
     user_id = auth.uid()
-    or idea_id in (select id from public.ideas where user_id = auth.uid())
+    or invited_by = auth.uid()
   );
 
 create policy "Idea owner can delete collaborators"

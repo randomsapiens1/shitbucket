@@ -14,6 +14,7 @@ export default function Bucket({ onLogout, userId }) {
   const [view,        setView]        = useState("list");
   const [activeId,    setActiveId]    = useState(null);
   const [loading,     setLoading]     = useState(true);
+  const [error,       setError]       = useState(null);
   const [filterTag,   setFilterTag]   = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy,      setSortBy]      = useState("newest");
@@ -95,11 +96,13 @@ export default function Bucket({ onLogout, userId }) {
   }, [userId]);
 
   async function loadIdeas() {
+    setError(null);
     try {
       const data = await fetchIdeas();
       setIdeas(data);
     } catch (e) {
       console.error("Failed to load:", e);
+      setError(e.message || "Failed to load your pile. Check your connection.");
     }
     setLoading(false);
   }
@@ -272,6 +275,8 @@ export default function Bucket({ onLogout, userId }) {
         onPinIdea={handlePinIdea}
         sessionStart={sessionStart.current}
         userId={userId}
+        error={error}
+        onRetry={loadIdeas}
       />
     );
   }
