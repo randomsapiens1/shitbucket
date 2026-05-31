@@ -152,7 +152,7 @@ export default function QuickDump({ onDump, allTags = [] }) {
           onClick={handleDump}
           className="mt-5 w-full flex items-center justify-center gap-2 rounded-2xl bg-black text-white px-6 py-3.5 font-extrabold text-[14px] border-2 border-black shadow-hard-sm transition-all active:shadow-none active:translate-x-[3px] active:translate-y-[3px] hover:bg-[#FF6A00] hover:text-white"
         >
-          🪣 dump it
+          dump it
         </button>
       </div>
     </div>

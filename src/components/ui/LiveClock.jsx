@@ -55,7 +55,7 @@ export default function LiveClock() {
           <span
             className="tabular-nums leading-none select-none"
             style={{
-              fontFamily: "'JetBrains Mono', monospace",
+              fontFamily: "'Inter', sans-serif",
               fontSize: 36,
               fontWeight: 800,
               color: "#0A0A0A",
@@ -67,7 +67,7 @@ export default function LiveClock() {
           <span
             className="leading-none select-none"
             style={{
-              fontFamily: "'JetBrains Mono', monospace",
+              fontFamily: "'Inter', sans-serif",
               fontSize: 12,
               fontWeight: 600,
               color: "rgba(10,10,10,0.35)",
@@ -105,7 +105,7 @@ export default function LiveClock() {
             <span
               className="leading-none truncate"
               style={{
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: "'Inter', sans-serif",
                 fontSize: 9,
                 fontWeight: 700,
                 color: "#FF7A00",
@@ -121,7 +121,7 @@ export default function LiveClock() {
           <span
             className="leading-none"
             style={{
-              fontFamily: "'JetBrains Mono', monospace",
+              fontFamily: "'Inter', sans-serif",
               fontSize: 15,
               fontWeight: 800,
               color: "#0A0A0A",

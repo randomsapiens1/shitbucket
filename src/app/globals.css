@@ -47,8 +47,8 @@ body {
   overscroll-behavior: none;
 }
 
-h1, h2, h3, .font-mono {
-  font-family: 'JetBrains Mono', monospace;
+h1, h2, h3 {
+  font-family: 'Inter', sans-serif;
 }
 
 input, textarea, button {

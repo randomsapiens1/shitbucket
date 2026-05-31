@@ -93,7 +93,7 @@ export default function InvitePage() {
         {/* Branding */}
         <div className="flex items-center gap-2 mb-6 justify-center">
           <img src="/logo-shitBucket-day.png" alt="ShitBucket" className="w-7 h-7 object-contain" />
-          <span className="font-extrabold text-[16px] text-black" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+          <span className="font-extrabold text-[16px] text-black" style={{ fontFamily: "'Inter', sans-serif" }}>
             ShitBucket
           </span>
         </div>

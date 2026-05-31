@@ -148,7 +148,7 @@ export default function ListView({
             <span
               className="leading-none select-none"
               style={{
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: "'Inter', sans-serif",
                 fontSize: 18,
                 fontWeight: 800,
                 color: "#0A0A0A",
@@ -167,11 +167,11 @@ export default function ListView({
                   <span style={{ fontSize: 8, color: "rgba(10,10,10,0.35)", lineHeight: 1 }}>
                     {getTimeOfDayIcon(now.getHours())}
                   </span>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, fontWeight: 700, color: "#FF6A00", letterSpacing: "0.14em" }}>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 8, fontWeight: 700, color: "#FF6A00", letterSpacing: "0.14em" }}>
                     {now.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase()}
                   </span>
                 </div>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 800, color: "#0A0A0A", letterSpacing: "-0.01em" }}>
+                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: 800, color: "#0A0A0A", letterSpacing: "-0.01em" }}>
                   {now.toLocaleDateString("en-US", { month: "short" }).toUpperCase()} {String(now.getDate()).padStart(2, "0")}
                 </span>
               </div>
@@ -216,7 +216,6 @@ export default function ListView({
       {/* Stats + search */}
       <div className="px-4 pb-2 flex items-center gap-2">
         <div className="bg-black text-white rounded-xl px-4 py-2.5 text-[12px] font-extrabold flex items-center gap-2 shadow-hard-sm whitespace-nowrap">
-          <span>💡</span>
           <span>{ideas.length} {ideas.length === 1 ? "idea" : "ideas"}</span>
         </div>
 

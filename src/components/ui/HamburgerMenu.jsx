@@ -58,10 +58,10 @@ export default function HamburgerMenu({ open, onClose, fontSize, setFontSize, on
           {now && (
             <div className="bg-white border-2 border-black rounded-2xl shadow-hard p-4 flex items-center justify-between">
               <div className="flex items-baseline gap-1.5">
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 32, fontWeight: 800, color: "#0A0A0A", letterSpacing: "-0.03em", lineHeight: 1 }}>
+                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 32, fontWeight: 800, color: "#0A0A0A", letterSpacing: "-0.03em", lineHeight: 1 }}>
                   {String(now.getHours() % 12 || 12).padStart(2, "0")}:{String(now.getMinutes()).padStart(2, "0")}
                 </span>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600, color: "rgba(10,10,10,0.35)", letterSpacing: "0.06em", paddingBottom: 4 }}>
+                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 11, fontWeight: 600, color: "rgba(10,10,10,0.35)", letterSpacing: "0.06em", paddingBottom: 4 }}>
                   {now.getHours() >= 12 ? "PM" : "AM"}
                 </span>
               </div>
@@ -70,11 +70,11 @@ export default function HamburgerMenu({ open, onClose, fontSize, setFontSize, on
                   <span style={{ fontSize: 9, color: "rgba(10,10,10,0.35)", lineHeight: 1 }}>
                     {getTimeOfDayIcon(now.getHours())}
                   </span>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700, color: "#FF6A00", letterSpacing: "0.14em" }}>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 9, fontWeight: 700, color: "#FF6A00", letterSpacing: "0.14em" }}>
                     {now.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase()}
                   </span>
                 </div>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, fontWeight: 800, color: "#0A0A0A", letterSpacing: "-0.01em" }}>
+                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 14, fontWeight: 800, color: "#0A0A0A", letterSpacing: "-0.01em" }}>
                   {now.toLocaleDateString("en-US", { month: "short" }).toUpperCase()} {String(now.getDate()).padStart(2, "0")}
                 </span>
               </div>
