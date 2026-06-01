@@ -1,102 +1,89 @@
-# 🪣 shitbucket
+# 🪣 ShitBucket
 
-> "Dump your ideas. Brew them over time."
+> **Dump your ideas. Brew them over time.**
 
-Shitbucket is a lightweight, mobile-first idea capture tool designed to help you dump raw thoughts quickly and track their "brewing" progress over time. It's built for speed, privacy, and simplicity.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-Database-blue)](https://supabase.com/)
 
----
+**ShitBucket** is a brutalist, mobile-first idea capture tool designed for the "dump and brew" workflow. It's not a note-taking app; it's a refinery for your rawest thoughts.
 
-## ✨ Features
-
-- **🚀 Quick Capture:** Dump ideas in seconds with a 500-character limit.
-- **🧪 Brew Progress:** Automatic progress score (0–100%) based on idea completeness (thoughts, tags, tasks, links, custom fields).
-- **🏷️ Organization:** Tagging system, checklist tasks, and multiple notes (thoughts) per idea.
-- **🔗 Sharing:** Generate unique, public read-only links for any idea.
-- **⏳ Auto-Cleanup:** Support for expiring ideas that delete themselves after a set time.
-- **📱 PWA & Mobile:** Installable as a Progressive Web App or wrap it with Capacitor for native mobile.
-- **🛡️ Secure:** Powered by Supabase Auth and Row-Level Security (RLS).
-- **🌑 Dark Mode:** Optimized for low-light dumping.
+[**Live Demo**](https://shitbucket.vercel.app) (Placeholder) | [**Bug Report**](https://github.com/randomsapiens1/shitbucket/issues)
 
 ---
 
-## 🛠️ Setup (15 minutes, $0)
+## 📸 Showcase
 
-### Step 1: Supabase (database + auth)
+| The Pile (List) | Brewing Progress (Detail) | Quick Dump |
+| :---: | :---: | :---: |
+| ![The Pile](public/screenshot_1.jpeg) | ![Brew Detail](public/Screenshot_2.jpeg) | ![Quick Dump](public/Screenshot_3.jpeg) |
 
-1. Create a free account at [supabase.com](https://supabase.com).
-2. Create a **New Project** named `shitbucket`.
-3. Go to **SQL Editor** and run the contents of `supabase-schema.sql`.
-4. Go to **Settings > API** and copy your **Project URL** and `anon` **public key**.
+| Collaborative Sharing | Mobile First Design |
+| :---: | :---: |
+| ![Sharing](public/Screenshot_4.jpeg) | ![Mobile Design](public/Screenshot_5.jpeg) |
 
-### Step 2: Local setup
+---
 
+## 🧠 The Philosophy: Dump & Brew
+
+Most ideas start as "shit." They are raw, messy, and incomplete. ShitBucket encourages you to:
+
+1.  **Dump:** Get it out of your head in under 5 seconds.
+2.  **Brew:** Let it sit. Add thoughts, tasks, and links over time.
+3.  **Gold:** Watch the "Brew Progress" bar move from **Raw** to **Gold** as your idea matures.
+
+---
+
+## 🧪 The Brewing Algorithm
+
+ShitBucket uses a deterministic scoring system (0–100%) to track the maturity of an idea:
+
+-   **Description:** +10 points for a main thought.
+-   **Notes:** +6 points per sub-thought (up to 30).
+-   **Tags & Links:** +10 points each if present.
+-   **Fields:** +5 points per custom field (up to 15).
+-   **Tasks:** +10 points for having tasks + up to 15 points for completion ratio.
+
+---
+
+## 🛠️ Tech Stack
+
+-   **Frontend:** Next.js 16 (App Router), React 18, Tailwind CSS
+-   **Backend:** Supabase (Auth, PostgreSQL, RLS)
+-   **PWA:** Service Workers for offline-first capabilities
+-   **Mobile:** Capacitor for native iOS/Android wrapping
+
+---
+
+## 🚀 One-Click Setup
+
+### 1. Supabase Backend
+1. Create a project at [Supabase](https://supabase.com).
+2. Run the `supabase-schema.sql` in the SQL Editor.
+3. Copy your `Project URL` and `Anon Key`.
+
+### 2. Local Development
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/shitbucket.git
+git clone https://github.com/randomsapiens1/shitbucket.git
 cd shitbucket
-
-# Install dependencies
 npm install
-
-# Setup environment variables
 cp .env.local.example .env.local
 ```
-
-Edit `.env.local` and paste your Supabase credentials:
-```
-NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-```
-
-### Step 3: Run development server
-
+Fill in your `.env.local` and run:
 ```bash
 npm run dev
 ```
 
-Open [localhost:3000](http://localhost:3000) to see the app.
+---
 
-### Step 4: Configure Supabase Auth
+## 🤝 Contributing
 
-1. In Supabase, go to **Authentication > URL Configuration**.
-2. Set **Site URL** to `http://localhost:3000` (development) and add your production URL later.
-3. Under **Authentication > Providers**, ensure **Email** is enabled.
+We love contributions! Whether it's a bug fix, a new "Brew" metric, or a CSS tweak to make the shadows even harder, check out our [Contributing Guidelines](CONTRIBUTING.md).
+
+## 📄 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 
-## 🏗️ Project structure
-
-```
-shitbucket/
-├── public/           # PWA manifest, service worker, and assets
-├── src/
-│   ├── app/          # Next.js App Router (pages and layouts)
-│   ├── components/   # UI components (Auth, Bucket, List, Detail)
-│   ├── lib/          # Utilities, Supabase client, and DB logic
-│   └── ...
-├── supabase-schema.sql # Database schema and RLS policies
-├── capacitor.config.json # Capacitor configuration for mobile
-└── package.json      # Dependencies and scripts
-```
-
-## 🚀 Tech Stack
-
-- **Next.js 16** (React 18)
-- **Supabase** (Postgres DB + Auth + RLS)
-- **Tailwind CSS** (Styling)
-- **Capacitor** (Native Mobile Bridge)
-- **Vercel** (Hosting)
-
-## 🍻 Brewing Stages
-
-| Stage | Range | Emoji |
-|---|---|---|
-| raw | 0–19% | ★☆☆☆☆ |
-| maybe | 20–44% | ★★☆☆☆ |
-| cooking | 45–69% | ★★★☆☆ |
-| slaps | 70–94% | ★★★★☆ |
-| gold | 95–100% | ★★★★★ |
-
----
-
-Total cost to run: **$0** (on free tiers)
+*Built with 🧡 by [Raj Kumar](https://github.com/randomsapiens1) • [rajkumaryhere@gmail.com](mailto:rajkumaryhere@gmail.com)*
