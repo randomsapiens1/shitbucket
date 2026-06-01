@@ -189,23 +189,10 @@ export async function removeCollaborator(ideaId, userId) {
 // ============ SHARING ============
 
 export async function getSharedIdea(token) {
-  // First get the shared link
-  const { data: link, error: linkError } = await supabase
-    .from("shared_links")
-    .select("idea_id")
-    .eq("token", token)
+  const { data, error } = await supabase
+    .rpc("get_shared_idea", { p_token: token })
     .single();
 
-  if (linkError || !link) return null;
-
-  // Then fetch the idea (bypasses RLS via the public read policy on shared_links)
-  // We need a separate approach: use a Supabase function or fetch directly
-  const { data: idea, error: ideaError } = await supabase
-    .from("ideas")
-    .select("*")
-    .eq("id", link.idea_id)
-    .single();
-
-  if (ideaError) return null;
-  return idea;
+  if (error || !data) return null;
+  return data;
 }

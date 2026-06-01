@@ -151,6 +151,23 @@ alter table public.ideas replica identity full;
 create index idea_collaborators_user_id_idx on public.idea_collaborators(user_id);
 create index idea_collaborators_idea_id_idx on public.idea_collaborators(idea_id);
 create index collab_invites_token_idx on public.collab_invites(token);
+create index shared_links_idea_id_idx on public.shared_links(idea_id);
+
+-- RPC: securely fetch an idea via public share token (SECURITY DEFINER bypasses RLS)
+create or replace function get_shared_idea(p_token text)
+returns setof public.ideas
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  return query
+  select i.*
+  from public.ideas i
+  join public.shared_links sl on sl.idea_id = i.id
+  where sl.token = p_token;
+end;
+$$;
 
 -- RPC: securely accept an invite (SECURITY DEFINER bypasses RLS to read auth.users)
 create or replace function accept_collab_invite(p_token text)
