@@ -158,7 +158,9 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
         />
         
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[calc((11/12)*var(--base-font-size))] font-bold text-black/40 mb-6">
-          <span>created {new Date(idea.created_at).toLocaleDateString()}</span>
+          <span className="text-[#FF6A00]/60">
+            {new Date(idea.created_at).toLocaleDateString("en-GB", { day: 'numeric', month: 'short' })}
+          </span>
           <span>•</span>
           <span>updated {timeAgo(idea.updated_at)}</span>
           {idea.expires_at && (
@@ -175,8 +177,6 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
             </span>
           )}
         </div>
-
-        <BrewStatus idea={idea} />
 
         {isOwner && showCollaborators && (
           <CollaboratorsSection idea={idea} />
