@@ -1,4 +1,6 @@
 import SWRegistration from "@/components/ui/SWRegistration";
+import { Analytics } from "@vercel/analytics/react";
+import { PHProvider } from "./providers";
 import "./globals.css";
 
 export const metadata = {
@@ -35,8 +37,11 @@ export default function RootLayout({ children }) {
         <link rel="apple-touch-icon" href="/logo-shitBucket-day.png" />
       </head>
       <body>
-        {children}
-        <SWRegistration />
+        <PHProvider>
+          {children}
+          <Analytics />
+          <SWRegistration />
+        </PHProvider>
       </body>
     </html>
   );
