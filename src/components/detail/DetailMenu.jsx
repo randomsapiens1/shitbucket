@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 
-export default function DetailMenu({ show, onClose, onDelete, onInvite, isOwner }) {
+export default function DetailMenu({ show, onClose, onDelete, isOwner }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   if (!show) return null;
@@ -12,15 +12,7 @@ export default function DetailMenu({ show, onClose, onDelete, onInvite, isOwner 
         <>
           {isOwner && (
             <button
-              className="block w-full text-left text-black font-bold text-[13px] px-3 py-2.5 rounded-xl hover:bg-[#FFF8EE] transition"
-              onClick={() => { onInvite(); onClose(); }}
-            >
-              👥 invite teammate
-            </button>
-          )}
-          {isOwner && (
-            <button
-              className="block w-full text-left text-black font-bold text-[13px] px-3 py-2.5 rounded-xl hover:bg-[#FFB3D0] transition"
+              className="block w-full text-left text-black font-bold text-[calc((13/12)*var(--base-font-size))] px-3 py-2.5 rounded-xl hover:bg-[#FFB3D0] transition"
               onClick={() => setConfirmDelete(true)}
             >
               🗑 flush forever?
@@ -30,13 +22,13 @@ export default function DetailMenu({ show, onClose, onDelete, onInvite, isOwner 
       ) : (
         <div className="flex items-center gap-3 px-3 py-2">
           <button
-            className="bg-[#FFB3D0] border-2 border-black text-black font-extrabold text-[13px] px-4 py-1.5 rounded-xl shadow-hard-sm transition-all active:shadow-none active:translate-x-[3px] active:translate-y-[3px]"
+            className="bg-[#FFB3D0] border-2 border-black text-black font-extrabold text-[calc((13/12)*var(--base-font-size))] px-4 py-1.5 rounded-xl shadow-hard-sm transition-all active:shadow-none active:translate-x-[3px] active:translate-y-[3px]"
             onClick={onDelete}
           >
             flush
           </button>
           <button
-            className="text-black/50 font-bold text-[13px] hover:text-black transition"
+            className="text-black/50 font-bold text-[calc((13/12)*var(--base-font-size))] hover:text-black transition"
             onClick={() => { setConfirmDelete(false); onClose(); }}
           >
             keep it

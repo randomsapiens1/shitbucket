@@ -13,24 +13,6 @@ function getTimeOfDayIcon(h) {
   return "●";
 }
 
-function playBeep() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    [0, 0.25, 0.5].forEach((offset, i) => {
-      const osc  = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = "sine";
-      osc.frequency.value = 520 + i * 120;
-      gain.gain.setValueAtTime(0.4, ctx.currentTime + offset);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + offset + 0.2);
-      osc.start(ctx.currentTime + offset);
-      osc.stop(ctx.currentTime + offset + 0.2);
-    });
-  } catch (_e) {}
-}
-
 export default function ListView({
   ideas,
   filtered,
@@ -53,10 +35,8 @@ export default function ListView({
   onRetry,
 }) {
   const [lateNight,   setLateNight]   = useState(false);
-  const [showWarning, setShowWarning] = useState(false);
   const [showMenu,    setShowMenu]    = useState(false);
   const [now,         setNow]         = useState(null);
-  const triggered = useRef(false);
 
   useEffect(() => {
     setNow(new Date());
@@ -66,21 +46,13 @@ export default function ListView({
 
   useEffect(() => {
     function check() {
-      const now     = new Date();
-      const hour    = now.getHours();
-      const elapsed = Date.now() - sessionStart;
-      if (hour >= 2 && hour < 6 && elapsed >= 30 * 60 * 1000 && !triggered.current) {
-        triggered.current = true;
-        setLateNight(true);
-        setShowWarning(true);
-        playBeep();
-        setTimeout(() => setShowWarning(false), 5000);
-      }
+      const h = new Date().getHours();
+      setLateNight(h >= 0 && h < 6);
     }
     check();
-    const id = setInterval(check, 30_000);
+    const id = setInterval(check, 60_000);
     return () => clearInterval(id);
-  }, [sessionStart]);
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#FFF8EE] text-[#121212] pb-24 max-w-xl mx-auto">
@@ -92,26 +64,17 @@ export default function ListView({
             <div className="flex items-start gap-3 text-red-700">
               <span className="text-xl">⚠️</span>
               <div>
-                <p className="text-[13px] font-extrabold uppercase tracking-tight">Load Error</p>
-                <p className="text-[12px] font-bold opacity-80">{error}</p>
+                <p className="text-[calc((13/12)*var(--base-font-size))] font-extrabold uppercase tracking-tight">Load Error</p>
+                <p className="text-[calc((12/12)*var(--base-font-size))] font-bold opacity-80">{error}</p>
               </div>
             </div>
             <button
               onClick={onRetry}
-              className="bg-red-500 text-white font-extrabold text-[12px] px-4 py-2 rounded-xl border-2 border-red-500 shadow-hard-sm active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all"
+              className="bg-red-500 text-white font-extrabold text-[calc((12/12)*var(--base-font-size))] px-4 py-2 rounded-xl border-2 border-red-500 shadow-hard-sm active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all"
             >
               retry loading
             </button>
           </div>
-        </div>
-      )}
-
-      {/* Late night warning */}
-      {showWarning && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-[#FF6A00] text-[#121212] text-[13px] font-extrabold px-5 py-3 rounded-2xl border-2 border-[#121212] shadow-hard-lg animate-bounce">
-          <span>🚨</span>
-          <span>it&apos;s past 2am. go to sleep.</span>
-          <button onClick={() => setShowWarning(false)} className="ml-1 opacity-60 hover:opacity-100 text-base leading-none">×</button>
         </div>
       )}
 
@@ -149,7 +112,7 @@ export default function ListView({
               className="leading-none select-none"
               style={{
                 fontFamily: "'Inter', sans-serif",
-                fontSize: 18,
+                fontSize: 'calc((18/12)*var(--base-font-size))',
                 fontWeight: 800,
                 color: "#0A0A0A",
                 letterSpacing: "-0.02em",
@@ -164,14 +127,14 @@ export default function ListView({
             {now && (
               <div className="flex flex-col items-end shrink-0" style={{ gap: 2 }}>
                 <div className="flex items-center gap-1">
-                  <span style={{ fontSize: 8, color: "rgba(10,10,10,0.35)", lineHeight: 1 }}>
+                  <span style={{ fontSize: 'calc((8/12)*var(--base-font-size))', color: "rgba(10,10,10,0.35)", lineHeight: 1 }}>
                     {getTimeOfDayIcon(now.getHours())}
                   </span>
-                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 8, fontWeight: 700, color: "#FF6A00", letterSpacing: "0.14em" }}>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 'calc((8/12)*var(--base-font-size))', fontWeight: 700, color: "#FF6A00", letterSpacing: "0.14em" }}>
                     {now.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase()}
                   </span>
                 </div>
-                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: 800, color: "#0A0A0A", letterSpacing: "-0.01em" }}>
+                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 'calc((13/12)*var(--base-font-size))', fontWeight: 800, color: "#0A0A0A", letterSpacing: "-0.01em" }}>
                   {now.toLocaleDateString("en-US", { month: "short" }).toUpperCase()} {String(now.getDate()).padStart(2, "0")}
                 </span>
               </div>
@@ -215,7 +178,7 @@ export default function ListView({
 
       {/* Stats + search */}
       <div className="px-4 pb-2 flex items-center gap-2">
-        <div className="bg-black text-white rounded-xl px-4 py-2.5 text-[12px] font-extrabold flex items-center gap-2 shadow-hard-sm whitespace-nowrap">
+        <div className="bg-black text-white rounded-xl px-4 py-2.5 text-[calc((12/12)*var(--base-font-size))] font-extrabold flex items-center gap-2 shadow-hard-sm whitespace-nowrap">
           <span>{ideas.length} {ideas.length === 1 ? "idea" : "ideas"}</span>
         </div>
 
@@ -226,7 +189,7 @@ export default function ListView({
             </svg>
           </div>
           <input
-            className="w-full bg-white border-2 border-black rounded-2xl pl-10 pr-10 py-2.5 text-[13px] font-bold text-black outline-none placeholder:text-black/30 focus:bg-[#FFF8EE] transition shadow-hard-sm"
+            className="w-full bg-white border-2 border-black rounded-2xl pl-10 pr-10 py-2.5 text-[calc((13/12)*var(--base-font-size))] font-bold text-black outline-none placeholder:text-black/30 focus:bg-[#FFF8EE] transition shadow-hard-sm"
             placeholder="search your pile..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -255,7 +218,7 @@ export default function ListView({
       {/* Section header */}
       {ideas.length > 0 && (
         <div className="flex items-center justify-between px-4 pt-7 pb-3">
-          <span className="text-[22px] font-extrabold uppercase tracking-tight text-black">
+          <span className="text-[calc((22/12)*var(--base-font-size))] font-extrabold uppercase tracking-tight text-black">
             the pile
           </span>
           <SortDropdown value={sortBy} onChange={setSortBy} />
@@ -265,12 +228,12 @@ export default function ListView({
       {/* Idea cards */}
       <div className="px-4 pt-1 space-y-3 pb-4">
         {filtered.length === 0 && ideas.length > 0 && (
-          <div className="text-center font-bold text-black/30 text-[13px] py-16">
+          <div className="text-center font-bold text-black/30 text-[calc((13/12)*var(--base-font-size))] py-16">
             nothing here yet.
           </div>
         )}
         {ideas.length === 0 && (
-          <div className="text-center font-bold text-black/30 text-[13px] py-10">
+          <div className="text-center font-bold text-black/30 text-[calc((13/12)*var(--base-font-size))] py-10">
             your pile is empty. dump something!
           </div>
         )}

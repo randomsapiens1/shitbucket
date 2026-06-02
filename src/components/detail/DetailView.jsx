@@ -1,6 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { genId, timeAgo, formatCountdown } from "@/lib/utils";
+import { supabase } from "@/lib/supabase";
 import TagsSection from "./TagsSection";
 import TasksSection from "./TasksSection";
 import ThoughtsSection from "./ThoughtsSection";
@@ -8,23 +9,51 @@ import LinksSection from "./LinksSection";
 import CustomFieldsSection from "./CustomFieldsSection";
 import DetailMenu from "./DetailMenu";
 import CollaboratorsSection from "./CollaboratorsSection";
+import AutoResizeTextarea from "@/components/ui/AutoResizeTextarea";
 
-export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, onShare, userId }) {
+export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, userId }) {
   const [newThought,        setNewThought]        = useState("");
   const [newTag,            setNewTag]            = useState("");
   const [newTask,           setNewTask]           = useState("");
   const [showMenu,          setShowMenu]          = useState(false);
   const [showCollaborators, setShowCollaborators] = useState(false);
+  const [userInitials,      setUserInitials]      = useState("??");
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        const email = user.email || "";
+        const metadata = user.user_metadata || {};
+        const username = metadata.username || email.split("@")[0];
+        const init = username.slice(0, 2).toUpperCase();
+        setUserInitials(init);
+      }
+    });
+  }, []);
 
   const isOwner = !userId || idea.user_id === userId;
 
   function addThought() {
     if (!newThought.trim()) return;
-    onUpdate(i => { i.thoughts = [...(i.thoughts || []), { id: genId(), text: newThought.trim(), ts: Date.now() }]; });
+    onUpdate(i => { 
+      i.thoughts = [
+        ...(i.thoughts || []), 
+        { 
+          id: genId(), 
+          text: newThought.trim(), 
+          ts: Date.now(),
+          by: userInitials 
+        }
+      ]; 
+    });
     setNewThought("");
   }
   function removeThought(tid) {
     onUpdate(i => { i.thoughts = (i.thoughts || []).filter(t => t.id !== tid); });
+  }
+
+  function updateThought(tid, text) {
+    onUpdate(i => { i.thoughts = (i.thoughts || []).map(t => t.id === tid ? { ...t, text } : t); });
   }
 
   function addTag(overrideTag) {
@@ -56,9 +85,24 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
 
   function addTask() {
     if (!newTask.trim()) return;
-    onUpdate(i => { i.tasks = [...(i.tasks || []), { id: genId(), text: newTask.trim(), done: false, ts: Date.now() }]; });
+    onUpdate(i => { 
+      i.tasks = [
+        ...(i.tasks || []), 
+        { 
+          id: genId(), 
+          text: newTask.trim(), 
+          done: false, 
+          ts: Date.now(),
+          by: userInitials
+        }
+      ]; 
+    });
     setNewTask("");
   }
+  function updateTask(tid, text) {
+    onUpdate(i => { i.tasks = (i.tasks || []).map(t => t.id === tid ? { ...t, text } : t); });
+  }
+
   function toggleTask(tid) {
     onUpdate(i => { i.tasks = (i.tasks || []).map(t => t.id === tid ? { ...t, done: !t.done } : t); });
   }
@@ -73,13 +117,14 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
       <div className="flex justify-between items-center px-4 py-4 border-b-2 border-black bg-white">
         <button
           onClick={onBack}
-          className="flex items-center gap-1.5 text-black font-extrabold text-[13px] bg-[#FFF8EE] border-2 border-black rounded-xl px-3 py-1.5 shadow-hard-sm transition-all active:shadow-none active:translate-x-[3px] active:translate-y-[3px]"
+          className="flex items-center gap-1.5 text-black font-extrabold text-[calc((13/12)*var(--base-font-size))] bg-[#FFF8EE] border-2 border-black rounded-xl px-3 py-1.5 shadow-hard-sm transition-all active:shadow-none active:translate-x-[3px] active:translate-y-[3px]"
         >
           ← back
         </button>
         <div className="flex gap-2">
           <button
-            onClick={onShare}
+            onClick={() => setShowCollaborators(true)}
+            title="Invite a friend?"
             className="border-2 border-black text-black font-extrabold text-base px-2.5 py-1.5 rounded-xl shadow-hard-sm transition-all active:shadow-none active:translate-x-[3px] active:translate-y-[3px] hover:bg-black/5"
           >
             ↗
@@ -99,16 +144,19 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
         show={showMenu}
         onClose={() => setShowMenu(false)}
         onDelete={onDelete}
-        onInvite={() => setShowCollaborators(true)}
         isOwner={isOwner}
       />
 
       {/* Content */}
       <div className="px-4 pb-10">
-        <h1 className="text-[24px] font-extrabold text-black leading-snug pt-5 pb-1">
-          {idea.title}
-        </h1>
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-bold text-black/40 mb-6">
+        <AutoResizeTextarea
+          className="w-full bg-transparent text-[calc((24/12)*var(--base-font-size))] font-extrabold text-black leading-snug pt-5 pb-1 outline-none border-none placeholder:text-black/20"
+          value={idea.title}
+          onChange={(e) => onUpdate(i => { i.title = e.target.value; })}
+          placeholder="Idea title..."
+        />
+        
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[calc((11/12)*var(--base-font-size))] font-bold text-black/40 mb-6">
           <span>created {new Date(idea.created_at).toLocaleDateString()}</span>
           <span>•</span>
           <span>updated {timeAgo(idea.updated_at)}</span>
@@ -121,7 +169,7 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
             </>
           )}
           {!isOwner && (
-            <span className="text-[#FF6A00] font-extrabold bg-[#FF6A00]/10 border border-[#FF6A00]/30 rounded-full px-2 py-0.5 uppercase tracking-tight text-[10px]">
+            <span className="text-[#FF6A00] font-extrabold bg-[#FF6A00]/10 border border-[#FF6A00]/30 rounded-full px-2 py-0.5 uppercase tracking-tight text-[calc((10/12)*var(--base-font-size))]">
               👥 shared
             </span>
           )}
@@ -130,6 +178,17 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
         {isOwner && showCollaborators && (
           <CollaboratorsSection idea={idea} />
         )}
+
+        {/* Main Thought / Description */}
+        <div className="mb-8">
+          <AutoResizeTextarea
+            className="w-full bg-white border-2 border-black/10 focus:border-black rounded-2xl px-5 py-4 text-black text-[calc((15/12)*var(--base-font-size))] font-bold outline-none transition placeholder:text-black/20 shadow-hard-sm focus:shadow-hard"
+            placeholder="What's the main gist?"
+            value={idea.thought || ""}
+            onChange={(e) => onUpdate(i => { i.thought = e.target.value; })}
+            rows={2}
+          />
+        </div>
 
         <TagsSection
           tags={idea.tags}
@@ -146,6 +205,7 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
           setNewThought={setNewThought}
           onAdd={addThought}
           onRemove={removeThought}
+          onUpdate={updateThought}
         />
 
         <TasksSection
@@ -155,6 +215,7 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
           onAdd={addTask}
           onToggle={toggleTask}
           onRemove={removeTask}
+          onUpdate={updateTask}
         />
 
         <LinksSection

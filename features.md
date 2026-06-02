@@ -126,10 +126,8 @@ Five stages (star rating displayed on cards):
 
 ## Sharing
 
-- Generate a unique token-based shareable link per idea (`/s/[token]`)
-- Public read-only view — accessible without authentication
-- Auto-copy to clipboard; falls back to native device share sheet (Web Share API)
-- Public view shows all idea details: brew pill, tasks (read-only), thoughts, tags, links, custom fields
+- Collaborative sharing: invite friends to work on an idea together via a secure token-based link.
+- Manage collaborators: see who has joined and remove them if needed.
 
 ---
 
@@ -170,13 +168,11 @@ Swiss editorial / brutalist aesthetic — physical, high-contrast, cream on blac
 
 ## Live Clock Widget
 
-Premium dark card in the header area:
+Premium light card in the header area:
 
-- Left 65%: current time in 68px monospace, `-0.03em` tracking, cream white (`#F5F3EE`)
-- Center: 1px vertical divider
-- Right 35%: time-of-day icon (☀ morning / ◑ afternoon / ◐ evening / ● night), weekday in orange caps, month + day in 22px extrabold
-- Dark gradient card: `#111111 → #1a1a1a`, 32px radius, soft multi-layer shadow, inset highlight border
-- Hover lifts card -3px (smooth 300ms transition)
+- Left: logo image + "ShitBucket" wordmark
+- Center/Right: current time, weekday, and month + day
+- Time-of-day icon (☀ morning / ◑ afternoon / ◐ evening / ● night)
 - Hydration-safe: renders placeholder until client-side clock ticks
 
 ---

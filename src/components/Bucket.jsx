@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
-import { fetchIdeas, createIdea, updateIdea as dbUpdateIdea, deleteIdea as dbDeleteIdea, createShareLink } from "@/lib/db";
+import { fetchIdeas, createIdea, updateIdea as dbUpdateIdea, deleteIdea as dbDeleteIdea } from "@/lib/db";
 import { calcBrewProgress } from "@/lib/brew";
 import { genId } from "@/lib/utils";
 import LoadingScreen from "@/components/ui/LoadingScreen";
@@ -216,28 +216,6 @@ export default function Bucket({ onLogout, userId }) {
     }
   }
 
-  async function handleShareIdea(idea) {
-    try {
-      const token = await createShareLink(idea.id);
-      const url   = `${window.location.origin}/s/${token}`;
-      if (navigator.share) {
-        navigator.share({ title: idea.title, url }).catch(() => {
-          navigator.clipboard.writeText(url);
-          alert("Link copied!");
-        });
-      } else {
-        navigator.clipboard.writeText(url);
-        alert("Share link copied!");
-      }
-    } catch (e) {
-      let text = `💡 ${idea.title}\n`;
-      if (idea.thought) text += `\n${idea.thought}\n`;
-      text += `\n— dumped from shitbucket`;
-      navigator.clipboard.writeText(text);
-      alert("Copied to clipboard!");
-    }
-  }
-
   const handleSelectIdea = useCallback((id) => { 
     setActiveId(id); 
     setView("detail"); 
@@ -299,7 +277,6 @@ export default function Bucket({ onLogout, userId }) {
         onBack={() => { setView("list"); setActiveId(null); }}
         onUpdate={(fn) => handleUpdateIdea(activeId, fn)}
         onDelete={() => handleDeleteIdea(activeId)}
-        onShare={() => handleShareIdea(activeIdea)}
         userId={userId}
       />
     );

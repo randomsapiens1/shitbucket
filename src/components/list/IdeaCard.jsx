@@ -26,24 +26,24 @@ export default memo(function IdeaCard({ idea, onClick, onPin, userId }) {
         } ${idea.optimistic ? "opacity-60 grayscale-[50%]" : "opacity-100"}`}
       >
         {/* Title */}
-        <div className="text-[16px] font-extrabold leading-snug text-black pr-8">
+        <div className="text-[calc((16/12)*var(--base-font-size))] font-extrabold leading-snug text-black pr-8">
           {idea.title}
         </div>
 
         {/* Timestamp + expiry + shared badge */}
         <div className="flex items-center gap-2 mt-2">
-          <span className="text-[11px] font-bold text-black/40">
+          <span className="text-[calc((11/12)*var(--base-font-size))] font-bold text-black/40">
             {timeAgo(idea.updated_at)}
           </span>
           {userId && idea.user_id !== userId && (
-            <span className="text-[10px] font-extrabold text-[#FF6A00] bg-[#FF6A00]/10 border border-[#FF6A00]/30 rounded-full px-2 py-0.5 uppercase tracking-tight">
+            <span className="text-[calc((10/12)*var(--base-font-size))] font-extrabold text-[#FF6A00] bg-[#FF6A00]/10 border border-[#FF6A00]/30 rounded-full px-2 py-0.5 uppercase tracking-tight">
               👥 shared
             </span>
           )}
           {idea.expires_at && (
             <>
-              <span className="text-black/20 text-[10px]">•</span>
-              <span className="text-[10px] font-extrabold text-[#FF6A00] uppercase tracking-tight">
+              <span className="text-black/20 text-[calc((10/12)*var(--base-font-size))]">•</span>
+              <span className="text-[calc((10/12)*var(--base-font-size))] font-extrabold text-[#FF6A00] uppercase tracking-tight">
                 {formatCountdown(idea.expires_at)}
               </span>
             </>
@@ -53,7 +53,7 @@ export default memo(function IdeaCard({ idea, onClick, onPin, userId }) {
         {/* Brew pill + tags */}
         <div className="mt-3.5 flex items-center gap-2 flex-wrap">
           <span
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wide border border-black/15 shadow-hard-sm"
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[calc((11/12)*var(--base-font-size))] font-extrabold uppercase tracking-wide border border-black/15 shadow-hard-sm"
             style={{ backgroundColor: pill.bg, color: pill.color }}
           >
             {stage.emoji} {brew}%
@@ -62,7 +62,7 @@ export default memo(function IdeaCard({ idea, onClick, onPin, userId }) {
           {(idea.tags || []).map(tag => (
             <span
               key={tag}
-              className="px-2.5 py-1 rounded-full text-[11px] font-bold border border-black/20 bg-[#FFF8EE] text-black"
+              className="px-2.5 py-1 rounded-full text-[calc((11/12)*var(--base-font-size))] font-bold border border-black/20 bg-[#FFF8EE] text-black"
             >
               {tag}
             </span>
@@ -73,13 +73,13 @@ export default memo(function IdeaCard({ idea, onClick, onPin, userId }) {
         {(tasksTotal > 0 || (idea.thoughts || []).length > 0 || (idea.links || []).length > 0) && (
           <div className="flex gap-3 mt-3">
             {tasksTotal > 0 && (
-              <span className="text-[11px] font-bold text-black/40">☑ {tasksDone}/{tasksTotal}</span>
+              <span className="text-[calc((11/12)*var(--base-font-size))] font-bold text-black/40">☑ {tasksDone}/{tasksTotal}</span>
             )}
             {(idea.thoughts || []).length > 0 && (
-              <span className="text-[11px] font-bold text-black/40">💭 {idea.thoughts.length}</span>
+              <span className="text-[calc((11/12)*var(--base-font-size))] font-bold text-black/40">💭 {idea.thoughts.length}</span>
             )}
             {(idea.links || []).length > 0 && (
-              <span className="text-[11px] font-bold text-black/40">🔗 {idea.links.length}</span>
+              <span className="text-[calc((11/12)*var(--base-font-size))] font-bold text-black/40">🔗 {idea.links.length}</span>
             )}
           </div>
         )}

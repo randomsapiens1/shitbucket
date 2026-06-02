@@ -29,7 +29,7 @@
 .shadow-hard-lg { box-shadow: 5px 5px 0px #121212; }
 
 html {
-  font-size: var(--base-font-size);
+  font-size: 12px; /* Lock layout scale to 12px as requested */
 }
 
 * {

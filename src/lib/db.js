@@ -108,25 +108,12 @@ export async function deleteIdea(id) {
   if (error) throw error;
 }
 
-// ============ SHARING ============
+// ============ UTILS ============
 
 function generateToken() {
-  return (
-    Math.random().toString(36).slice(2) +
-    Math.random().toString(36).slice(2)
-  );
-}
-
-export async function createShareLink(ideaId) {
-  const token = generateToken();
-  const { data: _data, error } = await supabase
-    .from("shared_links")
-    .insert({ idea_id: ideaId, token })
-    .select()
-    .single();
-
-  if (error) throw error;
-  return token;
+  const array = new Uint8Array(24);
+  window.crypto.getRandomValues(array);
+  return Array.from(array, byte => byte.toString(36).padStart(2, '0')).join('').slice(0, 32);
 }
 
 // ============ COLLABORATION ============
@@ -184,15 +171,4 @@ export async function removeCollaborator(ideaId, userId) {
     .eq("user_id", userId);
 
   if (error) throw error;
-}
-
-// ============ SHARING ============
-
-export async function getSharedIdea(token) {
-  const { data, error } = await supabase
-    .rpc("get_shared_idea", { p_token: token })
-    .single();
-
-  if (error || !data) return null;
-  return data;
 }

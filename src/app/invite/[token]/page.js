@@ -76,10 +76,10 @@ export default function InvitePage() {
     return (
       <div className="min-h-screen bg-[#FFF8EE] flex flex-col items-center justify-center gap-4 px-4">
         <div className="text-4xl">🪣</div>
-        <p className="font-bold text-black/40 text-[14px] text-center">
+        <p className="font-bold text-black/40 text-[calc((14/12)*var(--base-font-size))] text-center">
           this invite doesn&apos;t exist or has already been used.
         </p>
-        <a href="/" className="text-[#FF6A00] font-extrabold text-[13px] underline">
+        <a href="/" className="text-[#FF6A00] font-extrabold text-[calc((13/12)*var(--base-font-size))] underline">
           go to shitbucket
         </a>
       </div>
@@ -93,20 +93,20 @@ export default function InvitePage() {
         {/* Branding */}
         <div className="flex items-center gap-2 mb-6 justify-center">
           <img src="/logo-shitBucket-day.png" alt="ShitBucket" className="w-7 h-7 object-contain" />
-          <span className="font-extrabold text-[16px] text-black" style={{ fontFamily: "'Inter', sans-serif" }}>
+          <span className="font-extrabold text-[calc((16/12)*var(--base-font-size))] text-black" style={{ fontFamily: "'Inter', sans-serif" }}>
             ShitBucket
           </span>
         </div>
 
         {/* Invite card */}
         <div className="bg-white border-2 border-black rounded-3xl shadow-hard p-5 mb-5">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.15em] text-black/40 mb-1">
+          <p className="text-[calc((10/12)*var(--base-font-size))] font-extrabold uppercase tracking-[0.15em] text-black/40 mb-1">
             you&apos;re invited to collaborate
           </p>
-          <h1 className="text-[22px] font-extrabold text-black leading-snug mb-3">
+          <h1 className="text-[calc((22/12)*var(--base-font-size))] font-extrabold text-black leading-snug mb-3">
             {invite.idea_title}
           </h1>
-          <p className="text-[12px] font-bold text-black/50">
+          <p className="text-[calc((12/12)*var(--base-font-size))] font-bold text-black/50">
             from <span className="text-black">{invite.inviter_email}</span>
           </p>
         </div>
@@ -117,18 +117,18 @@ export default function InvitePage() {
             <button
               onClick={() => joinBucket()}
               disabled={joining}
-              className="w-full rounded-2xl py-3.5 text-[14px] font-extrabold border-2 border-black shadow-hard-sm transition-all disabled:opacity-40 active:shadow-none active:translate-x-[3px] active:translate-y-[3px] bg-[#FF6A00] text-white"
+              className="w-full rounded-2xl py-3.5 text-[calc((14/12)*var(--base-font-size))] font-extrabold border-2 border-black shadow-hard-sm transition-all disabled:opacity-40 active:shadow-none active:translate-x-[3px] active:translate-y-[3px] bg-[#FF6A00] text-white"
             >
               {joining ? "joining..." : "👥 join this bucket"}
             </button>
             {error && (
-              <p className="text-red-500 text-[12px] font-bold text-center mt-3">{error}</p>
+              <p className="text-red-500 text-[calc((12/12)*var(--base-font-size))] font-bold text-center mt-3">{error}</p>
             )}
           </div>
         ) : (
           /* Auth form (not logged in) */
           <div className="bg-white border-2 border-black rounded-3xl shadow-hard p-5 flex flex-col gap-3">
-            <p className="text-[12px] font-bold text-black/40 text-center mb-1">
+            <p className="text-[calc((12/12)*var(--base-font-size))] font-bold text-black/40 text-center mb-1">
               {isSignUp ? "create an account to join" : "log in to join"}
             </p>
             <input
@@ -136,7 +136,7 @@ export default function InvitePage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="email"
-              className="w-full bg-[#FFF8EE] border-2 border-black/20 focus:border-black rounded-2xl px-4 py-3 text-black font-bold text-[14px] outline-none transition placeholder:text-black/30"
+              className="w-full bg-[#FFF8EE] border-2 border-black/20 focus:border-black rounded-2xl px-4 py-3 text-black font-bold text-[calc((14/12)*var(--base-font-size))] outline-none transition placeholder:text-black/30"
             />
             <input
               type="password"
@@ -144,21 +144,21 @@ export default function InvitePage() {
               onChange={(e) => setPassword(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleAuth()}
               placeholder="password"
-              className="w-full bg-[#FFF8EE] border-2 border-black/20 focus:border-black rounded-2xl px-4 py-3 text-black font-bold text-[14px] outline-none transition placeholder:text-black/30"
+              className="w-full bg-[#FFF8EE] border-2 border-black/20 focus:border-black rounded-2xl px-4 py-3 text-black font-bold text-[calc((14/12)*var(--base-font-size))] outline-none transition placeholder:text-black/30"
             />
             <button
               onClick={handleAuth}
               disabled={joining}
-              className="w-full mt-1 rounded-2xl py-3.5 text-[14px] font-extrabold border-2 border-black shadow-hard-sm transition-all disabled:opacity-40 active:shadow-none active:translate-x-[3px] active:translate-y-[3px] bg-black text-white hover:bg-[#FF6A00]"
+              className="w-full mt-1 rounded-2xl py-3.5 text-[calc((14/12)*var(--base-font-size))] font-extrabold border-2 border-black shadow-hard-sm transition-all disabled:opacity-40 active:shadow-none active:translate-x-[3px] active:translate-y-[3px] bg-black text-white hover:bg-[#FF6A00]"
             >
               {joining ? "..." : isSignUp ? "create account & join" : "log in & join"}
             </button>
             {error && (
-              <p className="text-red-500 text-[12px] font-bold text-center">{error}</p>
+              <p className="text-red-500 text-[calc((12/12)*var(--base-font-size))] font-bold text-center">{error}</p>
             )}
             <button
               onClick={() => { setIsSignUp(!isSignUp); setError(""); }}
-              className="text-black/40 font-bold text-[12px] text-center hover:text-black transition"
+              className="text-black/40 font-bold text-[calc((12/12)*var(--base-font-size))] text-center hover:text-black transition"
             >
               {isSignUp ? "already have an account? log in" : "first time? create account"}
             </button>

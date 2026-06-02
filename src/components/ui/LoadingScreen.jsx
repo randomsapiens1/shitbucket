@@ -27,7 +27,7 @@ export default function LoadingScreen() {
               }}
             />
           </div>
-          <div className="text-black/40 text-[11px] tracking-[0.3em] uppercase font-bold animate-pulse font-mono">
+          <div className="text-black/40 text-[calc((11/12)*var(--base-font-size))] tracking-[0.3em] uppercase font-bold animate-pulse font-mono">
             scouring the bucket
           </div>
         </div>

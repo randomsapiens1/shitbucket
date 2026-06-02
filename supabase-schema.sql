@@ -1,10 +1,10 @@
 -- ============================================
--- SHITBUCKET DATABASE SCHEMA
--- Run this in Supabase SQL Editor (supabase.com > your project > SQL Editor)
+-- SHITBUCKET DATABASE SCHEMA (IDEMPOTENT UPDATE)
+-- Run this in Supabase SQL Editor
 -- ============================================
 
 -- 1. Ideas table
-create table public.ideas (
+create table if not exists public.ideas (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references auth.users(id) on delete cascade not null,
   title text not null,
@@ -20,50 +20,28 @@ create table public.ideas (
   updated_at timestamptz default now()
 );
 
--- 2. Shared links table
-create table public.shared_links (
-  id uuid default gen_random_uuid() primary key,
-  idea_id uuid references public.ideas(id) on delete cascade not null,
-  token text unique not null,
-  created_at timestamptz default now()
-);
+-- 2. Clean up old sharing table (removed in favor of collaborator-only sharing)
+drop table if exists public.shared_links cascade;
 
--- 3. Row Level Security (your ideas are yours only)
+-- 3. Row Level Security
 alter table public.ideas enable row level security;
-alter table public.shared_links enable row level security;
 
--- Users can only see/edit their own ideas
-create policy "Users can read own ideas"
-  on public.ideas for select
-  using (auth.uid() = user_id);
+-- Ideas: Owner policies
+do $$ begin
+  drop policy if exists "Users can read own ideas" on public.ideas;
+  drop policy if exists "Users can insert own ideas" on public.ideas;
+  drop policy if exists "Users can update own ideas" on public.ideas;
+  drop policy if exists "Users can delete own ideas" on public.ideas;
+end $$;
 
-create policy "Users can insert own ideas"
-  on public.ideas for insert
-  with check (auth.uid() = user_id);
+create policy "Users can read own ideas" on public.ideas for select using (auth.uid() = user_id);
+create policy "Users can insert own ideas" on public.ideas for insert with check (auth.uid() = user_id);
+create policy "Users can update own ideas" on public.ideas for update using (auth.uid() = user_id);
+create policy "Users can delete own ideas" on public.ideas for delete using (auth.uid() = user_id);
 
-create policy "Users can update own ideas"
-  on public.ideas for update
-  using (auth.uid() = user_id);
-
-create policy "Users can delete own ideas"
-  on public.ideas for delete
-  using (auth.uid() = user_id);
-
--- Shared links: owner can manage, anyone can read (for public sharing)
-create policy "Users can manage own shared links"
-  on public.shared_links for all
-  using (
-    idea_id in (select id from public.ideas where user_id = auth.uid())
-  );
-
-create policy "Anyone can read shared links"
-  on public.shared_links for select
-  using (true);
-
--- 4. Index for fast lookups
-create index ideas_user_id_idx on public.ideas(user_id);
-create index ideas_updated_at_idx on public.ideas(updated_at desc);
-create index shared_links_token_idx on public.shared_links(token);
+-- 4. Indexes
+create index if not exists ideas_user_id_idx on public.ideas(user_id);
+create index if not exists ideas_updated_at_idx on public.ideas(updated_at desc);
 
 -- 5. Auto-update updated_at
 create or replace function update_updated_at()
@@ -74,17 +52,20 @@ begin
 end;
 $$ language plpgsql;
 
-create trigger ideas_updated_at
-  before update on public.ideas
-  for each row execute function update_updated_at();
+do $$ begin
+  if not exists (select 1 from pg_trigger where tgname = 'ideas_updated_at') then
+    create trigger ideas_updated_at
+      before update on public.ideas
+      for each row execute function update_updated_at();
+  end if;
+end $$;
 
 -- ============================================
 -- COLLABORATIVE EDITING
--- Run this section after the initial schema above
 -- ============================================
 
 -- 6. Accepted collaborators
-create table public.idea_collaborators (
+create table if not exists public.idea_collaborators (
   id uuid default gen_random_uuid() primary key,
   idea_id uuid references public.ideas(id) on delete cascade not null,
   user_id uuid references auth.users(id) on delete cascade not null,
@@ -95,7 +76,7 @@ create table public.idea_collaborators (
 );
 
 -- 7. Pending invite links
-create table public.collab_invites (
+create table if not exists public.collab_invites (
   id uuid default gen_random_uuid() primary key,
   idea_id uuid references public.ideas(id) on delete cascade not null,
   idea_title text not null,
@@ -106,33 +87,40 @@ create table public.collab_invites (
   created_at timestamptz default now()
 );
 
--- RLS on new tables
+-- RLS on collaboration tables
 alter table public.idea_collaborators enable row level security;
 alter table public.collab_invites enable row level security;
 
--- idea_collaborators: owner + collaborator can read; only owner can delete
--- Note: uses invited_by (not a subquery into ideas) to avoid RLS infinite recursion
+-- Policies for collaborators
+do $$ begin
+  drop policy if exists "Idea owner and collaborator can read collaborators" on public.idea_collaborators;
+  drop policy if exists "Idea owner can delete collaborators" on public.idea_collaborators;
+  drop policy if exists "Inviter can manage own invites" on public.collab_invites;
+  drop policy if exists "Anyone can read collab invites" on public.collab_invites;
+  drop policy if exists "Collaborators can read shared ideas" on public.ideas;
+  drop policy if exists "Collaborators can update shared ideas" on public.ideas;
+end $$;
+
 create policy "Idea owner and collaborator can read collaborators"
   on public.idea_collaborators for select
-  using (
-    user_id = auth.uid()
-    or invited_by = auth.uid()
-  );
+  using (user_id = auth.uid() or invited_by = auth.uid());
 
 create policy "Idea owner can delete collaborators"
   on public.idea_collaborators for delete
   using (idea_id in (select id from public.ideas where user_id = auth.uid()));
 
--- collab_invites: inviter manages; anyone can read (needed for unauthenticated invite preview)
+-- CRITICAL SECURITY FIX: Only the actual owner of an idea can create an invite for it.
 create policy "Inviter can manage own invites"
   on public.collab_invites for all
-  using (inviter_id = auth.uid());
+  using (
+    inviter_id = auth.uid() 
+    and idea_id in (select id from public.ideas where user_id = auth.uid())
+  );
 
 create policy "Anyone can read collab invites"
   on public.collab_invites for select
   using (true);
 
--- Allow collaborators to read and update shared ideas (existing owner policies remain)
 create policy "Collaborators can read shared ideas"
   on public.ideas for select
   using (id in (select idea_id from public.idea_collaborators where user_id = auth.uid()));
@@ -141,35 +129,15 @@ create policy "Collaborators can update shared ideas"
   on public.ideas for update
   using (id in (select idea_id from public.idea_collaborators where user_id = auth.uid()));
 
--- Full row data needed for Realtime payloads
+-- Realtime payloads
 alter table public.ideas replica identity full;
 
--- Add ideas to the Realtime publication (run in Supabase dashboard > Database > Replication if needed)
--- alter publication supabase_realtime add table public.ideas;
+-- Indexes for collaboration
+create index if not exists idea_collaborators_user_id_idx on public.idea_collaborators(user_id);
+create index if not exists idea_collaborators_idea_id_idx on public.idea_collaborators(idea_id);
+create index if not exists collab_invites_token_idx on public.collab_invites(token);
 
--- Indexes
-create index idea_collaborators_user_id_idx on public.idea_collaborators(user_id);
-create index idea_collaborators_idea_id_idx on public.idea_collaborators(idea_id);
-create index collab_invites_token_idx on public.collab_invites(token);
-create index shared_links_idea_id_idx on public.shared_links(idea_id);
-
--- RPC: securely fetch an idea via public share token (SECURITY DEFINER bypasses RLS)
-create or replace function get_shared_idea(p_token text)
-returns setof public.ideas
-language plpgsql
-security definer
-set search_path = public
-as $$
-begin
-  return query
-  select i.*
-  from public.ideas i
-  join public.shared_links sl on sl.idea_id = i.id
-  where sl.token = p_token;
-end;
-$$;
-
--- RPC: securely accept an invite (SECURITY DEFINER bypasses RLS to read auth.users)
+-- RPC: securely accept an invite
 create or replace function accept_collab_invite(p_token text)
 returns void
 language plpgsql

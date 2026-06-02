@@ -14,14 +14,14 @@ export default function CustomFieldsSection({ fields, onAdd, onUpdate, onRemove 
     setName(""); setType("text"); setShow(false);
   }
 
-  const inputClass = "w-full bg-[#FFF8EE] border-2 border-black/20 focus:border-black rounded-xl px-3 py-2.5 text-black font-bold text-[13px] outline-none transition placeholder:text-black/30";
+  const inputClass = `w-full bg-[#FFF8EE] border-2 border-black/20 focus:border-black rounded-xl px-3 py-2.5 text-black font-bold text-[calc((13/12)*var(--base-font-size))] outline-none transition placeholder:text-black/30`;
 
   return (
     <Section label="custom fields">
       {(fields || []).map(f => (
         <div key={f.id} className="bg-[#FFF8EE] border border-black/15 rounded-xl p-4 mb-2">
           <div className="flex justify-between items-center mb-2.5">
-            <span className="text-[11px] font-extrabold uppercase tracking-wide text-black">{f.name}</span>
+            <span className="text-[calc((11/12)*var(--base-font-size))] font-extrabold uppercase tracking-wide text-black">{f.name}</span>
             <button onClick={() => onRemove(f.id)} className="text-black/30 hover:text-black text-base px-1 transition font-bold">×</button>
           </div>
 
@@ -51,7 +51,7 @@ export default function CustomFieldsSection({ fields, onAdd, onUpdate, onRemove 
               >
                 {f.value && <span className="text-black text-xs font-black">✓</span>}
               </div>
-              <span className="text-[13px] font-bold text-black/50">
+              <span className="text-[calc((13/12)*var(--base-font-size))] font-bold text-black/50">
                 {f.value ? "yes" : "no"}
               </span>
             </label>
@@ -62,7 +62,7 @@ export default function CustomFieldsSection({ fields, onAdd, onUpdate, onRemove 
       {!show ? (
         <button
           onClick={() => setShow(true)}
-          className="w-full border-2 border-dashed border-black/20 hover:border-black rounded-xl py-3 text-black/40 hover:text-black font-extrabold text-[12px] mt-1 transition"
+          className="w-full border-2 border-dashed border-black/20 hover:border-black rounded-xl py-3 text-black/40 hover:text-black font-extrabold text-[calc((12/12)*var(--base-font-size))] mt-1 transition"
         >
           + add field
         </button>
@@ -87,18 +87,18 @@ export default function CustomFieldsSection({ fields, onAdd, onUpdate, onRemove 
                 }}
               >
                 <span className="text-sm">{ft.icon}</span>
-                <span className="text-[10px]">{ft.label}</span>
+                <span className="text-[calc((10/12)*var(--base-font-size))]">{ft.label}</span>
               </button>
             ))}
           </div>
           <div className="flex gap-2">
             <button
               onClick={handleAdd}
-              className="bg-black text-white border-2 border-black rounded-xl px-4 py-2 text-[12px] font-extrabold shadow-hard-sm transition-all active:shadow-none active:translate-x-[3px] active:translate-y-[3px] hover:bg-[#FF6A00] hover:text-white"
+              className="bg-black text-white border-2 border-black rounded-xl px-4 py-2 text-[calc((12/12)*var(--base-font-size))] font-extrabold shadow-hard-sm transition-all active:shadow-none active:translate-x-[3px] active:translate-y-[3px] hover:bg-[#FF6A00] hover:text-white"
             >
               add
             </button>
-            <button onClick={() => setShow(false)} className="text-black/40 text-[12px] font-bold hover:text-black transition">cancel</button>
+            <button onClick={() => setShow(false)} className="text-black/40 text-[calc((12/12)*var(--base-font-size))] font-bold hover:text-black transition">cancel</button>
           </div>
         </div>
       )}

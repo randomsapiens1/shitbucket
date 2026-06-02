@@ -56,7 +56,7 @@ export default function LiveClock() {
             className="tabular-nums leading-none select-none"
             style={{
               fontFamily: "'Inter', sans-serif",
-              fontSize: 36,
+              fontSize: 'calc((36/12)*var(--base-font-size))',
               fontWeight: 800,
               color: "#0A0A0A",
               letterSpacing: "-0.03em",
@@ -68,7 +68,7 @@ export default function LiveClock() {
             className="leading-none select-none"
             style={{
               fontFamily: "'Inter', sans-serif",
-              fontSize: 12,
+              fontSize: 'calc((12/12)*var(--base-font-size))',
               fontWeight: 600,
               color: "rgba(10,10,10,0.35)",
               letterSpacing: "0.06em",
@@ -98,7 +98,7 @@ export default function LiveClock() {
           <div className="flex items-center gap-1.5 w-full justify-end">
             <span
               className="select-none shrink-0"
-              style={{ fontSize: 10, color: "rgba(10,10,10,0.35)", lineHeight: 1 }}
+              style={{ fontSize: 'calc((10/12)*var(--base-font-size))', color: "rgba(10,10,10,0.35)", lineHeight: 1 }}
             >
               {icon}
             </span>
@@ -106,7 +106,7 @@ export default function LiveClock() {
               className="leading-none truncate"
               style={{
                 fontFamily: "'Inter', sans-serif",
-                fontSize: 9,
+                fontSize: 'calc((9/12)*var(--base-font-size))',
                 fontWeight: 700,
                 color: "#FF7A00",
                 letterSpacing: "0.14em",
@@ -122,7 +122,7 @@ export default function LiveClock() {
             className="leading-none"
             style={{
               fontFamily: "'Inter', sans-serif",
-              fontSize: 15,
+              fontSize: 'calc((15/12)*var(--base-font-size))',
               fontWeight: 800,
               color: "#0A0A0A",
               letterSpacing: "-0.01em",

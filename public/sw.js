@@ -2,9 +2,7 @@ const CACHE_NAME = "shitbucket-v3";
 const STATIC_ASSETS = [
   "/",
   "/manifest.json",
-  "/logo-shitBucket-night.png",
   "/logo-shitBucket-day.png",
-  "/shitBucket-night.png",
   "/shitBucket-day.png",
 ];
 

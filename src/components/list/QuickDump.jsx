@@ -68,8 +68,8 @@ export default function QuickDump({ onDump, allTags = [] }) {
 
         {/* Header row */}
         <div className="flex justify-between items-baseline mb-3">
-          <h2 className="text-[15px] font-extrabold text-black">what are you thinking?</h2>
-          <span className="text-[11px] font-bold text-black/40">{charCount}/500</span>
+          <h2 className="text-[calc((15/12)*var(--base-font-size))] font-extrabold text-black">what are you thinking?</h2>
+          <span className="text-[calc((11/12)*var(--base-font-size))] font-bold text-black/40">{charCount}/500</span>
         </div>
 
         {/* Textarea */}
@@ -82,18 +82,18 @@ export default function QuickDump({ onDump, allTags = [] }) {
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleDump(); }
           }}
-          className="w-full rounded-2xl border-2 border-black bg-[#FFF8EE] px-4 py-4 text-black font-bold resize-none outline-none placeholder:text-black/30 text-[15px] leading-relaxed focus:border-black transition"
+          className="w-full rounded-2xl border-2 border-black bg-[#FFF8EE] px-4 py-4 text-black font-bold resize-none outline-none placeholder:text-black/30 text-[calc((15/12)*var(--base-font-size))] leading-relaxed focus:border-black transition"
         />
 
         {/* Expiry */}
         <div className="mt-4">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-black/40 mb-2">expires</p>
+          <p className="text-[calc((10/12)*var(--base-font-size))] font-extrabold uppercase tracking-[0.12em] text-black/40 mb-2">expires</p>
           <div className="flex gap-2 flex-wrap">
             {EXPIRY_OPTIONS.map(opt => (
               <button
                 key={opt.value}
                 onClick={() => setExpiry(opt.value)}
-                className="px-3 py-1.5 rounded-xl text-[11px] font-extrabold border-2 border-black transition-all shadow-hard-sm active:shadow-none active:translate-x-[3px] active:translate-y-[3px]"
+                className="px-3 py-1.5 rounded-xl text-[calc((11/12)*var(--base-font-size))] font-extrabold border-2 border-black transition-all shadow-hard-sm active:shadow-none active:translate-x-[3px] active:translate-y-[3px]"
                 style={{
                   background: expiry === opt.value ? "#000" : "#fff",
                   color:      expiry === opt.value ? "#fff" : "#000",
@@ -112,7 +112,7 @@ export default function QuickDump({ onDump, allTags = [] }) {
               {tags.map(t => (
                 <span
                   key={t}
-                  className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-extrabold bg-black text-white border-2 border-black"
+                  className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[calc((11/12)*var(--base-font-size))] font-extrabold bg-black text-white border-2 border-black"
                 >
                   {t}
                   <button onClick={() => setTags(tags.filter(x => x !== t))} className="opacity-60 hover:opacity-100 ml-0.5">×</button>
@@ -123,7 +123,7 @@ export default function QuickDump({ onDump, allTags = [] }) {
 
           <div className="relative">
             <input
-              className="w-full bg-[#FFF8EE] border-2 border-black rounded-xl px-4 py-2.5 text-[13px] font-bold text-black outline-none placeholder:text-black/30 focus:bg-white transition"
+              className="w-full bg-[#FFF8EE] border-2 border-black rounded-xl px-4 py-2.5 text-[calc((13/12)*var(--base-font-size))] font-bold text-black outline-none placeholder:text-black/30 focus:bg-white transition"
               placeholder="+ add topic (press Enter)"
               value={tagInput}
               onFocus={() => setShowSuggestions(true)}
@@ -137,7 +137,7 @@ export default function QuickDump({ onDump, allTags = [] }) {
                   <button
                     key={s}
                     onClick={() => addTag(s)}
-                    className="w-full text-left px-4 py-2.5 text-[13px] font-bold text-black hover:bg-[#CAFF00] transition-colors"
+                    className="w-full text-left px-4 py-2.5 text-[calc((13/12)*var(--base-font-size))] font-bold text-black hover:bg-[#CAFF00] transition-colors"
                   >
                     {s}
                   </button>
@@ -150,7 +150,7 @@ export default function QuickDump({ onDump, allTags = [] }) {
         {/* Dump button */}
         <button
           onClick={handleDump}
-          className="mt-5 w-full flex items-center justify-center gap-2 rounded-2xl bg-black text-white px-6 py-3.5 font-extrabold text-[14px] border-2 border-black shadow-hard-sm transition-all active:shadow-none active:translate-x-[3px] active:translate-y-[3px] hover:bg-[#FF6A00] hover:text-white"
+          className="mt-5 w-full flex items-center justify-center gap-2 rounded-2xl bg-black text-white px-6 py-3.5 font-extrabold text-[calc((14/12)*var(--base-font-size))] border-2 border-black shadow-hard-sm transition-all active:shadow-none active:translate-x-[3px] active:translate-y-[3px] hover:bg-[#FF6A00] hover:text-white"
         >
           dump it
         </button>
