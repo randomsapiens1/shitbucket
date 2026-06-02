@@ -11,6 +11,7 @@ import DetailMenu from "./DetailMenu";
 import CollaboratorsSection from "./CollaboratorsSection";
 import BrewStatus from "./BrewStatus";
 import AutoResizeTextarea from "@/components/ui/AutoResizeTextarea";
+import { arrayMove } from "@dnd-kit/sortable";
 
 export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, userId }) {
   const [newThought,        setNewThought]        = useState("");
@@ -111,6 +112,18 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
     onUpdate(i => { i.tasks = (i.tasks || []).filter(t => t.id !== tid); });
   }
 
+  function handleReorderThoughts(oldIndex, newIndex) {
+    onUpdate(i => {
+      i.thoughts = arrayMove(i.thoughts || [], oldIndex, newIndex);
+    });
+  }
+
+  function handleReorderTasks(oldIndex, newIndex) {
+    onUpdate(i => {
+      i.tasks = arrayMove(i.tasks || [], oldIndex, newIndex);
+    });
+  }
+
   return (
     <div className="min-h-screen bg-[#FFF8EE] text-black pb-24 max-w-xl mx-auto">
 
@@ -209,6 +222,7 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
           onAdd={addThought}
           onRemove={removeThought}
           onUpdate={updateThought}
+          onReorder={handleReorderThoughts}
           currentUserInitials={userInitials}
         />
 
@@ -220,6 +234,7 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
           onToggle={toggleTask}
           onRemove={removeTask}
           onUpdate={updateTask}
+          onReorder={handleReorderTasks}
           currentUserInitials={userInitials}
         />
 
