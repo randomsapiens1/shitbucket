@@ -9,6 +9,7 @@ import LinksSection from "./LinksSection";
 import CustomFieldsSection from "./CustomFieldsSection";
 import DetailMenu from "./DetailMenu";
 import CollaboratorsSection from "./CollaboratorsSection";
+import BrewStatus from "./BrewStatus";
 import AutoResizeTextarea from "@/components/ui/AutoResizeTextarea";
 
 export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, userId }) {
@@ -175,6 +176,8 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
           )}
         </div>
 
+        <BrewStatus idea={idea} />
+
         {isOwner && showCollaborators && (
           <CollaboratorsSection idea={idea} />
         )}
@@ -206,6 +209,7 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
           onAdd={addThought}
           onRemove={removeThought}
           onUpdate={updateThought}
+          currentUserInitials={userInitials}
         />
 
         <TasksSection
@@ -216,6 +220,7 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
           onToggle={toggleTask}
           onRemove={removeTask}
           onUpdate={updateTask}
+          currentUserInitials={userInitials}
         />
 
         <LinksSection

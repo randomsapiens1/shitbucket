@@ -1,17 +1,22 @@
-export default function BrewStatus({ brew, stage }) {
+import { getBrewStage, calcBrewProgress } from "@/lib/brew";
+
+export default function BrewStatus({ idea }) {
+  const brew  = calcBrewProgress(idea);
+  const stage = getBrewStage(brew);
+
   return (
-    <div className="bg-bucket-card border border-bucket-border rounded-2xl p-4 mb-5">
-      <div className="flex justify-between items-center mb-2">
-        <span className="text-[calc((11/12)*var(--base-font-size))] text-bucket-text-dim uppercase tracking-widest font-medium">brew status</span>
-        <span className="text-[calc((13/12)*var(--base-font-size))] text-bucket-accent font-medium">{stage.emoji} {stage.label}</span>
+    <div className="bg-white border-2 border-black/10 rounded-2xl p-5 mb-8 shadow-hard-sm">
+      <div className="flex justify-between items-center mb-3">
+        <span className="text-[calc((10/12)*var(--base-font-size))] text-black/40 uppercase tracking-[0.15em] font-extrabold">brew status</span>
+        <span className="text-[calc((13/12)*var(--base-font-size))] text-[#FF6A00] font-extrabold">{stage.emoji} {stage.label}</span>
       </div>
-      <div className="w-full h-1.5 bg-bucket-border rounded-full overflow-hidden">
+      <div className="w-full h-3 bg-[#FFF8EE] border-2 border-black/5 rounded-full overflow-hidden">
         <div
-          className="h-full rounded-full transition-all duration-300"
-          style={{ width: `${brew}%`, background: "linear-gradient(90deg, #ff6a00, #ff8c32)" }}
+          className="h-full rounded-full transition-all duration-500 ease-out"
+          style={{ width: `${brew}%`, background: "linear-gradient(90deg, #FF6A00, #FFD4B0)" }}
         />
       </div>
-      <div className="text-[calc((11/12)*var(--base-font-size))] text-bucket-muted mt-1.5 text-right">{brew}% brewed</div>
+      <div className="text-[calc((11/12)*var(--base-font-size))] text-black/30 mt-2 font-bold text-right">{brew}% brewed</div>
     </div>
   );
 }

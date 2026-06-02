@@ -162,59 +162,61 @@ export default function Bucket({ onLogout, userId }) {
     }
   }
 
-  async function handleUpdateIdea(id, fn) {
-    const idea = ideas.find(i => i.id === id);
-    if (!idea) return;
+  const handleUpdateIdea = useCallback(async (id, fn) => {
+    setIdeas(prev => {
+      const idea = prev.find(i => i.id === id);
+      if (!idea) return prev;
+      
+      const updated = { ...idea };
+      fn(updated);
+      
+      const newIdeas = prev.map(i => i.id === id ? { ...updated, updated_at: new Date().toISOString() } : i);
+      
+      // Secondary action: DB sync
+      const payload = {
+        title:      updated.title,
+        thought:    updated.thought,
+        thoughts:   updated.thoughts,
+        tags:       updated.tags,
+        links:      updated.links,
+        fields:     updated.fields,
+        tasks:      updated.tasks,
+        pinned:     updated.pinned,
+        expires_at: updated.expires_at,
+      };
 
-    const oldIdea = { ...idea };
-    const updated = { ...idea };
-    fn(updated);
+      dbUpdateIdea(id, payload).catch(e => {
+        console.error("Failed to update:", e);
+        // We don't alert on every keystroke failure, but maybe we should revert on catastrophic failure
+        // For simplicity, we keep the optimistic state for now
+      });
 
-    // Optimistic update
-    setIdeas(prev => prev.map(i => i.id === id ? { ...updated, updated_at: new Date().toISOString() } : i));
+      return newIdeas;
+    });
+  }, []);
 
-    const payload = {
-      title:      updated.title,
-      thought:    updated.thought,
-      thoughts:   updated.thoughts,
-      tags:       updated.tags,
-      links:      updated.links,
-      fields:     updated.fields,
-      tasks:      updated.tasks,
-      pinned:     updated.pinned,
-      expires_at: updated.expires_at,
-    };
+  const handleDeleteIdea = useCallback(async (id) => {
+    setIdeas(prev => {
+      const deletedIdea = prev.find(i => i.id === id);
+      if (!deletedIdea) return prev;
+      
+      // Optimistic delete
+      const newIdeas = prev.filter(i => i.id !== id);
+      
+      dbDeleteIdea(id).catch(e => {
+        setIdeas(current => [deletedIdea, ...current]);
+        console.error("Failed to delete:", e);
+        alert("Failed to delete idea. It's back in the pile.");
+      });
 
-    try {
-      const result = await dbUpdateIdea(id, payload);
-      setIdeas(prev => prev.map(i => i.id === id ? result : i));
-    } catch (e) {
-      setIdeas(prev => prev.map(i => i.id === id ? oldIdea : i));
-      console.error("Failed to update:", e);
-      alert("Failed to update idea. Reverting changes.");
-    }
-  }
+      return newIdeas;
+    });
 
-  async function handleDeleteIdea(id) {
-    const deletedIdea = ideas.find(i => i.id === id);
-    if (!deletedIdea) return;
-
-    // Optimistic delete
-    setIdeas(prev => prev.filter(i => i.id !== id));
-    const wasInDetail = view === "detail" && activeId === id;
-    if (wasInDetail) {
+    if (view === "detail" && activeId === id) {
       setView("list");
       setActiveId(null);
     }
-
-    try {
-      await dbDeleteIdea(id);
-    } catch (e) {
-      setIdeas(prev => [deletedIdea, ...prev]);
-      console.error("Failed to delete:", e);
-      alert("Failed to delete idea. It's back in the pile.");
-    }
-  }
+  }, [view, activeId]);
 
   const handleSelectIdea = useCallback((id) => { 
     setActiveId(id); 
