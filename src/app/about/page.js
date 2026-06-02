@@ -35,31 +35,49 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#FFF8EE] text-black selection:bg-[#FF6A00] selection:text-white">
       {/* Hero Section */}
-      <section className="px-4 pt-16 pb-12 flex flex-col items-center text-center max-w-2xl mx-auto">
-        <div className="bg-black text-[#FFF8EE] px-4 py-2 rounded-xl mb-6 shadow-hard rotate-[-2deg]">
-          <span className="text-[calc((12/12)*var(--base-font-size))] font-extrabold uppercase tracking-[0.2em]">Open Source</span>
+      <section className="px-[6px] min-h-screen flex flex-col items-center justify-center text-center max-w-2xl mx-auto py-10 relative">
+        <div className="bg-black text-[#FFF8EE] px-4 py-2 rounded-xl mb-8 shadow-hard rotate-[-2deg] border-2 border-black">
+          <span className="text-[calc((12/12)*var(--base-font-size))] font-extrabold uppercase tracking-[0.2em]">Mobile First</span>
         </div>
         
         <img 
           src="/shitBucket-day.png" 
           alt="ShitBucket" 
-          className="w-full max-w-[400px] h-auto mb-6 object-contain"
+          className="w-full max-w-[180px] h-auto mb-4 object-contain"
         />
+
+        <h1 className="w-full text-[45px] font-black leading-[0.9] mb-6 tracking-tighter uppercase">
+          Dump Your Raw <br className="md:hidden" /> Thoughts.
+        </h1>
         
-        <p className="text-[calc((18/12)*var(--base-font-size))] md:text-[calc((22/12)*var(--base-font-size))] font-extrabold leading-tight mb-10 max-w-sm">
-          Dump your raw ideas.<br/>Brew them into gold.
+        <p className="w-full text-[calc((14/12)*var(--base-font-size))] font-bold leading-tight mb-8 opacity-70 px-[4px]">
+          Made for ideas that deserve more than a notes app, but less than Notion.
         </p>
 
-        <Link href="/" className="group relative">
-          <div className="absolute inset-0 bg-black rounded-2xl translate-x-[4px] translate-y-[4px] transition-transform group-active:translate-x-0 group-active:translate-y-0" />
-          <div className="relative bg-[#FF6A00] text-black border-2 border-black px-8 py-4 rounded-2xl text-[calc((20/12)*var(--base-font-size))] font-extrabold uppercase tracking-tight group-active:translate-x-[4px] group-active:translate-y-[4px] transition-transform">
-            Launch App →
-          </div>
-        </Link>
+        <div className="flex flex-col w-full gap-4 px-8 sm:flex-row sm:justify-center sm:px-0 mb-12">
+          <Link href="/" className="group relative">
+            <div className="absolute inset-0 bg-black rounded-2xl translate-x-[3px] translate-y-[3px] transition-transform group-active:translate-x-0 group-active:translate-y-0" />
+            <div className="relative bg-[#FF6A00] text-black border-2 border-black px-6 py-3 rounded-2xl text-[calc((15/12)*var(--base-font-size))] font-extrabold uppercase tracking-tight group-active:translate-x-[3px] group-active:translate-y-[3px] transition-transform flex items-center justify-center">
+              Start dumping →
+            </div>
+          </Link>
+
+          <button 
+            onClick={() => document.getElementById('install')?.scrollIntoView({ behavior: 'smooth' })}
+            className="group relative"
+          >
+            <div className="absolute inset-0 bg-black rounded-2xl translate-x-[3px] translate-y-[3px] transition-transform group-active:translate-x-0 group-active:translate-y-0" />
+            <div className="relative bg-white text-black border-2 border-black px-6 py-3 rounded-2xl text-[calc((15/12)*var(--base-font-size))] font-extrabold uppercase tracking-tight group-active:translate-x-[3px] group-active:translate-y-[3px] transition-transform flex items-center justify-center">
+              See how to install ↓
+            </div>
+          </button>
+        </div>
         
-        <p className="mt-6 text-[calc((11/12)*var(--base-font-size))] font-bold opacity-40 uppercase tracking-widest">
-          Mobile-first • Offline-ready • 100% Private
-        </p>
+        <div className="absolute bottom-8 left-0 right-0">
+          <p className="text-[calc((11/12)*var(--base-font-size))] font-bold opacity-30 uppercase tracking-widest">
+            Offline-ready • 100% Private
+          </p>
+        </div>
       </section>
 
       {/* Philosophy Section */}
@@ -84,7 +102,7 @@ export default function LandingPage() {
       </section>
 
       {/* PWA Section */}
-      <section className="px-4 py-16 max-w-xl mx-auto">
+      <section id="install" className="px-4 py-16 max-w-xl mx-auto">
         <h2 className="text-[calc((28/12)*var(--base-font-size))] font-extrabold uppercase tracking-tight mb-8">Add to Home Screen</h2>
         <div className="bg-white border-2 border-black rounded-3xl p-8 shadow-hard flex flex-col gap-8">
           <div>
