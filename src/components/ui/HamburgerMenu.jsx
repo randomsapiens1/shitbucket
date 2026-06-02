@@ -119,20 +119,6 @@ export default function HamburgerMenu({ open, onClose, fontSize, setFontSize, on
             </div>
           </div>
 
-          {/* Help & Info */}
-          <div>
-            <p className="text-[calc((10/12)*var(--base-font-size))] font-extrabold uppercase tracking-[0.15em] text-black mb-2">Help & Info</p>
-            <div className="flex flex-col gap-2">
-              <a
-                href="/about"
-                className="bg-white border-2 border-black rounded-2xl shadow-hard p-4 flex items-center justify-between group active:shadow-none active:translate-x-[3px] active:translate-y-[3px] transition-all"
-              >
-                <span className="text-[calc((13/12)*var(--base-font-size))] font-extrabold text-black group-hover:text-[#FF6A00]">About ShitBucket</span>
-                <span className="text-black/30 group-hover:text-[#FF6A00]">→</span>
-              </a>
-            </div>
-          </div>
-
         </div>
 
         {/* Footer: sign out */}

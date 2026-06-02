@@ -140,15 +140,6 @@ export default function Auth() {
         >
           {isSignUp ? "already have an account? log in" : "first time? create account"}
         </button>
-
-        <div className="mt-12 text-center">
-          <a
-            href="/about"
-            className="text-[calc((11/12)*var(--base-font-size))] font-extrabold uppercase tracking-widest text-[#FF6A00] border-2 border-black rounded-full px-5 py-2.5 bg-white shadow-hard-sm hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
-          >
-            What is ShitBucket?
-          </a>
-        </div>
       </div>
     </div>
   );
