@@ -3,25 +3,25 @@
 const sections = [
   {
     title: "Dump",
-    icon: "/icon_howitworks/dump-it.png",
+    icon: "/icon_howItWorks/dump-it.png",
     color: "#CAFF00",
     desc: "Throw ideas raw into the bucket before you forget them."
   },
   {
     title: "Develop",
-    icon: "/icon_howitworks/Let-it-brew.png",
+    icon: "/icon_howItWorks/Let-it-brew.png",
     color: "#B3D9FF",
     desc: "Add notes, tasks, and links whenever inspiration strikes."
   },
   {
     title: "Filter",
-    icon: "/icon_howitworks/keep-what-matters.png",
+    icon: "/icon_howItWorks/keep-what-matters.png",
     color: "#FFB3D0",
     desc: "Keep what matters. Let the rest go and expire."
   },
   {
     title: "Build",
-    icon: "/icon_howitworks/work-it.png",
+    icon: "/icon_howItWorks/work-it.png",
     color: "#FFE9A0",
     desc: "Turn ideas that survive into something real."
   }

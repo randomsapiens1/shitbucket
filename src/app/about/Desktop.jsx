@@ -5,7 +5,6 @@ import Link from "next/link";
 import HowItWorks      from "./windows/HowItWorks";
 import WhyShitBucket   from "./windows/WhyShitBucket";
 import DesignPhilosophy from "./windows/DesignPhilosophy";
-import BrewScore       from "./windows/BrewScore";
 import ReachOut        from "./windows/ReachOut";
 import ShitBucketApp   from "./windows/ShitBucketApp";
 
@@ -16,7 +15,6 @@ const WINDOWS = {
   "how-it-works":      { label: "How It Works",      icon: "❓", Content: HowItWorks,       defaultPos: { x: 60,  y: 40 } },
   "why-shitbucket":    { label: "Why ShitBucket?",   icon: "💡", Content: WhyShitBucket,    defaultPos: { x: 100, y: 60 } },
   "design-philosophy": { label: "Design Philosophy", icon: "🎨", Content: DesignPhilosophy, defaultPos: { x: 140, y: 50 } },
-  "brew-score":        { label: "Brew Score",        icon: "🍺", Content: BrewScore,        defaultPos: { x: 180, y: 70 } },
   "reach-out":         { label: "Reach Out",         icon: "✉️", Content: ReachOut,         defaultPos: { x: 120, y: 80 } },
   "shitbucket-app":    { label: "ShitBucket.exe",    icon: "🪣", Content: ShitBucketApp,    defaultPos: { x: 100, y: 100 } },
 };
@@ -32,7 +30,6 @@ const LEFT_ICONS = [
 
 const RIGHT_ICONS = [
   { id: "design-philosophy", imgSrc: "/icon_set/design-philosophy.png",  label: "Design Philosophy" },
-  { id: "brew-score",        icon: "🍺",                                  label: "Brew Score" },
 ];
 
 // ── DesktopWindow ──────────────────────────────────────────────────────────────

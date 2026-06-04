@@ -5,6 +5,7 @@ import SortDropdown from "@/components/ui/SortDropdown";
 import QuickDump from "@/components/list/QuickDump";
 import TagFilter from "@/components/list/TagFilter";
 import IdeaCard from "@/components/list/IdeaCard";
+import ManifestoWindow from "@/components/ui/ManifestoWindow";
 import {
   DndContext,
   closestCenter,
@@ -52,6 +53,7 @@ export default function ListView({
 }) {
   const [lateNight,   setLateNight]   = useState(false);
   const [showMenu,    setShowMenu]    = useState(false);
+  const [showManifesto, setShowManifesto] = useState(false);
   const [now,         setNow]         = useState(null);
 
   useEffect(() => {
@@ -209,9 +211,13 @@ export default function ListView({
 
       {/* Stats + search */}
       <div className="px-4 pb-2 flex items-center gap-2">
-        <div className="bg-black text-white rounded-xl px-4 py-2.5 text-[calc((12/12)*var(--base-font-size))] font-extrabold flex items-center gap-2 shadow-hard-sm whitespace-nowrap">
+        <button 
+          onClick={() => setShowManifesto(true)}
+          className="bg-black text-white rounded-xl px-4 py-2.5 text-[calc((12/12)*var(--base-font-size))] font-extrabold flex items-center gap-2 shadow-hard-sm whitespace-nowrap hover:bg-[#FF6A00] transition-colors"
+        >
           <span>{ideas.length} {ideas.length === 1 ? "idea" : "ideas"}</span>
-        </div>
+          <span className="opacity-40 ml-1">?</span>
+        </button>
 
         <div className="relative flex-1">
           <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-black/30 pointer-events-none">
@@ -287,6 +293,10 @@ export default function ListView({
           </SortableContext>
         </DndContext>
       </div>
+
+      {showManifesto && (
+        <ManifestoWindow onClose={() => setShowManifesto(false)} />
+      )}
 
     </div>
   );
