@@ -1,69 +1,77 @@
 "use client";
+import { useRef } from "react";
 
 const sections = [
   {
-    title: "Dump",
+    title: "Dump It",
     icon: "/icon_howItWorks/dump-it.png",
     color: "#CAFF00",
-    desc: "Throw ideas raw into the bucket before you forget them."
+    desc: "Write whatever is floating around in your head. Tasks, links, ideas. The bucket doesn't care."
   },
   {
-    title: "Develop",
+    title: "Let It Sit",
     icon: "/icon_howItWorks/Let-it-brew.png",
     color: "#B3D9FF",
-    desc: "Add notes, tasks, and links whenever inspiration strikes."
+    desc: "Some things matter tomorrow. Some never matter again. You decide how long it stays."
   },
   {
-    title: "Filter",
+    title: "Find It",
     icon: "/icon_howItWorks/keep-what-matters.png",
     color: "#FFB3D0",
-    desc: "Keep what matters. Let the rest go and expire."
+    desc: "Search, filter, or sort. Or just forget about it until future-you suddenly needs it."
   },
   {
-    title: "Build",
+    title: "Or Forget It",
     icon: "/icon_howItWorks/work-it.png",
     color: "#FFE9A0",
-    desc: "Turn ideas that survive into something real."
+    desc: "If it's shit, let it expire. The things you throw into the bucket stay yours."
   }
 ];
 
 export default function HowItWorks() {
+  const scrollRef = useRef(null);
+
   return (
-    <div className="flex flex-col h-full py-4 max-w-5xl mx-auto">
-      {/* Centered Header */}
-      <div className="mb-12 text-center">
-        <h1 className="text-4xl font-black uppercase tracking-tighter leading-none">
-          The Life of an Idea
+    <div className="flex flex-col h-full py-6 px-2 sm:px-4 max-w-[1200px] mx-auto">
+      {/* Header */}
+      <div className="mb-10 text-center">
+        <h1 className="text-[calc((32/12)*var(--base-font-size))] sm:text-5xl font-black uppercase tracking-tighter leading-none text-black">
+          How It Works
         </h1>
-        <div className="h-1.5 w-16 bg-black mx-auto mt-6" />
+        <div className="h-2 w-20 bg-[#FF6A00] mx-auto mt-6 rounded-full" />
       </div>
 
-      {/* Static 4-Card Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Mobile Slider / Desktop Flex Row */}
+      <div 
+        ref={scrollRef}
+        className="flex overflow-x-auto sm:overflow-x-visible snap-x snap-mandatory sm:snap-none no-scrollbar gap-6 pb-8 -mx-2 px-4 sm:px-0 sm:flex-wrap sm:justify-center lg:flex-nowrap"
+      >
         {sections.map((s, idx) => (
           <div 
             key={s.title}
-            className="flex flex-col border-4 border-black rounded-[40px] overflow-hidden shadow-hard transition-transform hover:scale-[1.02]"
+            className="flex-shrink-0 w-[280px] sm:w-[calc(50%-12px)] lg:flex-1 snap-center flex flex-col border-4 border-black rounded-[40px] overflow-hidden shadow-hard transition-transform hover:scale-[1.02] bg-white"
           >
-            {/* Visual Header - Increased Height */}
+            {/* Visual Header */}
             <div 
-              className="h-48 flex items-center justify-center p-8 border-b-4 border-black"
+              className="h-44 sm:h-52 flex items-center justify-center p-8 border-b-4 border-black"
               style={{ backgroundColor: s.color }}
             >
               <img 
                 src={s.icon} 
                 alt={s.title} 
-                className="w-full h-full object-contain" 
+                className="w-full h-full object-contain pointer-events-none" 
               />
             </div>
             
-            {/* Content Area - Increased Padding and Text Size */}
-            <div className="bg-white p-8 flex-1 flex flex-col justify-start">
-              <div className="flex items-center gap-3 mb-3">
-                <span className="text-[11px] font-black uppercase tracking-widest text-black/20 border-2 border-black/10 rounded-full px-2 py-0.5">0{idx + 1}</span>
-                <h2 className="text-xl font-black uppercase tracking-tight">{s.title}</h2>
+            {/* Content Area */}
+            <div className="p-8 flex-1 flex flex-col justify-start">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-black/20 border-2 border-black/10 rounded-full px-2.5 py-1 shrink-0">
+                  STEP {idx + 1}
+                </span>
+                <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-black truncate">{s.title}</h2>
               </div>
-              <p className="text-sm font-bold text-black/60 leading-tight">
+              <p className="text-[calc((14/12)*var(--base-font-size))] font-bold text-black/60 leading-snug">
                 {s.desc}
               </p>
             </div>
@@ -71,6 +79,12 @@ export default function HowItWorks() {
         ))}
       </div>
 
+      {/* Slider Indicator (Mobile Only) */}
+      <div className="flex justify-center gap-2 mt-2 sm:hidden">
+        {sections.map((_, i) => (
+          <div key={i} className="w-2 h-2 rounded-full bg-black/10" />
+        ))}
+      </div>
     </div>
   );
 }
