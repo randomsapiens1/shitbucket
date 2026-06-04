@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import Auth from "@/components/Auth";
 import Bucket from "@/components/Bucket";
@@ -25,7 +25,11 @@ export default function Home() {
     return () => subscription.unsubscribe();
   }, []);
 
+  const handleLogout = useCallback(() => {
+    setSession(null);
+  }, []);
+
   if (loading) return <LoadingScreen />;
   if (!session) return <Auth />;
-  return <Bucket onLogout={() => setSession(null)} userId={session?.user?.id} />;
+  return <Bucket onLogout={handleLogout} userId={session?.user?.id} />;
 }

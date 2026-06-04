@@ -73,8 +73,6 @@ export default function Auth() {
         <div className="bg-white border-2 border-black rounded-[32px] sm:rounded-[40px] shadow-hard p-6 sm:p-8 flex flex-col gap-5 relative overflow-hidden w-full">
           {/* Subtle accent corner */}
           <div className="absolute top-0 right-0 w-16 h-16 bg-[#FF6A00]/5 -mr-8 -mt-8 rounded-full" />
-          {/* Subtle accent corner */}
-          <div className="absolute top-0 right-0 w-16 h-16 bg-[#FF6A00]/5 -mr-8 -mt-8 rounded-full" />
           
           {message && (
             <div className="bg-[#CAFF00] border-2 border-black rounded-2xl p-3 text-[calc((12/12)*var(--base-font-size))] font-bold text-black text-center mb-1">
