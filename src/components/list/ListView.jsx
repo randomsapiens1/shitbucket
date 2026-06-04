@@ -5,6 +5,21 @@ import SortDropdown from "@/components/ui/SortDropdown";
 import QuickDump from "@/components/list/QuickDump";
 import TagFilter from "@/components/list/TagFilter";
 import IdeaCard from "@/components/list/IdeaCard";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  TouchSensor,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 
 function getTimeOfDayIcon(h) {
   if (h >= 5  && h < 12) return "☀";
@@ -29,6 +44,7 @@ export default function ListView({
   onSelectIdea,
   onLogout,
   onUpdateIdea,
+  onReorderIdeas,
   sessionStart,
   userId,
   error,
@@ -53,6 +69,21 @@ export default function ListView({
     const id = setInterval(check, 60_000);
     return () => clearInterval(id);
   }, []);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  function handleDragEnd(event) {
+    const { active, over } = event;
+    if (active.id !== over?.id) {
+      const oldIndex = ideas.findIndex((i) => i.id === active.id);
+      const newIndex = ideas.findIndex((i) => i.id === over.id);
+      onReorderIdeas(oldIndex, newIndex);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-[#FFF8EE] text-[#121212] pb-24 max-w-xl mx-auto">
@@ -237,15 +268,24 @@ export default function ListView({
             your pile is empty. dump something!
           </div>
         )}
-        {filtered.map(idea => (
-          <IdeaCard
-            key={idea.id}
-            idea={idea}
-            onClick={() => onSelectIdea(idea.id)}
-            onPin={(pinned) => onUpdateIdea(idea.id, (i) => { i.pinned = pinned; })}
-            userId={userId}
-          />
-        ))}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+          modifiers={[restrictToVerticalAxis]}
+        >
+          <SortableContext items={filtered.map(i => i.id)} strategy={verticalListSortingStrategy}>
+            {filtered.map(idea => (
+              <IdeaCard
+                key={idea.id}
+                idea={idea}
+                onClick={() => onSelectIdea(idea.id)}
+                onPin={(pinned) => onUpdateIdea(idea.id, (i) => { i.pinned = pinned; })}
+                userId={userId}
+              />
+            ))}
+          </SortableContext>
+        </DndContext>
       </div>
 
     </div>

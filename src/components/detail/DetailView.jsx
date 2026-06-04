@@ -85,6 +85,18 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
     onUpdate(i => { i.fields = (i.fields || []).filter(f => f.id !== fid); });
   }
 
+  function handleReorderLinks(oldIndex, newIndex) {
+    onUpdate(i => {
+      i.links = arrayMove(i.links || [], oldIndex, newIndex);
+    });
+  }
+
+  function handleReorderFields(oldIndex, newIndex) {
+    onUpdate(i => {
+      i.fields = arrayMove(i.fields || [], oldIndex, newIndex);
+    });
+  }
+
   function addTask() {
     if (!newTask.trim()) return;
     onUpdate(i => { 
@@ -242,6 +254,7 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
           links={idea.links}
           onAdd={addLink}
           onRemove={removeLink}
+          onReorder={handleReorderLinks}
         />
 
         <CustomFieldsSection
@@ -249,6 +262,7 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
           onAdd={addField}
           onUpdate={updateField}
           onRemove={removeField}
+          onReorder={handleReorderFields}
         />
       </div>
     </div>

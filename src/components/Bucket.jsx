@@ -123,6 +123,7 @@ export default function Bucket({ onLogout, userId }) {
         );
       })
       .sort((a, b) => {
+        if (sortBy === "manual") return 0; // Maintain current array order
         if (a.pinned && !b.pinned) return -1;
         if (!a.pinned && b.pinned) return 1;
         if (sortBy === "newest") return new Date(b.updated_at) - new Date(a.updated_at);
@@ -227,6 +228,17 @@ export default function Bucket({ onLogout, userId }) {
     handleUpdateIdea(id, (i) => { i.pinned = pinned; });
   }, [handleUpdateIdea]);
 
+  const handleReorderIdeas = useCallback((oldIndex, newIndex) => {
+    setIdeas(prev => {
+      const newIdeas = arrayMove(prev, oldIndex, newIndex);
+      // When reordering, we switch to manual sort implicitly or just maintain this order.
+      // For persistence, we might need a 'position' column in the DB, but for now 
+      // we just update the local state.
+      return newIdeas;
+    });
+    setSortBy("manual");
+  }, []);
+
   const handleLogoutWithAuth = useCallback(async () => {
     await supabase.auth.signOut();
     onLogout();
@@ -253,6 +265,7 @@ export default function Bucket({ onLogout, userId }) {
         onLogout={handleLogoutWithAuth}
         onUpdateIdea={handleUpdateIdea}
         onPinIdea={handlePinIdea}
+        onReorderIdeas={handleReorderIdeas}
         sessionStart={sessionStart.current}
         userId={userId}
         error={error}

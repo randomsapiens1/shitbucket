@@ -6,6 +6,7 @@ const OPTIONS = [
   { key: "oldest", label: "Oldest first" },
   { key: "brew",   label: "Most brewed"  },
   { key: "alpha",  label: "A-Z"          },
+  { key: "manual", label: "Custom order" },
 ];
 
 export default function SortDropdown({ value, onChange }) {
