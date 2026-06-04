@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 
-export default function Auth() {
+export default function Auth({ embedded = false }) {
   const [email,           setEmail]           = useState("");
   const [password,        setPassword]        = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -48,21 +48,21 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FFF8EE] flex flex-col items-center pt-8 sm:justify-center sm:pt-0 px-3 sm:px-5">
+    <div className={`${embedded ? "" : "min-h-screen bg-[#FFF8EE] pt-8 sm:pt-0"} flex flex-col items-center sm:justify-center px-3 sm:px-5`}>
       <div className="w-full sm:max-w-sm">
 
         {/* Playful Branding Area */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="relative mb-6">
-            <div className="absolute -inset-6 bg-[#FF6A00]/10 rounded-full blur-2xl" />
+        <div className={`flex flex-col items-center ${embedded ? "mb-4" : "mb-8"}`}>
+          <div className={`relative ${embedded ? "mb-2" : "mb-6"}`}>
+            <div className={`absolute -inset-6 bg-[#FF6A00]/10 rounded-full blur-2xl ${embedded ? "hidden" : ""}`} />
             <img
               src="/shitBucket-day.png"
               alt="ShitBucket"
-              className="relative w-48 sm:w-64 h-auto object-contain"
+              className={`relative ${embedded ? "w-32" : "w-48 sm:w-64"} h-auto object-contain`}
             />
           </div>
           
-          <h1 className="text-[calc((36/12)*var(--base-font-size))] sm:text-[calc((42/12)*var(--base-font-size))] font-black text-black leading-[0.9] tracking-tighter uppercase text-center" style={{ fontFamily: "'Inter', sans-serif" }}>
+          <h1 className={`${embedded ? "text-xl" : "text-[calc((36/12)*var(--base-font-size))] sm:text-[calc((42/12)*var(--base-font-size))]"} font-black text-black leading-[0.9] tracking-tighter uppercase text-center`} style={{ fontFamily: "'Inter', sans-serif" }}>
             Dump your <br />
             thoughts. <br />
             <span className="text-[#FF6A00]">RAW.</span>

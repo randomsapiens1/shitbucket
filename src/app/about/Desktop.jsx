@@ -7,6 +7,7 @@ import WhyShitBucket   from "./windows/WhyShitBucket";
 import DesignPhilosophy from "./windows/DesignPhilosophy";
 import BrewScore       from "./windows/BrewScore";
 import ReachOut        from "./windows/ReachOut";
+import ShitBucketApp   from "./windows/ShitBucketApp";
 
 // ── Window Registry ────────────────────────────────────────────────────────────
 // To edit a window's content, open its file in src/app/about/windows/
@@ -17,6 +18,7 @@ const WINDOWS = {
   "design-philosophy": { label: "Design Philosophy", icon: "🎨", Content: DesignPhilosophy, defaultPos: { x: 140, y: 50 } },
   "brew-score":        { label: "Brew Score",        icon: "🍺", Content: BrewScore,        defaultPos: { x: 180, y: 70 } },
   "reach-out":         { label: "Reach Out",         icon: "✉️", Content: ReachOut,         defaultPos: { x: 120, y: 80 } },
+  "shitbucket-app":    { label: "ShitBucket.exe",    icon: "🪣", Content: ShitBucketApp,    defaultPos: { x: 100, y: 100 } },
 };
 
 // ── Desktop Icons ──────────────────────────────────────────────────────────────
@@ -201,18 +203,61 @@ export default function Desktop() {
       className="fixed inset-0 overflow-hidden"
       style={{ backgroundImage: "url('/wallpaper.jpg')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}
     >
-      {/* ── Left column icons ── */}
-      <div className="absolute top-4 left-3 flex flex-col gap-1 pb-14">
-        <Link href="/">
-          <DesktopIcon imgSrc="/icon_set/shit-bucket.exe.png" label="ShitBucket.exe" onClick={() => {}} darkBg />
+      {/* ── Taskbar (Top) ── */}
+      <div className="fixed top-0 left-0 right-0 h-16 bg-[#f1dbbe] border-b-2 border-black/10 flex items-center gap-4 px-4 z-[9999] shadow-[0_4px_20px_rgba(0,0,0,0.15)]">
+        <img
+          src="/logo-shitBucket-day.png"
+          alt="ShitBucket"
+          className="w-[42px] h-[42px] object-contain shrink-0"
+        />
+        <Link
+          href="/"
+          className="font-black text-xl tracking-tight hover:opacity-60 transition-opacity shrink-0 flex items-center gap-1"
+        >
+          <span className="text-black">ShitBucket</span>
+          <span className="text-black/30 font-light text-lg">›</span>
         </Link>
+
+        <div className="w-px h-8 bg-black/20 shrink-0" />
+
+        <div className="flex-1 flex items-center gap-2 overflow-x-auto min-w-0">
+          {openWindows.map(({ id }) => {
+            const cfg = WINDOWS[id];
+            return (
+              <button
+                key={id}
+                onClick={() => focusWindow(id)}
+                className="flex items-center gap-1.5 bg-black/10 border border-black/10 rounded-lg px-3 py-1.5 text-black font-black text-xs uppercase tracking-wider hover:bg-black/20 transition-colors whitespace-nowrap shrink-0"
+              >
+                <span>{cfg.icon}</span>
+                <span className="hidden sm:inline">{cfg.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <Link
+          href="/"
+          className="flex items-center gap-2 bg-[#FF6A00] border-2 border-black rounded-xl px-4 py-2 text-white font-black text-sm uppercase tracking-wider hover:bg-[#ff7b1a] transition-all shadow-[3px_3px_0px_#000] shrink-0"
+        >
+          Dashboard
+        </Link>
+
+        <div className="shrink-0">
+          <TaskbarDateTime />
+        </div>
+      </div>
+
+      {/* ── Left column icons ── */}
+      <div className="absolute top-20 left-3 flex flex-col gap-1 pb-14">
+        <DesktopIcon imgSrc="/icon_set/shit-bucket.exe.png" label="ShitBucket.exe" onClick={() => openWindow("shitbucket-app")} darkBg />
         {LEFT_ICONS.map(ic => (
           <DesktopIcon key={ic.id} icon={ic.icon} imgSrc={ic.imgSrc} label={ic.label} onClick={() => openWindow(ic.id)} />
         ))}
       </div>
 
       {/* ── Right column icons ── */}
-      <div className="absolute top-4 right-3 flex flex-col gap-1 pb-14">
+      <div className="absolute top-20 right-3 flex flex-col gap-1 pb-14">
         {RIGHT_ICONS.map(ic => (
           <DesktopIcon key={ic.id} icon={ic.icon} imgSrc={ic.imgSrc} label={ic.label} onClick={() => openWindow(ic.id)} />
         ))}
@@ -228,38 +273,6 @@ export default function Desktop() {
           onFocus={() => focusWindow(id)}
         />
       ))}
-
-      {/* ── Taskbar ── */}
-      <div className="fixed bottom-0 left-0 right-0 h-16 bg-[#fd7800] border-t-2 border-black/20 flex items-center gap-4 px-4 z-[9999]">
-        <Link
-          href="/"
-          className="flex items-center gap-2 bg-black rounded-xl px-4 py-2 text-white font-black text-sm uppercase tracking-wider hover:bg-[#1a1a1a] transition-colors shadow-[3px_3px_0px_rgba(0,0,0,0.3)] shrink-0"
-        >
-          🪣 Launch ShitBucket
-        </Link>
-
-        <div className="w-px h-8 bg-black/20 shrink-0" />
-
-        <div className="flex-1 flex items-center gap-2 overflow-x-auto min-w-0">
-          {openWindows.map(({ id }) => {
-            const cfg = WINDOWS[id];
-            return (
-              <button
-                key={id}
-                onClick={() => focusWindow(id)}
-                className="flex items-center gap-1.5 bg-black/15 border border-black/20 rounded-lg px-3 py-1.5 text-black font-black text-xs uppercase tracking-wider hover:bg-black/25 transition-colors whitespace-nowrap shrink-0"
-              >
-                <span>{cfg.icon}</span>
-                <span className="hidden sm:inline">{cfg.label}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="shrink-0">
-          <TaskbarDateTime />
-        </div>
-      </div>
     </div>
   );
 }
