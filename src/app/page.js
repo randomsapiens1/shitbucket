@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
-import Auth from "@/components/Auth";
 import Bucket from "@/components/Bucket";
 import LoadingScreen from "@/components/ui/LoadingScreen";
 

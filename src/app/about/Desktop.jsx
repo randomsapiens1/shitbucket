@@ -13,7 +13,7 @@ import Welcome         from "./windows/Welcome";
 // To edit a window's content, open its file in src/app/about/windows/
 
 const WINDOWS = {
-  "welcome":           { label: "Welcome",           icon: "👋", Content: Welcome,         defaultPos: { x: 0,   y: 0 } },
+  "welcome":           { label: "Welcome to ShitBucket.fyi", icon: "", Content: Welcome,         defaultPos: { x: 0,   y: 0 } },
   "how-it-works":      { label: "How It Works",      icon: "❓", Content: HowItWorks,       defaultPos: { x: 60,  y: 40 } },
   "why-shitbucket":    { label: "Why ShitBucket?",   icon: "💡", Content: WhyShitBucket,    defaultPos: { x: 100, y: 60 } },
   "design-philosophy": { label: "Design Philosophy", icon: "🎨", Content: DesignPhilosophy, defaultPos: { x: 140, y: 50 } },
@@ -43,19 +43,20 @@ function DesktopWindow({ id, zIndex, onClose, onFocus }) {
 
   useEffect(() => {
     const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const w  = Math.min(Math.max(380, vw * 0.8), 960);
+    const vh = window.innerHeight - 80 - 80; // Total height minus both 80px bars
+    const isMobile = vw < 640;
+    const w  = isMobile ? Math.max(300, vw * 0.92) : Math.min(Math.max(420, vw * 0.7), 960);
     
     // For welcome window, center it more aggressively
     if (id === "welcome") {
        setPos({
         x: (vw - w) / 2,
-        y: Math.max(80, (vh - 500) / 2),
+        y: isMobile ? 20 : Math.max(20, (vh - 500) / 2),
       });
     } else {
       setPos({
         x: Math.max(8, (vw - w) / 2),
-        y: Math.max(40, vh * 0.1),
+        y: Math.max(isMobile ? 20 : 20, vh * 0.1),
       });
     }
   }, [id]);
@@ -69,9 +70,10 @@ function DesktopWindow({ id, zIndex, onClose, onFocus }) {
     const onMove = (ev) => {
       const w = winRef.current?.offsetWidth  || 600;
       const h = winRef.current?.offsetHeight || 400;
+      const desktopHeight = window.innerHeight - 80 - 80;
       setPos({
         x: Math.min(Math.max(0, ev.clientX - startX), window.innerWidth  - w),
-        y: Math.min(Math.max(0, ev.clientY - startY), window.innerHeight - 64 - h),
+        y: Math.min(Math.max(0, ev.clientY - startY), desktopHeight - h),
       });
     };
     const onUp = () => {
@@ -91,9 +93,10 @@ function DesktopWindow({ id, zIndex, onClose, onFocus }) {
       const t = ev.touches[0];
       const w = winRef.current?.offsetWidth  || 600;
       const h = winRef.current?.offsetHeight || 400;
+      const desktopHeight = window.innerHeight - 80 - 80;
       setPos({
         x: Math.min(Math.max(0, t.clientX - startX), window.innerWidth  - w),
-        y: Math.min(Math.max(0, t.clientY - startY), window.innerHeight - 64 - h),
+        y: Math.min(Math.max(0, t.clientY - startY), desktopHeight - h),
       });
     };
     const onUp = () => {
@@ -107,7 +110,14 @@ function DesktopWindow({ id, zIndex, onClose, onFocus }) {
   return (
     <div
       ref={winRef}
-      style={{ position: "fixed", left: pos.x, top: pos.y, zIndex, width: "clamp(380px, 80vw, 960px)" }}
+      style={{ 
+        position: "absolute", 
+        left: pos.x, 
+        top: pos.y, 
+        zIndex, 
+        width: "clamp(300px, 92vw, 960px)",
+        maxWidth: "calc(100vw - 16px)"
+      }}
       className="border-2 border-black rounded-2xl overflow-hidden shadow-[6px_6px_0px_#000] select-none"
       onMouseDown={onFocus}
     >
@@ -118,7 +128,7 @@ function DesktopWindow({ id, zIndex, onClose, onFocus }) {
         onTouchStart={handleTitleTouchStart}
       >
         <div className="flex items-center gap-2">
-          <span className="text-sm leading-none">{cfg.icon}</span>
+          {cfg.icon && <span className="text-sm leading-none">{cfg.icon}</span>}
           <span className="font-black text-[10px] uppercase tracking-widest">{cfg.label}</span>
         </div>
         <button
@@ -177,8 +187,8 @@ function TaskbarDateTime() {
 
   return (
     <div className="flex flex-col items-end gap-1">
-      <span className="font-black text-black text-xl tabular-nums leading-none tracking-tight">{time}</span>
-      <span className="font-black text-black/60 text-xs uppercase tracking-widest leading-none">{date}</span>
+      <span className="font-black text-black text-3xl tabular-nums leading-none tracking-tight">{time}</span>
+      <span className="font-black text-black/60 text-base uppercase tracking-widest leading-none">{date}</span>
     </div>
   );
 }
@@ -210,32 +220,40 @@ export default function Desktop() {
   }, []);
 
   return (
-    <div
-      className="fixed inset-0 overflow-hidden"
-      style={{ backgroundImage: "url('/wallpaper.jpg')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}
-    >
+    <div className="h-screen relative overflow-hidden bg-[#f1dbbe]">
+      {/* ── Wallpaper Area ── */}
+      <div 
+        className="absolute left-0 right-0 top-0 bottom-20"
+        style={{ 
+          backgroundImage: "url('/wallpaper.jpg')", 
+          backgroundSize: "cover", 
+          backgroundPosition: "bottom", 
+          backgroundRepeat: "no-repeat" 
+        }}
+      />
+
       {/* ── Taskbar (Top) ── */}
-      <div className="fixed top-0 left-0 right-0 h-16 bg-[#f1dbbe] border-b-2 border-black flex items-center gap-4 px-4 z-[9999]">
+      <div className="absolute top-0 left-0 right-0 h-20 bg-[#f1dbbe]/85 backdrop-blur-md border-b-2 border-black flex items-center gap-4 px-4 z-[9999] shadow-sm">
         <img
           src="/logo-shitBucket-day.png"
           alt="ShitBucket"
-          className="w-[42px] h-[42px] object-contain shrink-0"
+          className="w-[48px] h-[48px] object-contain shrink-0"
         />
         <Link
           href="/about"
-          className="font-black text-xl tracking-tight hover:opacity-60 transition-opacity shrink-0 flex items-center gap-1"
+          className="font-black text-2xl tracking-tight hover:opacity-60 transition-opacity shrink-0 flex items-center gap-1"
         >
           <span className="text-black">ShitBucket</span>
-          <span className="text-black/30 font-light text-lg">›</span>
+          <span className="text-black/30 font-light text-xl">›</span>
         </Link>
 
         <div className="flex-1" />
 
         <button
-          className="flex items-center justify-center w-10 h-10 bg-white border-2 border-black rounded-xl shadow-[3px_3px_0px_#000] hover:bg-black hover:text-white transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none shrink-0"
+          className="flex items-center justify-center w-12 h-12 bg-white border-2 border-black rounded-xl shadow-[3px_3px_0px_#000] hover:bg-black hover:text-white transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none shrink-0"
           title="WiFi: Connected"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
             <path d="M1.42 9a16 16 0 0 1 21.16 0"/>
             <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
@@ -244,49 +262,52 @@ export default function Desktop() {
         </button>
       </div>
 
-      {/* ── Left column icons ── */}
-      <div className="absolute top-20 left-3 flex flex-col gap-1 pb-14">
-        <DesktopIcon imgSrc="/icon_set/shit-bucket.exe.png" label="ShitBucket.exe" onClick={() => openWindow("shitbucket-app")} darkBg />
-        {LEFT_ICONS.map(ic => (
-          <DesktopIcon key={ic.id} icon={ic.icon} imgSrc={ic.imgSrc} label={ic.label} onClick={() => openWindow(ic.id)} />
+      {/* ── Main Desktop Interaction Area ── */}
+      <div className="absolute top-20 left-0 right-0 bottom-20 overflow-hidden">
+        {/* Left column icons */}
+        <div className="absolute top-4 left-3 flex flex-col gap-1 pb-4">
+          <DesktopIcon imgSrc="/icon_set/shit-bucket.exe.png" label="ShitBucket.exe" onClick={() => openWindow("shitbucket-app")} darkBg />
+          {LEFT_ICONS.map(ic => (
+            <DesktopIcon key={ic.id} icon={ic.icon} imgSrc={ic.imgSrc} label={ic.label} onClick={() => openWindow(ic.id)} />
+          ))}
+        </div>
+
+        {/* Right column icons */}
+        <div className="absolute top-4 right-3 flex flex-col gap-1 pb-4">
+          {RIGHT_ICONS.map(ic => (
+            <DesktopIcon key={ic.id} icon={ic.icon} imgSrc={ic.imgSrc} label={ic.label} onClick={() => openWindow(ic.id)} />
+          ))}
+        </div>
+
+        {/* Open windows */}
+        {openWindows.map(({ id, zIndex }) => (
+          <DesktopWindow
+            key={id}
+            id={id}
+            zIndex={zIndex}
+            onClose={() => closeWindow(id)}
+            onFocus={() => focusWindow(id)}
+          />
         ))}
       </div>
-
-      {/* ── Right column icons ── */}
-      <div className="absolute top-20 right-3 flex flex-col gap-1 pb-14">
-        {RIGHT_ICONS.map(ic => (
-          <DesktopIcon key={ic.id} icon={ic.icon} imgSrc={ic.imgSrc} label={ic.label} onClick={() => openWindow(ic.id)} />
-        ))}
-      </div>
-
-      {/* ── Open windows ── */}
-      {openWindows.map(({ id, zIndex }) => (
-        <DesktopWindow
-          key={id}
-          id={id}
-          zIndex={zIndex}
-          onClose={() => closeWindow(id)}
-          onFocus={() => focusWindow(id)}
-        />
-      ))}
 
       {/* ── Bottom Taskbar ── */}
-      <div className="fixed bottom-0 left-0 right-0 h-14 bg-[#f1dbbe] border-t-2 border-black flex items-center px-4 z-[9999]">
+      <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#f1dbbe] border-t-2 border-black flex items-center px-4 z-[9999]">
         <button
           onClick={() => setStartMenuOpen(!startMenuOpen)}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border-2 border-black transition-all shadow-[3px_3px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${startMenuOpen ? "bg-black text-white" : "bg-white text-black hover:bg-[#FF6A00] hover:text-white"}`}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black transition-all shadow-[3px_3px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${startMenuOpen ? "bg-black text-white" : "bg-white text-black hover:bg-[#FF6A00] hover:text-white"}`}
         >
           <img
             src="/logo-shitBucket-day.png"
             alt="Start"
-            className={`w-6 h-6 object-contain ${startMenuOpen ? "invert" : ""}`}
+            className={`w-8 h-8 object-contain ${startMenuOpen ? "invert" : ""}`}
           />
-          <span className="font-black text-xs uppercase tracking-widest">Start</span>
+          <span className="font-black text-base uppercase tracking-widest">Start</span>
         </button>
 
         {/* Start Menu Popup */}
         {startMenuOpen && (
-          <div className="absolute bottom-16 left-4 w-64 bg-white border-2 border-black rounded-xl shadow-[6px_6px_0px_#000] overflow-hidden animate-in slide-in-from-bottom-2 duration-200">
+          <div className="absolute bottom-22 left-4 w-64 bg-white border-2 border-black rounded-xl shadow-[6px_6px_0px_#000] overflow-hidden animate-in slide-in-from-bottom-2 duration-200">
             <div className="bg-black text-white px-4 py-3 flex items-center gap-2">
               <img src="/logo-shitBucket-day.png" alt="SB" className="w-5 h-5 object-contain invert" />
               <span className="font-black text-[10px] uppercase tracking-widest">ShitBucket OS v1.0</span>
@@ -296,7 +317,7 @@ export default function Desktop() {
                 onClick={() => openWindow("welcome")}
                 className="w-full text-left px-4 py-3 rounded-lg hover:bg-[#FF6A00] hover:text-white font-black text-xs uppercase tracking-wider transition-colors flex items-center gap-3"
               >
-                <span>👋</span> Welcome Screen
+                Welcome to ShitBucket.fyi
               </button>
               <button
                 onClick={() => openWindow("how-it-works")}
@@ -321,7 +342,7 @@ export default function Desktop() {
           </div>
         )}
 
-        <div className="w-px h-6 bg-black/20 mx-3 shrink-0" />
+        <div className="w-px h-10 bg-black/20 mx-4 shrink-0" />
 
         <div className="flex-1 flex items-center gap-2 overflow-x-auto min-w-0 pr-4">
           {openWindows.map(({ id }) => {
@@ -330,7 +351,7 @@ export default function Desktop() {
               <button
                 key={id}
                 onClick={() => focusWindow(id)}
-                className="flex items-center gap-1.5 bg-white border-2 border-black rounded-lg px-3 py-1 text-black font-black text-xs uppercase tracking-wider hover:bg-[#FF6A00] hover:text-white transition-all shadow-[2px_2px_0px_#000] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none whitespace-nowrap shrink-0"
+                className="flex items-center gap-2 bg-white border-2 border-black rounded-lg px-4 py-1.5 text-black font-black text-sm uppercase tracking-wider hover:bg-[#FF6A00] hover:text-white transition-all shadow-[2px_2px_0px_#000] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none whitespace-nowrap shrink-0"
               >
                 <span>{cfg.icon}</span>
                 <span className="hidden sm:inline">{cfg.label}</span>
