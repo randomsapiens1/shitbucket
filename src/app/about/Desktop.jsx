@@ -220,7 +220,7 @@ export default function Desktop() {
   }, []);
 
   return (
-    <div className="h-screen relative overflow-hidden bg-[#f1dbbe]">
+    <div className="fixed inset-0 h-[100dvh] overflow-hidden bg-[#f1dbbe] select-none">
       {/* ── Wallpaper Area ── */}
       <div 
         className="absolute left-0 right-0 top-0 bottom-20"
