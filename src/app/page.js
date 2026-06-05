@@ -30,6 +30,11 @@ export default function Home() {
   }, []);
 
   if (loading) return <LoadingScreen />;
-  if (!session) return <Auth />;
+  
+  if (!session) {
+    window.location.href = "/about";
+    return <LoadingScreen />;
+  }
+
   return <Bucket onLogout={handleLogout} userId={session?.user?.id} />;
 }

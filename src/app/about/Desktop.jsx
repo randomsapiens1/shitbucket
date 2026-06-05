@@ -7,11 +7,13 @@ import WhyShitBucket   from "./windows/WhyShitBucket";
 import DesignPhilosophy from "./windows/DesignPhilosophy";
 import ReachOut        from "./windows/ReachOut";
 import ShitBucketApp   from "./windows/ShitBucketApp";
+import Welcome         from "./windows/Welcome";
 
 // ── Window Registry ────────────────────────────────────────────────────────────
 // To edit a window's content, open its file in src/app/about/windows/
 
 const WINDOWS = {
+  "welcome":           { label: "Welcome",           icon: "👋", Content: Welcome,         defaultPos: { x: 0,   y: 0 } },
   "how-it-works":      { label: "How It Works",      icon: "❓", Content: HowItWorks,       defaultPos: { x: 60,  y: 40 } },
   "why-shitbucket":    { label: "Why ShitBucket?",   icon: "💡", Content: WhyShitBucket,    defaultPos: { x: 100, y: 60 } },
   "design-philosophy": { label: "Design Philosophy", icon: "🎨", Content: DesignPhilosophy, defaultPos: { x: 140, y: 50 } },
@@ -41,12 +43,22 @@ function DesktopWindow({ id, zIndex, onClose, onFocus }) {
 
   useEffect(() => {
     const vw = window.innerWidth;
-    const w  = Math.min(Math.max(380, vw * 0.65), 960);
-    setPos({
-      x: Math.max(8, (vw - w) / 2),
-      y: Math.max(40, window.innerHeight * 0.1),
-    });
-  }, []);
+    const vh = window.innerHeight;
+    const w  = Math.min(Math.max(380, vw * 0.8), 960);
+    
+    // For welcome window, center it more aggressively
+    if (id === "welcome") {
+       setPos({
+        x: (vw - w) / 2,
+        y: Math.max(80, (vh - 500) / 2),
+      });
+    } else {
+      setPos({
+        x: Math.max(8, (vw - w) / 2),
+        y: Math.max(40, vh * 0.1),
+      });
+    }
+  }, [id]);
 
   const handleTitleMouseDown = (e) => {
     if (e.button !== 0) return;
@@ -95,7 +107,7 @@ function DesktopWindow({ id, zIndex, onClose, onFocus }) {
   return (
     <div
       ref={winRef}
-      style={{ position: "fixed", left: pos.x, top: pos.y, zIndex, width: "clamp(380px, 65vw, 960px)" }}
+      style={{ position: "fixed", left: pos.x, top: pos.y, zIndex, width: "clamp(380px, 80vw, 960px)" }}
       className="border-2 border-black rounded-2xl overflow-hidden shadow-[6px_6px_0px_#000] select-none"
       onMouseDown={onFocus}
     >
@@ -121,7 +133,7 @@ function DesktopWindow({ id, zIndex, onClose, onFocus }) {
 
       {/* Content — edit in windows/*.jsx */}
       <div className="p-6 bg-white overflow-y-auto" style={{ maxHeight: "calc(70vh - 2.5rem)" }}>
-        <cfg.Content />
+        <cfg.Content onClose={onClose} />
       </div>
     </div>
   );
@@ -174,7 +186,8 @@ function TaskbarDateTime() {
 // ── Desktop ────────────────────────────────────────────────────────────────────
 
 export default function Desktop() {
-  const [openWindows, setOpenWindows] = useState([]);
+  const [openWindows, setOpenWindows] = useState([{ id: "welcome", zIndex: 100 }]);
+  const [startMenuOpen, setStartMenuOpen] = useState(false);
   const topZ = useRef(100);
 
   const openWindow = useCallback((id) => {
@@ -185,6 +198,7 @@ export default function Desktop() {
       if (exists) return prev.map(w => w.id === id ? { ...w, zIndex: z } : w);
       return [...prev, { id, zIndex: z }];
     });
+    setStartMenuOpen(false);
   }, []);
 
   const closeWindow  = useCallback((id) => setOpenWindows(prev => prev.filter(w => w.id !== id)), []);
@@ -201,48 +215,33 @@ export default function Desktop() {
       style={{ backgroundImage: "url('/wallpaper.jpg')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}
     >
       {/* ── Taskbar (Top) ── */}
-      <div className="fixed top-0 left-0 right-0 h-16 bg-[#f1dbbe] border-b-2 border-black/10 flex items-center gap-4 px-4 z-[9999] shadow-[0_4px_20px_rgba(0,0,0,0.15)]">
+      <div className="fixed top-0 left-0 right-0 h-16 bg-[#f1dbbe] border-b-2 border-black flex items-center gap-4 px-4 z-[9999]">
         <img
           src="/logo-shitBucket-day.png"
           alt="ShitBucket"
           className="w-[42px] h-[42px] object-contain shrink-0"
         />
         <Link
-          href="/"
+          href="/about"
           className="font-black text-xl tracking-tight hover:opacity-60 transition-opacity shrink-0 flex items-center gap-1"
         >
           <span className="text-black">ShitBucket</span>
           <span className="text-black/30 font-light text-lg">›</span>
         </Link>
 
-        <div className="w-px h-8 bg-black/20 shrink-0" />
+        <div className="flex-1" />
 
-        <div className="flex-1 flex items-center gap-2 overflow-x-auto min-w-0">
-          {openWindows.map(({ id }) => {
-            const cfg = WINDOWS[id];
-            return (
-              <button
-                key={id}
-                onClick={() => focusWindow(id)}
-                className="flex items-center gap-1.5 bg-black/10 border border-black/10 rounded-lg px-3 py-1.5 text-black font-black text-xs uppercase tracking-wider hover:bg-black/20 transition-colors whitespace-nowrap shrink-0"
-              >
-                <span>{cfg.icon}</span>
-                <span className="hidden sm:inline">{cfg.label}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        <Link
-          href="/"
-          className="flex items-center gap-2 bg-[#FF6A00] border-2 border-black rounded-xl px-4 py-2 text-white font-black text-sm uppercase tracking-wider hover:bg-[#ff7b1a] transition-all shadow-[3px_3px_0px_#000] shrink-0"
+        <button
+          className="flex items-center justify-center w-10 h-10 bg-white border-2 border-black rounded-xl shadow-[3px_3px_0px_#000] hover:bg-black hover:text-white transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none shrink-0"
+          title="WiFi: Connected"
         >
-          Dashboard
-        </Link>
-
-        <div className="shrink-0">
-          <TaskbarDateTime />
-        </div>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
+            <path d="M1.42 9a16 16 0 0 1 21.16 0"/>
+            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+            <line x1="12" y1="20" x2="12.01" y2="20"/>
+          </svg>
+        </button>
       </div>
 
       {/* ── Left column icons ── */}
@@ -270,6 +269,87 @@ export default function Desktop() {
           onFocus={() => focusWindow(id)}
         />
       ))}
+
+      {/* ── Bottom Taskbar ── */}
+      <div className="fixed bottom-0 left-0 right-0 h-14 bg-[#f1dbbe] border-t-2 border-black flex items-center px-4 z-[9999]">
+        <button
+          onClick={() => setStartMenuOpen(!startMenuOpen)}
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border-2 border-black transition-all shadow-[3px_3px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${startMenuOpen ? "bg-black text-white" : "bg-white text-black hover:bg-[#FF6A00] hover:text-white"}`}
+        >
+          <img
+            src="/logo-shitBucket-day.png"
+            alt="Start"
+            className={`w-6 h-6 object-contain ${startMenuOpen ? "invert" : ""}`}
+          />
+          <span className="font-black text-xs uppercase tracking-widest">Start</span>
+        </button>
+
+        {/* Start Menu Popup */}
+        {startMenuOpen && (
+          <div className="absolute bottom-16 left-4 w-64 bg-white border-2 border-black rounded-xl shadow-[6px_6px_0px_#000] overflow-hidden animate-in slide-in-from-bottom-2 duration-200">
+            <div className="bg-black text-white px-4 py-3 flex items-center gap-2">
+              <img src="/logo-shitBucket-day.png" alt="SB" className="w-5 h-5 object-contain invert" />
+              <span className="font-black text-[10px] uppercase tracking-widest">ShitBucket OS v1.0</span>
+            </div>
+            <div className="p-2">
+              <button
+                onClick={() => openWindow("welcome")}
+                className="w-full text-left px-4 py-3 rounded-lg hover:bg-[#FF6A00] hover:text-white font-black text-xs uppercase tracking-wider transition-colors flex items-center gap-3"
+              >
+                <span>👋</span> Welcome Screen
+              </button>
+              <button
+                onClick={() => openWindow("how-it-works")}
+                className="w-full text-left px-4 py-3 rounded-lg hover:bg-[#FF6A00] hover:text-white font-black text-xs uppercase tracking-wider transition-colors flex items-center gap-3"
+              >
+                <span>❓</span> How It Works
+              </button>
+              <button
+                onClick={() => openWindow("shitbucket-app")}
+                className="w-full text-left px-4 py-3 rounded-lg hover:bg-[#FF6A00] hover:text-white font-black text-xs uppercase tracking-wider transition-colors flex items-center gap-3"
+              >
+                <span>🪣</span> ShitBucket.exe
+              </button>
+              <div className="h-px bg-black/10 my-2" />
+              <Link
+                href="/"
+                className="w-full text-left px-4 py-3 rounded-lg hover:bg-black hover:text-white font-black text-xs uppercase tracking-wider transition-colors flex items-center gap-3"
+              >
+                <span>🚀</span> Open Dashboard
+              </Link>
+            </div>
+          </div>
+        )}
+
+        <div className="w-px h-6 bg-black/20 mx-3 shrink-0" />
+
+        <div className="flex-1 flex items-center gap-2 overflow-x-auto min-w-0 pr-4">
+          {openWindows.map(({ id }) => {
+            const cfg = WINDOWS[id];
+            return (
+              <button
+                key={id}
+                onClick={() => focusWindow(id)}
+                className="flex items-center gap-1.5 bg-white border-2 border-black rounded-lg px-3 py-1 text-black font-black text-xs uppercase tracking-wider hover:bg-[#FF6A00] hover:text-white transition-all shadow-[2px_2px_0px_#000] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none whitespace-nowrap shrink-0"
+              >
+                <span>{cfg.icon}</span>
+                <span className="hidden sm:inline">{cfg.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="flex items-center gap-4">
+          <button className="text-black/40 hover:text-black transition-colors">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+            </svg>
+          </button>
+          <TaskbarDateTime />
+        </div>
+      </div>
     </div>
   );
 }
