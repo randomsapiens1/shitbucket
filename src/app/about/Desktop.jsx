@@ -13,12 +13,12 @@ import Welcome         from "./windows/Welcome";
 // To edit a window's content, open its file in src/app/about/windows/
 
 const WINDOWS = {
-  "welcome":           { label: "Welcome to ShitBucket.fyi", icon: "", Content: Welcome,         defaultPos: { x: 0,   y: 0 } },
-  "how-it-works":      { label: "How It Works",      icon: "❓", Content: HowItWorks,       defaultPos: { x: 60,  y: 40 } },
-  "why-shitbucket":    { label: "Why ShitBucket?",   icon: "💡", Content: WhyShitBucket,    defaultPos: { x: 100, y: 60 } },
-  "design-philosophy": { label: "Design Philosophy", icon: "🎨", Content: DesignPhilosophy, defaultPos: { x: 140, y: 50 } },
-  "reach-out":         { label: "Reach Out",         icon: "✉️", Content: ReachOut,         defaultPos: { x: 120, y: 80 } },
-  "shitbucket-app":    { label: "ShitBucket.exe",    icon: "🪣", Content: ShitBucketApp,    defaultPos: { x: 100, y: 100 } },
+  "welcome":           { label: "Welcome",           icon: "👋", Content: Welcome,         defaultPos: { x: 0,   y: 0 } },
+  "how-it-works":      { label: "How It Works",      icon: "❓", imgSrc: "/icon_set/How-it-works.png", Content: HowItWorks,       defaultPos: { x: 60,  y: 40 } },
+  "why-shitbucket":    { label: "Why ShitBucket?",   icon: "💡", imgSrc: "/icon_set/why-shit-bucket.png", Content: WhyShitBucket,    defaultPos: { x: 100, y: 60 } },
+  "design-philosophy": { label: "Design Philosophy", icon: "🎨", imgSrc: "/icon_set/design-philosophy.png", Content: DesignPhilosophy, defaultPos: { x: 140, y: 50 } },
+  "reach-out":         { label: "Reach Out",         icon: "✉️", imgSrc: "/icon_set/contact me.png", Content: ReachOut,         defaultPos: { x: 120, y: 80 } },
+  "shitbucket-app":    { label: "ShitBucket.exe",    icon: "🪣", imgSrc: "/icon_set/shit-bucket.exe.png", Content: ShitBucketApp,    defaultPos: { x: 100, y: 100 } },
 };
 
 // ── Desktop Icons ──────────────────────────────────────────────────────────────
@@ -36,7 +36,7 @@ const RIGHT_ICONS = [
 
 // ── DesktopWindow ──────────────────────────────────────────────────────────────
 
-function DesktopWindow({ id, zIndex, onClose, onFocus }) {
+function DesktopWindow({ id, zIndex, onClose, onFocus, openWindow }) {
   const cfg = WINDOWS[id];
   const [pos, setPos] = useState(cfg.defaultPos);
   const winRef = useRef(null);
@@ -128,7 +128,11 @@ function DesktopWindow({ id, zIndex, onClose, onFocus }) {
         onTouchStart={handleTitleTouchStart}
       >
         <div className="flex items-center gap-2">
-          {cfg.icon && <span className="text-sm leading-none">{cfg.icon}</span>}
+          {cfg.imgSrc ? (
+            <img src={cfg.imgSrc} alt="" className="w-4 h-4 object-contain" />
+          ) : (
+            cfg.icon && <span className="text-sm leading-none">{cfg.icon}</span>
+          )}
           <span className="font-black text-[10px] uppercase tracking-widest">{cfg.label}</span>
         </div>
         <button
@@ -143,7 +147,7 @@ function DesktopWindow({ id, zIndex, onClose, onFocus }) {
 
       {/* Content — edit in windows/*.jsx */}
       <div className="p-6 bg-white overflow-y-auto" style={{ maxHeight: "calc(70vh - 2.5rem)" }}>
-        <cfg.Content onClose={onClose} />
+        <cfg.Content onClose={onClose} openWindow={openWindow} />
       </div>
     </div>
   );
@@ -287,6 +291,7 @@ export default function Desktop() {
             zIndex={zIndex}
             onClose={() => closeWindow(id)}
             onFocus={() => focusWindow(id)}
+            openWindow={openWindow}
           />
         ))}
       </div>
@@ -317,26 +322,26 @@ export default function Desktop() {
                 onClick={() => openWindow("welcome")}
                 className="w-full text-left px-4 py-3 rounded-lg hover:bg-[#FF6A00] hover:text-white font-black text-xs uppercase tracking-wider transition-colors flex items-center gap-3"
               >
-                Welcome to ShitBucket.fyi
+                <span className="w-5 h-5 flex items-center justify-center text-base">👋</span> Welcome
               </button>
               <button
                 onClick={() => openWindow("how-it-works")}
                 className="w-full text-left px-4 py-3 rounded-lg hover:bg-[#FF6A00] hover:text-white font-black text-xs uppercase tracking-wider transition-colors flex items-center gap-3"
               >
-                <span>❓</span> How It Works
+                <img src="/icon_set/How-it-works.png" alt="" className="w-5 h-5 object-contain" /> How It Works
               </button>
               <button
                 onClick={() => openWindow("shitbucket-app")}
                 className="w-full text-left px-4 py-3 rounded-lg hover:bg-[#FF6A00] hover:text-white font-black text-xs uppercase tracking-wider transition-colors flex items-center gap-3"
               >
-                <span>🪣</span> ShitBucket.exe
+                <img src="/icon_set/shit-bucket.exe.png" alt="" className="w-5 h-5 object-contain" /> ShitBucket.exe
               </button>
               <div className="h-px bg-black/10 my-2" />
               <Link
                 href="/"
                 className="w-full text-left px-4 py-3 rounded-lg hover:bg-black hover:text-white font-black text-xs uppercase tracking-wider transition-colors flex items-center gap-3"
               >
-                <span>🚀</span> Open Dashboard
+                <span className="w-5 h-5 flex items-center justify-center text-base">🚀</span> Open Dashboard
               </Link>
             </div>
           </div>
@@ -351,11 +356,16 @@ export default function Desktop() {
               <button
                 key={id}
                 onClick={() => focusWindow(id)}
-                className="flex items-center gap-2 bg-white border-2 border-black rounded-lg px-4 py-1.5 text-black font-black text-sm uppercase tracking-wider hover:bg-[#FF6A00] hover:text-white transition-all shadow-[2px_2px_0px_#000] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none whitespace-nowrap shrink-0"
+                className="flex items-center gap-1.5 bg-white border-2 border-black rounded-lg px-3 py-1 text-black font-black text-xs uppercase tracking-wider hover:bg-[#FF6A00] hover:text-white transition-all shadow-[2px_2px_0px_#000] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none whitespace-nowrap shrink-0"
               >
-                <span>{cfg.icon}</span>
+                {cfg.imgSrc ? (
+                  <img src={cfg.imgSrc} alt="" className="w-3.5 h-3.5 object-contain" />
+                ) : (
+                  <span>{cfg.icon}</span>
+                )}
                 <span className="hidden sm:inline">{cfg.label}</span>
               </button>
+
             );
           })}
         </div>
