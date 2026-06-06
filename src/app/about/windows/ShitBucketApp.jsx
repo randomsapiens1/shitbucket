@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 
@@ -38,6 +39,7 @@ const labelStyle = {
 };
 
 export default function ShitBucketApp() {
+  const router = useRouter();
   const [session,         setSession]         = useState(undefined);
   const [email,           setEmail]           = useState("");
   const [password,        setPassword]        = useState("");
@@ -77,7 +79,11 @@ export default function ShitBucketApp() {
       : await supabase.auth.signInWithPassword({ email: email.trim(), password: password.trim() });
 
     setLoading(false);
-    if (result.error) setError(result.error.message);
+    if (result.error) {
+      setError(result.error.message);
+    } else if (!isSignUp) {
+      router.push("/");
+    }
   }
 
   // ── Loading ──
@@ -121,6 +127,10 @@ export default function ShitBucketApp() {
 
           <Link
             href="/"
+            onClick={(e) => {
+              e.preventDefault();
+              router.push("/");
+            }}
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
               fontSize: 11,

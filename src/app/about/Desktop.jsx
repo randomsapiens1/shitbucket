@@ -196,10 +196,19 @@ const ICON_W = 104;
 const ICON_H = 116;
 
 export default function Desktop() {
-  const [openWindows, setOpenWindows] = useState([{ id: "welcome", zIndex: 100 }]);
+  const [openWindows, setOpenWindows] = useState([]);
   const [iconPositions, setIconPositions] = useState(null);
   const [session, setSession] = useState(undefined);
   const topZ = useRef(100);
+
+  useEffect(() => {
+    // Check if this is the first visit
+    const hasVisited = localStorage.getItem("shitbucket-visited");
+    if (!hasVisited) {
+      setOpenWindows([{ id: "welcome", zIndex: 100 }]);
+      localStorage.setItem("shitbucket-visited", "true");
+    }
+  }, []);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
