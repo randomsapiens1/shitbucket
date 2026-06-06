@@ -14,20 +14,17 @@ export default function Welcome({ onClose, openWindow }) {
     <div className="-m-6 overflow-hidden" style={GRID_BG}>
       <div className="flex flex-col sm:flex-row min-h-[480px] items-center">
 
-        {/* ── Left Column 30%: Logo ── */}
-        <div
-          className="hidden sm:flex flex-col items-center justify-center shrink-0 overflow-hidden"
-          style={{ width: "30%" }}
-        >
+        {/* ── Logo ── */}
+        <div className="flex flex-col items-center justify-center shrink-0 overflow-hidden w-full sm:w-[30%] pt-6 pb-2 sm:py-0">
           <img
             src="/shitBucket-day.png"
             alt="ShitBucket"
-            style={{ width: "91%", height: "auto", objectFit: "contain" }}
+            className="w-48 sm:w-[91%] h-auto object-contain"
           />
         </div>
 
-        {/* ── Right Column 70% ── */}
-        <div className="flex flex-col justify-center p-8 gap-8" style={{ width: "70%" }}>
+        {/* ── Content ── */}
+        <div className="flex flex-col justify-center p-8 gap-8 w-full sm:w-[70%]">
 
           {/* Headline */}
           <div>

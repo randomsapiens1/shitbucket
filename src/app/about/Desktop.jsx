@@ -138,7 +138,7 @@ function DesktopWindow({ id, zIndex, onClose, onFocus, openWindow }) {
       </div>
 
       {/* Content */}
-      <div className="p-6 bg-white overflow-y-auto" style={{ maxHeight: "calc(70vh - 2.5rem)" }}>
+      <div className="p-6 bg-white overflow-y-auto" style={{ maxHeight: "calc(100dvh - 228px)" }}>
         <cfg.Content onClose={onClose} openWindow={openWindow} />
       </div>
     </div>
