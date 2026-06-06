@@ -403,12 +403,12 @@ export default function Desktop() {
               <button
                 key={id}
                 onClick={() => focusWindow(id)}
-                className="flex items-center gap-1.5 bg-white border-2 border-black rounded-lg px-3 py-1 text-black font-black text-xs uppercase tracking-wider hover:bg-[#FF6A00] hover:text-white transition-all shadow-[2px_2px_0px_#000] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none whitespace-nowrap shrink-0"
+                className="flex items-center gap-2 bg-white border-2 border-black rounded-lg px-4 py-2 text-black font-black text-base uppercase tracking-widest hover:bg-[#FF6A00] hover:text-white transition-all shadow-[3px_3px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none whitespace-nowrap shrink-0"
               >
                 {cfg.imgSrc ? (
-                  <img src={cfg.imgSrc} alt="" className="w-3.5 h-3.5 object-contain" />
+                  <img src={cfg.imgSrc} alt="" className="w-8 h-8 sm:w-5 sm:h-5 object-contain" />
                 ) : (
-                  <span>{cfg.icon}</span>
+                  <span className="text-2xl sm:text-base leading-none">{cfg.icon}</span>
                 )}
                 <span className="hidden sm:inline">{cfg.label}</span>
               </button>
