@@ -22,16 +22,13 @@ const WINDOWS = {
 };
 
 // ── Desktop Icons ──────────────────────────────────────────────────────────────
-// Edit label/imgSrc here, content in windows/*.jsx
 
-const LEFT_ICONS = [
-  { id: "how-it-works",      imgSrc: "/icon_set/How-it-works.png",       label: "How It Works" },
+const ALL_ICONS = [
+  { id: "shitbucket-app",    imgSrc: "/logo-shitBucket-day.png",          label: "ShitBucket.exe" },
+  { id: "how-it-works",      imgSrc: "/icon_set/How-it-works.png",        label: "How It Works" },
   { id: "why-shitbucket",    imgSrc: "/icon_set/why-shit-bucket.png",     label: "Why ShitBucket?" },
   { id: "reach-out",         imgSrc: "/icon_set/contact me.png",          label: "Reach Out" },
-];
-
-const RIGHT_ICONS = [
-  { id: "design-philosophy", imgSrc: "/icon_set/design-philosophy.png",  label: "Design Philosophy" },
+  { id: "design-philosophy", imgSrc: "/icon_set/design-philosophy.png",   label: "Design Philosophy" },
 ];
 
 // ── DesktopWindow ──────────────────────────────────────────────────────────────
@@ -199,10 +196,69 @@ function TaskbarDateTime() {
 
 // ── Desktop ────────────────────────────────────────────────────────────────────
 
+const ICON_W = 104;
+const ICON_H = 116;
+
 export default function Desktop() {
   const [openWindows, setOpenWindows] = useState([{ id: "welcome", zIndex: 100 }]);
   const [startMenuOpen, setStartMenuOpen] = useState(false);
+  const [iconPositions, setIconPositions] = useState(null);
   const topZ = useRef(100);
+
+  // Initialise icon positions once we know the viewport
+  useEffect(() => {
+    const vw = window.innerWidth;
+    const gap = 8;
+    setIconPositions({
+      "shitbucket-app":    { x: 12,              y: 16 },
+      "how-it-works":      { x: 12,              y: 16 + (ICON_H + gap) },
+      "why-shitbucket":    { x: 12,              y: 16 + (ICON_H + gap) * 2 },
+      "reach-out":         { x: 12,              y: 16 + (ICON_H + gap) * 3 },
+      "design-philosophy": { x: vw - ICON_W - 12, y: 16 },
+    });
+  }, []);
+
+  const startIconDrag = useCallback((e, id, openWindow) => {
+    // support both mouse and touch
+    const isTouch = e.type === "touchstart";
+    const getXY = ev => isTouch ? { x: ev.touches[0].clientX, y: ev.touches[0].clientY } : { x: ev.clientX, y: ev.clientY };
+
+    if (!isTouch && e.button !== 0) return;
+    if (!isTouch) e.preventDefault();
+
+    const origin = getXY(e);
+    let moved = false;
+
+    setIconPositions(prev => {
+      const cur = prev[id];
+      const offsetX = origin.x - cur.x;
+      const offsetY = origin.y - cur.y;
+
+      const onMove = (ev) => {
+        const { x, y } = isTouch ? { x: ev.touches[0].clientX, y: ev.touches[0].clientY } : { x: ev.clientX, y: ev.clientY };
+        moved = true;
+        const desktopH = window.innerHeight - 160;
+        setIconPositions(p => ({
+          ...p,
+          [id]: {
+            x: Math.min(Math.max(0, x - offsetX), window.innerWidth - ICON_W),
+            y: Math.min(Math.max(0, y - offsetY), desktopH - ICON_H),
+          },
+        }));
+      };
+
+      const onUp = () => {
+        document.removeEventListener(isTouch ? "touchmove" : "mousemove", onMove);
+        document.removeEventListener(isTouch ? "touchend"  : "mouseup",  onUp);
+        if (!moved) openWindow(id);
+      };
+
+      document.addEventListener(isTouch ? "touchmove" : "mousemove", onMove, isTouch ? { passive: true } : undefined);
+      document.addEventListener(isTouch ? "touchend"  : "mouseup",  onUp);
+
+      return prev;
+    });
+  }, []);
 
   const openWindow = useCallback((id) => {
     topZ.current += 1;
@@ -268,20 +324,17 @@ export default function Desktop() {
 
       {/* ── Main Desktop Interaction Area ── */}
       <div className="absolute top-20 left-0 right-0 bottom-20 overflow-hidden">
-        {/* Left column icons */}
-        <div className="absolute top-4 left-3 flex flex-col gap-1 pb-4">
-          <DesktopIcon imgSrc="/logo-shitBucket-day.png" label="ShitBucket.exe" onClick={() => openWindow("shitbucket-app")} />
-          {LEFT_ICONS.map(ic => (
-            <DesktopIcon key={ic.id} icon={ic.icon} imgSrc={ic.imgSrc} label={ic.label} onClick={() => openWindow(ic.id)} />
-          ))}
-        </div>
-
-        {/* Right column icons */}
-        <div className="absolute top-4 right-3 flex flex-col gap-1 pb-4">
-          {RIGHT_ICONS.map(ic => (
-            <DesktopIcon key={ic.id} icon={ic.icon} imgSrc={ic.imgSrc} label={ic.label} onClick={() => openWindow(ic.id)} />
-          ))}
-        </div>
+        {/* Draggable desktop icons */}
+        {iconPositions && ALL_ICONS.map(ic => (
+          <div
+            key={ic.id}
+            style={{ position: "absolute", left: iconPositions[ic.id].x, top: iconPositions[ic.id].y, zIndex: 20, cursor: "grab" }}
+            onMouseDown={(e) => startIconDrag(e, ic.id, openWindow)}
+            onTouchStart={(e) => startIconDrag(e, ic.id, openWindow)}
+          >
+            <DesktopIcon imgSrc={ic.imgSrc} label={ic.label} onClick={() => {}} />
+          </div>
+        ))}
 
         {/* Open windows */}
         {openWindows.map(({ id, zIndex }) => (
