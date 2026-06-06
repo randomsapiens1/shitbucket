@@ -9,6 +9,7 @@ import DesignPhilosophy from "./windows/DesignPhilosophy";
 import ReachOut        from "./windows/ReachOut";
 import ShitBucketApp   from "./windows/ShitBucketApp";
 import Welcome         from "./windows/Welcome";
+import HowToInstall   from "./windows/HowToInstall";
 
 // ── Window Registry ────────────────────────────────────────────────────────────
 // To edit a window's content, open its file in src/app/about/windows/
@@ -20,6 +21,7 @@ const WINDOWS = {
   "design-philosophy": { label: "Design Philosophy", icon: "🎨", imgSrc: "/icon_set/design-philosophy.png", Content: DesignPhilosophy, defaultPos: { x: 140, y: 50 } },
   "reach-out":         { label: "Reach Out",         icon: "✉️", imgSrc: "/icon_set/contact me.png", Content: ReachOut,         defaultPos: { x: 120, y: 80 } },
   "shitbucket-app":    { label: "ShitBucket.exe",    icon: "🪣", imgSrc: "/icon_set/shit-bucket.exe.png", Content: ShitBucketApp,    defaultPos: { x: 100, y: 100 } },
+  "how-to-install":   { label: "How to Install",    imgSrc: "/icon_set/how-to-install.png", Content: HowToInstall,    defaultPos: { x: 80, y: 60 } },
 };
 
 // ── Desktop Icons ──────────────────────────────────────────────────────────────
@@ -30,6 +32,7 @@ const ALL_ICONS = [
   { id: "why-shitbucket",    imgSrc: "/icon_set/why-shit-bucket.png",     label: "Why ShitBucket?" },
   { id: "reach-out",         imgSrc: "/icon_set/contact me.png",          label: "Reach Out" },
   { id: "design-philosophy", imgSrc: "/icon_set/design-philosophy.png",   label: "Design Philosophy" },
+  { id: "how-to-install",   imgSrc: "/icon_set/how-to-install.png",       label: "How to Install" },
 ];
 
 // ── DesktopWindow ──────────────────────────────────────────────────────────────
@@ -226,6 +229,7 @@ export default function Desktop() {
       "why-shitbucket":    { x: 12,              y: 16 + (ICON_H + gap) * 2 },
       "reach-out":         { x: 12,              y: 16 + (ICON_H + gap) * 3 },
       "design-philosophy": { x: vw - ICON_W - 12, y: 16 },
+      "how-to-install":    { x: vw - ICON_W - 12, y: 16 + (ICON_H + gap) },
     });
   }, []);
 
