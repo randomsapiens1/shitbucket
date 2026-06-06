@@ -155,16 +155,16 @@ function DesktopWindow({ id, zIndex, onClose, onFocus, openWindow }) {
 
 // ── Desktop Icon ───────────────────────────────────────────────────────────────
 
-function DesktopIcon({ icon, imgSrc, label, onClick, darkBg }) {
+function DesktopIcon({ icon, imgSrc, label, onClick }) {
   return (
     <button
       onClick={onClick}
       className="flex flex-col items-center gap-2 p-2 rounded-xl hover:bg-white/15 active:bg-white/25 transition-colors group w-[100px] focus:outline-none"
     >
-      <div className={`w-20 h-20 border-2 rounded-2xl flex items-center justify-center text-5xl leading-none transition-all shadow-[3px_3px_0px_rgba(0,0,0,0.4)] ${darkBg ? "bg-black border-black/60 group-hover:border-black" : "bg-white/20 border-white/30 backdrop-blur-sm group-hover:border-white/60 group-hover:bg-white/35"}`}>
+      <div className="w-20 h-20 rounded-2xl overflow-hidden transition-all">
         {imgSrc
-          ? <img src={imgSrc} alt={label} className="w-14 h-14 object-contain" />
-          : icon}
+          ? <img src={imgSrc} alt={label} className="w-full h-full object-contain" />
+          : <span className="w-full h-full flex items-center justify-center text-5xl leading-none bg-white">{icon}</span>}
       </div>
       <span className="text-black text-[10px] font-black text-center leading-tight uppercase tracking-wide w-full [text-shadow:0px_0px_6px_rgba(255,255,255,0.9),0px_1px_2px_rgba(255,255,255,0.8)]">
         {label}
@@ -270,7 +270,7 @@ export default function Desktop() {
       <div className="absolute top-20 left-0 right-0 bottom-20 overflow-hidden">
         {/* Left column icons */}
         <div className="absolute top-4 left-3 flex flex-col gap-1 pb-4">
-          <DesktopIcon imgSrc="/icon_set/shit-bucket.exe.png" label="ShitBucket.exe" onClick={() => openWindow("shitbucket-app")} darkBg />
+          <DesktopIcon imgSrc="/logo-shitBucket-day.png" label="ShitBucket.exe" onClick={() => openWindow("shitbucket-app")} />
           {LEFT_ICONS.map(ic => (
             <DesktopIcon key={ic.id} icon={ic.icon} imgSrc={ic.imgSrc} label={ic.label} onClick={() => openWindow(ic.id)} />
           ))}
