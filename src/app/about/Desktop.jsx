@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 
 import HowItWorks      from "./windows/HowItWorks";
 import WhyShitBucket   from "./windows/WhyShitBucket";
@@ -197,7 +198,14 @@ const ICON_H = 116;
 export default function Desktop() {
   const [openWindows, setOpenWindows] = useState([{ id: "welcome", zIndex: 100 }]);
   const [iconPositions, setIconPositions] = useState(null);
+  const [session, setSession] = useState(undefined);
   const topZ = useRef(100);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Initialise icon positions once we know the viewport
   useEffect(() => {
@@ -300,6 +308,22 @@ export default function Desktop() {
         </Link>
 
         <div className="flex-1" />
+
+        {session === undefined ? null : session ? (
+          <Link
+            href="/"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black font-black text-base uppercase tracking-widest transition-all shadow-[3px_3px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none shrink-0 bg-[#FF6A00] text-white hover:bg-black"
+          >
+            Dashboard →
+          </Link>
+        ) : (
+          <button
+            onClick={() => openWindow("shitbucket-app")}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black font-black text-base uppercase tracking-widest transition-all shadow-[3px_3px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none shrink-0 bg-white text-black hover:bg-[#FF6A00] hover:text-white"
+          >
+            Sign In
+          </button>
+        )}
 
         <button
           className="flex items-center justify-center w-12 h-12 bg-white border-2 border-black rounded-xl shadow-[3px_3px_0px_#000] hover:bg-black hover:text-white transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none shrink-0"
