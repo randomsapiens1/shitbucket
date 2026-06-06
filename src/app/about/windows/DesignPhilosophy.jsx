@@ -1,83 +1,192 @@
 "use client";
 
-const principles = [
-  { 
-    label: "Capture > Org",   
-    desc: "Nobody wants to build a workflow for a 2am idea. Big writing spaces only.", 
-    color: "#CAFF00",
-    icon: "✍️" 
+const GRID_BG = {
+  backgroundColor: "#F5F2EA",
+  backgroundImage: [
+    "linear-gradient(rgba(150,190,220,0.2) 1px, transparent 1px)",
+    "linear-gradient(90deg, rgba(150,190,220,0.2) 1px, transparent 1px)",
+  ].join(", "),
+  backgroundSize: "36px 36px",
+};
+
+const PRINCIPLES = [
+  {
+    n: "P1",
+    title: "Speed over Structure",
+    desc: "An idea captured in 3 seconds beats a perfectly organised note that never gets written. The Quick Dump is a deliberate design decision, not a shortcut.",
+    accent: "#FF6A00",
   },
-  { 
-    label: "Big Buttons",  
-    desc: "Because you're in a hurry. One-tap dumping. Very few decisions.", 
-    color: "#FFB3D0",
-    icon: "🔘" 
+  {
+    n: "P2",
+    title: "One Pile, Zero Folders",
+    desc: "Folders are where ideas go to die. Everything lives in one searchable, filterable pile. Tags replace hierarchy. Simplicity beats taxonomy.",
+    accent: "#1A1208",
   },
-  { 
-    label: "Single Pile", 
-    desc: "Folders are where ideas go to die. Keep everything in one bucket.", 
-    color: "#B3D9FF",
-    icon: "🪣" 
+  {
+    n: "P3",
+    title: "Brutalist by Design",
+    desc: "The hard shadows and raw typography aren't a trend. They're a statement. This tool is honest about what it is. No gradients hiding complexity.",
+    accent: "#FF6A00",
   },
-  { 
-    label: "Honest UI", 
-    desc: "We stripped away the polish to make room for your rawest thoughts.", 
-    color: "#FFE9A0",
-    icon: "💀" 
+  {
+    n: "P4",
+    title: "Earn Your Polish",
+    desc: "Ideas start messy. The Brew system rewards detail over time. Structure emerges when an idea deserves it — not before.",
+    accent: "#1A1208",
   },
 ];
 
 export default function DesignPhilosophy() {
   return (
-    <div className="flex flex-col bg-[#FFF8EE] -m-6 h-full overflow-hidden">
-      <div className="bg-black text-white p-8 sm:p-12">
-        <div className="flex items-center gap-4 mb-4">
-          <span className="text-[#FF6A00] text-4xl font-black">?</span>
-          <div className="h-px bg-white/20 flex-1" />
-        </div>
-        <h2 className="text-[calc((42/12)*var(--base-font-size))] font-black leading-[0.85] tracking-tighter uppercase mb-4">
-          Capture <br />
-          <span className="text-[#FF6A00]">Philosophy</span>
-        </h2>
-        <p className="text-[calc((11/12)*var(--base-font-size))] font-bold uppercase tracking-[0.3em] text-white/40">
-          Capture_Priority_v1.0
-        </p>
-      </div>
+    <div className="-m-6 overflow-y-auto" style={GRID_BG}>
+      <div className="p-8">
 
-      <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {principles.map((p, idx) => (
-          <div 
-            key={p.label}
-            className="border-2 border-black rounded-2xl p-5 flex flex-col gap-3 shadow-hard transition-transform hover:scale-[1.02]"
-            style={{ backgroundColor: p.color }}
+        {/* Header */}
+        <div className="mb-8">
+          <p
+            style={{
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.25em",
+              color: "#1A1208",
+              opacity: 0.35,
+              textTransform: "uppercase",
+              marginBottom: 10,
+            }}
           >
-            <div className="flex justify-between items-start">
-              <span className="text-2xl">{p.icon}</span>
-              <span className="text-[10px] font-black uppercase tracking-widest text-black/30">P{idx + 1}</span>
-            </div>
-            <div>
-              <h3 className="text-[calc((14/12)*var(--base-font-size))] font-black uppercase mb-1">{p.label}</h3>
-              <p className="text-[calc((11/12)*var(--base-font-size))] font-bold text-black/60 leading-tight">
-                {p.desc}
-              </p>
-            </div>
-          </div>
-        ))}
-
-        <div className="sm:col-span-2 bg-black text-white border-2 border-black rounded-2xl p-6 shadow-hard flex items-center justify-between group overflow-hidden relative">
-          <div className="z-10">
-            <h3 className="text-[calc((16/12)*var(--base-font-size))] font-black uppercase mb-1 italic text-[#CAFF00]">The Goal</h3>
-            <p className="text-[calc((12/12)*var(--base-font-size))] font-bold text-white/60 leading-tight max-w-[80%]">
-              We focus on capture. When an idea shows up, you just want somewhere to put the thing before it disappears.
-            </p>
-          </div>
-          <span className="text-6xl opacity-20 group-hover:opacity-100 group-hover:text-[#FF6A00] transition-all absolute right-4 -bottom-2 select-none">🪣</span>
+            / philosophy
+          </p>
+          <h1
+            style={{
+              fontFamily: "'Barlow', sans-serif",
+              fontSize: "clamp(32px, 5vw, 48px)",
+              fontWeight: 900,
+              lineHeight: 0.95,
+              color: "#1A1208",
+              letterSpacing: "-0.02em",
+              marginBottom: 16,
+            }}
+          >
+            Design{" "}
+            <span style={{ color: "#FF6A00", fontStyle: "italic" }}>
+              Philosophy
+            </span>
+          </h1>
+          <p
+            style={{
+              fontFamily: "'Barlow', sans-serif",
+              fontSize: 14,
+              fontWeight: 500,
+              lineHeight: 1.65,
+              color: "#1A1208",
+              opacity: 0.65,
+            }}
+          >
+            Every decision in ShitBucket was made in service of one thing: getting the thought out of your head and into the bucket as fast as possible.
+          </p>
         </div>
-      </div>
 
-      <div className="mt-auto p-4 border-t border-black/5 bg-white/50 flex justify-between items-center">
-        <span className="text-[9px] font-black uppercase tracking-widest text-black/20">Design for people like us</span>
-        <span className="text-[9px] font-black uppercase tracking-widest text-[#FF6A00]">I&apos;ll remember that. (No you won&apos;t).</span>
+        {/* Principles */}
+        <div className="flex flex-col gap-4 mb-8">
+          {PRINCIPLES.map((p) => (
+            <div
+              key={p.n}
+              style={{
+                background: "#ffffff",
+                border: "2px solid #1A1208",
+                boxShadow: `4px 4px 0px ${p.accent}`,
+                display: "flex",
+              }}
+            >
+              {/* Accent column */}
+              <div
+                style={{
+                  background: p.accent,
+                  borderRight: "2px solid #1A1208",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "20px 14px",
+                  minWidth: 64,
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: "'IBM Plex Mono', monospace",
+                    fontSize: 9,
+                    fontWeight: 700,
+                    letterSpacing: "0.15em",
+                    color: "#F5F2EA",
+                    textTransform: "uppercase",
+                    writingMode: "vertical-rl",
+                    transform: "rotate(180deg)",
+                  }}
+                >
+                  {p.n}
+                </span>
+              </div>
+
+              {/* Content */}
+              <div style={{ padding: "20px 24px", flex: 1 }}>
+                <h3
+                  style={{
+                    fontFamily: "'Barlow', sans-serif",
+                    fontSize: 17,
+                    fontWeight: 900,
+                    color: "#1A1208",
+                    textTransform: "uppercase",
+                    letterSpacing: "-0.01em",
+                    marginBottom: 8,
+                  }}
+                >
+                  {p.title}
+                </h3>
+                <p
+                  style={{
+                    fontFamily: "'Barlow', sans-serif",
+                    fontSize: 13,
+                    fontWeight: 500,
+                    lineHeight: 1.65,
+                    color: "#1A1208",
+                    opacity: 0.65,
+                    margin: 0,
+                  }}
+                >
+                  {p.desc}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Footer */}
+        <div
+          style={{
+            border: "2px solid #1A1208",
+            boxShadow: "4px 4px 0px #FF6A00",
+            background: "#1A1208",
+            padding: "14px 24px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <span
+            style={{
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: "0.12em",
+              color: "#F5F2EA",
+              textTransform: "uppercase",
+              textAlign: "center",
+            }}
+          >
+            Expiry is a feature. Let the bad ideas go.
+          </span>
+        </div>
+
       </div>
     </div>
   );

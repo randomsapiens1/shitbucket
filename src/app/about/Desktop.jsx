@@ -13,7 +13,7 @@ import Welcome         from "./windows/Welcome";
 // To edit a window's content, open its file in src/app/about/windows/
 
 const WINDOWS = {
-  "welcome":           { label: "Welcome",           icon: "👋", Content: Welcome,         defaultPos: { x: 0,   y: 0 } },
+  "welcome":           { label: "Welcome to ShitBucket.exe", Content: Welcome,         defaultPos: { x: 0,   y: 0 } },
   "how-it-works":      { label: "How It Works",      icon: "❓", imgSrc: "/icon_set/How-it-works.png", Content: HowItWorks,       defaultPos: { x: 60,  y: 40 } },
   "why-shitbucket":    { label: "Why ShitBucket?",   icon: "💡", imgSrc: "/icon_set/why-shit-bucket.png", Content: WhyShitBucket,    defaultPos: { x: 100, y: 60 } },
   "design-philosophy": { label: "Design Philosophy", icon: "🎨", imgSrc: "/icon_set/design-philosophy.png", Content: DesignPhilosophy, defaultPos: { x: 140, y: 50 } },
@@ -107,20 +107,13 @@ function DesktopWindow({ id, zIndex, onClose, onFocus, openWindow }) {
   return (
     <div
       ref={winRef}
-      style={{ 
-        position: "absolute", 
-        left: pos.x, 
-        top: pos.y, 
-        zIndex, 
-        width: "clamp(300px, 92vw, 960px)",
-        maxWidth: "calc(100vw - 16px)"
-      }}
+      style={{ position: "absolute", left: pos.x, top: pos.y, zIndex, width: "clamp(300px, 92vw, 960px)", maxWidth: "calc(100vw - 16px)" }}
       className="border-2 border-black rounded-2xl overflow-hidden shadow-[6px_6px_0px_#000] select-none"
       onMouseDown={onFocus}
     >
       {/* Title bar */}
       <div
-        className="flex items-center justify-between px-3 py-2.5 bg-black text-white cursor-grab active:cursor-grabbing"
+        className="flex items-center justify-between px-4 py-3 bg-black text-white cursor-grab active:cursor-grabbing"
         onMouseDown={handleTitleMouseDown}
         onTouchStart={handleTitleTouchStart}
       >
@@ -132,17 +125,19 @@ function DesktopWindow({ id, zIndex, onClose, onFocus, openWindow }) {
           )}
           <span className="font-black text-[10px] uppercase tracking-widest">{cfg.label}</span>
         </div>
+
         <button
           onMouseDown={e => e.stopPropagation()}
           onClick={onClose}
-          className="w-4 h-4 rounded-full bg-[#FF6A00] flex items-center justify-center text-white text-xs font-black hover:bg-red-500 transition-colors leading-none"
           aria-label="Close"
+          className="w-7 h-7 rounded-full flex items-center justify-center font-black text-lg leading-none hover:bg-red-500 transition-colors"
+          style={{ background: "#FF6A00", color: "#fff" }}
         >
           ×
         </button>
       </div>
 
-      {/* Content — edit in windows/*.jsx */}
+      {/* Content */}
       <div className="p-6 bg-white overflow-y-auto" style={{ maxHeight: "calc(70vh - 2.5rem)" }}>
         <cfg.Content onClose={onClose} openWindow={openWindow} />
       </div>
@@ -218,46 +213,45 @@ export default function Desktop() {
     });
   }, []);
 
-  const startIconDrag = useCallback((e, id, openWindow) => {
-    // support both mouse and touch
-    const isTouch = e.type === "touchstart";
-    const getXY = ev => isTouch ? { x: ev.touches[0].clientX, y: ev.touches[0].clientY } : { x: ev.clientX, y: ev.clientY };
+  const iconPositionsRef = useRef(iconPositions);
+  useEffect(() => { iconPositionsRef.current = iconPositions; }, [iconPositions]);
 
+  const startIconDrag = useCallback((e, id, openWindow) => {
+    const isTouch = e.type === "touchstart";
     if (!isTouch && e.button !== 0) return;
-    if (!isTouch) e.preventDefault();
+
+    const getXY = ev => isTouch
+      ? { x: ev.touches[0].clientX, y: ev.touches[0].clientY }
+      : { x: ev.clientX, y: ev.clientY };
 
     const origin = getXY(e);
+    const cur = iconPositionsRef.current[id];
+    const offsetX = origin.x - cur.x;
+    const offsetY = origin.y - cur.y;
     let moved = false;
 
-    setIconPositions(prev => {
-      const cur = prev[id];
-      const offsetX = origin.x - cur.x;
-      const offsetY = origin.y - cur.y;
+    const onMove = (ev) => {
+      const { x, y } = getXY(ev);
+      if (Math.hypot(x - origin.x, y - origin.y) < 10) return;
+      moved = true;
+      const desktopH = window.innerHeight - 160;
+      setIconPositions(p => ({
+        ...p,
+        [id]: {
+          x: Math.min(Math.max(0, x - offsetX), window.innerWidth - ICON_W),
+          y: Math.min(Math.max(0, y - offsetY), desktopH - ICON_H),
+        },
+      }));
+    };
 
-      const onMove = (ev) => {
-        const { x, y } = isTouch ? { x: ev.touches[0].clientX, y: ev.touches[0].clientY } : { x: ev.clientX, y: ev.clientY };
-        moved = true;
-        const desktopH = window.innerHeight - 160;
-        setIconPositions(p => ({
-          ...p,
-          [id]: {
-            x: Math.min(Math.max(0, x - offsetX), window.innerWidth - ICON_W),
-            y: Math.min(Math.max(0, y - offsetY), desktopH - ICON_H),
-          },
-        }));
-      };
+    const onUp = () => {
+      document.removeEventListener(isTouch ? "touchmove" : "mousemove", onMove);
+      document.removeEventListener(isTouch ? "touchend"  : "mouseup",  onUp);
+      if (!moved) openWindow(id);
+    };
 
-      const onUp = () => {
-        document.removeEventListener(isTouch ? "touchmove" : "mousemove", onMove);
-        document.removeEventListener(isTouch ? "touchend"  : "mouseup",  onUp);
-        if (!moved) openWindow(id);
-      };
-
-      document.addEventListener(isTouch ? "touchmove" : "mousemove", onMove, isTouch ? { passive: true } : undefined);
-      document.addEventListener(isTouch ? "touchend"  : "mouseup",  onUp);
-
-      return prev;
-    });
+    document.addEventListener(isTouch ? "touchmove" : "mousemove", onMove, isTouch ? { passive: true } : undefined);
+    document.addEventListener(isTouch ? "touchend"  : "mouseup",  onUp);
   }, []);
 
   const openWindow = useCallback((id) => {
@@ -328,7 +322,7 @@ export default function Desktop() {
         {iconPositions && ALL_ICONS.map(ic => (
           <div
             key={ic.id}
-            style={{ position: "absolute", left: iconPositions[ic.id].x, top: iconPositions[ic.id].y, zIndex: 20, cursor: "grab" }}
+            style={{ position: "absolute", left: iconPositions[ic.id].x, top: iconPositions[ic.id].y, zIndex: 20 }}
             onMouseDown={(e) => startIconDrag(e, ic.id, openWindow)}
             onTouchStart={(e) => startIconDrag(e, ic.id, openWindow)}
           >

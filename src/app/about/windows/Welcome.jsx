@@ -1,84 +1,150 @@
 "use client";
 
+const GRID_BG = {
+  backgroundColor: "#F5F2EA",
+  backgroundImage: [
+    "linear-gradient(rgba(150,190,220,0.2) 1px, transparent 1px)",
+    "linear-gradient(90deg, rgba(150,190,220,0.2) 1px, transparent 1px)",
+  ].join(", "),
+  backgroundSize: "36px 36px",
+};
+
 export default function Welcome({ onClose, openWindow }) {
   return (
-    <div className="flex flex-col py-4 px-2 max-w-lg mx-auto font-['Inter'] selection:bg-[#FF6A00]/20 antialiased">
-      
-      {/* ── System Meta (Drawing from the '6 ideas' and 'SAT JUN 06' headers) ── */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="bg-black text-white px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center gap-2 shadow-[2px_2px_0px_rgba(0,0,0,0.2)]">
-          <span>system status</span>
-          <span className="w-1.5 h-1.5 rounded-full bg-[#CAFF00] animate-pulse" />
-        </div>
-        <div className="text-black/30 text-[10px] font-black uppercase tracking-widest">
-          SB-OS // v1.0.4
-        </div>
-      </div>
+    <div className="-m-6 overflow-hidden" style={GRID_BG}>
+      <div className="flex flex-col sm:flex-row min-h-[480px] items-center">
 
-      {/* ── Sophisticated Brutalist Headline ── */}
-      <div className="mb-10 text-center">
-        <h1 className="text-[40px] sm:text-[48px] font-black text-black leading-[0.85] tracking-[-0.04em] uppercase">
-          Dump ideas <br />
-          before they <br />
-          <span className="text-[#FF6A00]">disappear.</span>
-        </h1>
-        <p className="mt-5 text-[14px] font-medium text-black/50 leading-relaxed max-w-[320px] mx-auto">
-          Capture raw thoughts in under 5 seconds. <br />
-          Let them brew. Turn them into gold.
-        </p>
-      </div>
-
-      {/* ── Featured Content (Using the Card & Border tokens from the screenshot) ── */}
-      <div className="space-y-5 mb-10">
-        <div className="bg-white border-2 border-black rounded-3xl p-5 shadow-[4px_4px_0px_#000] transition-transform hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_#000]">
-          <h3 className="text-[10px] font-black text-black/30 uppercase tracking-[0.2em] mb-3">
-            01 / the philosophy
-          </h3>
-          <p className="text-[16px] font-bold text-black leading-tight mb-1">
-            Most ideas start messy.
-          </p>
-          <p className="text-[13px] font-medium text-black/60 leading-relaxed">
-            Store thoughts, tasks, and links until you&apos;re ready to build something real.
-          </p>
-        </div>
-
-        <div className="bg-[#FFF8EE] border-2 border-black rounded-3xl p-5 shadow-[4px_4px_0px_#FF6A00] transition-transform hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_#FF6A00]">
-          <h3 className="text-[10px] font-black text-[#FF6A00] uppercase tracking-[0.2em] mb-3">
-            02 / the process
-          </h3>
-          <p className="text-[16px] font-bold text-black leading-tight mb-1">
-            Capture before they&apos;re gone.
-          </p>
-          <p className="text-[13px] font-medium text-black/60 leading-relaxed">
-            A brutalist refinery designed for speed, focus, and mental clarity.
-          </p>
-        </div>
-      </div>
-
-      {/* ── CTA Area (Matching the 'dump it' button perfectly) ── */}
-      <div className="flex flex-col items-center gap-6">
-        <button
-          onClick={onClose}
-          className="w-full bg-black text-white rounded-2xl px-8 py-5 font-black text-[16px] uppercase tracking-[0.2em] border-2 border-black shadow-[4px_4px_0px_#000] hover:bg-[#FF6A00] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
+        {/* ── Left Column 30%: Logo ── */}
+        <div
+          className="hidden sm:flex flex-col items-center justify-center shrink-0 overflow-hidden"
+          style={{ width: "30%" }}
         >
-          [ start dumping ]
-        </button>
+          <img
+            src="/shitBucket-day.png"
+            alt="ShitBucket"
+            style={{ width: "91%", height: "auto", objectFit: "contain" }}
+          />
+        </div>
 
-        <button
-          onClick={() => {
-            onClose();
-            openWindow("how-it-works");
-          }}
-          className="group flex items-center gap-2 text-[12px] font-black uppercase tracking-widest text-black/30 hover:text-black transition-colors"
-        >
-          <span>Explore the workflow</span>
-          <span className="group-hover:translate-x-1 transition-transform">→</span>
-        </button>
-      </div>
+        {/* ── Right Column 70% ── */}
+        <div className="flex flex-col justify-center p-8 gap-8" style={{ width: "70%" }}>
 
-      {/* ── Background Polish (Faint watermark) ── */}
-      <div className="fixed -bottom-4 -right-4 pointer-events-none opacity-[0.04] select-none">
-        <img src="/logo-shitBucket-day.png" alt="" className="w-48 h-48 grayscale" />
+          {/* Headline */}
+          <div>
+            <p
+              style={{
+                fontFamily: "'Barlow', sans-serif",
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: "0.2em",
+                color: "#1A1208",
+                opacity: 0.35,
+                textTransform: "uppercase",
+                marginBottom: 12,
+              }}
+            >
+              Personal Workspace
+            </p>
+            <h1
+              style={{
+                fontFamily: "'Barlow', sans-serif",
+                fontSize: "clamp(28px, 5vw, 40px)",
+                fontWeight: 900,
+                lineHeight: 1,
+                color: "#1A1208",
+              }}
+            >
+              welcome to{" "}
+              <span style={{ color: "#FF6A00", fontStyle: "italic" }}>
+                ShitBucket
+              </span>
+            </h1>
+          </div>
+
+          {/* Body */}
+          <div className="flex flex-col gap-4">
+            <p
+              style={{
+                fontFamily: "'Barlow', sans-serif",
+                fontSize: 14,
+                fontWeight: 500,
+                lineHeight: 1.7,
+                color: "#1A1208",
+                opacity: 0.7,
+              }}
+            >
+              ShitBucket is a personal workspace for everything on your mind.
+              Capture ideas, tasks, notes, shopping lists, reminders, links, and
+              anything else before it&apos;s forgotten. Whether you&apos;re planning a
+              startup, organising your day, saving research, or just keeping
+              track of what to buy later, ShitBucket gives everything a place to
+              live.
+            </p>
+            <p
+              style={{
+                fontFamily: "'Barlow', sans-serif",
+                fontSize: 14,
+                fontWeight: 500,
+                lineHeight: 1.7,
+                color: "#1A1208",
+                opacity: 0.7,
+              }}
+            >
+              Use it as a note app, a task manager, an idea incubator, or all
+              three at once. No complicated systems. No mandatory structure. Just
+              a flexible workspace that adapts to how your brain works.
+            </p>
+          </div>
+
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 justify-end">
+            <button
+              onClick={() => { onClose(); openWindow("how-it-works"); }}
+              style={{
+                fontFamily: "'IBM Plex Mono', monospace",
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                background: "#F5F2EA",
+                color: "#1A1208",
+                border: "2px solid #1A1208",
+                boxShadow: "4px 4px 0px #1A1208",
+                padding: "12px 24px",
+                cursor: "pointer",
+                transition: "all 0.1s",
+              }}
+              onMouseDown={e => { e.currentTarget.style.transform = "translate(2px,2px)"; e.currentTarget.style.boxShadow = "none"; }}
+              onMouseUp={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = "4px 4px 0px #1A1208"; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = "4px 4px 0px #1A1208"; }}
+            >
+              How It Works
+            </button>
+            <button
+              onClick={onClose}
+              style={{
+                fontFamily: "'IBM Plex Mono', monospace",
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                background: "#1A1208",
+                color: "#F5F2EA",
+                border: "2px solid #1A1208",
+                boxShadow: "4px 4px 0px #FF6A00",
+                padding: "12px 24px",
+                cursor: "pointer",
+                transition: "all 0.1s",
+              }}
+              onMouseDown={e => { e.currentTarget.style.transform = "translate(2px,2px)"; e.currentTarget.style.boxShadow = "none"; }}
+              onMouseUp={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = "4px 4px 0px #FF6A00"; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = "4px 4px 0px #FF6A00"; }}
+            >
+              Start Dumping →
+            </button>
+          </div>
+
+        </div>
       </div>
     </div>
   );

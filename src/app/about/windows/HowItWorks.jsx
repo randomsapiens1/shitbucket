@@ -1,89 +1,168 @@
 "use client";
-import { useRef } from "react";
 
-const sections = [
+const GRID_BG = {
+  backgroundColor: "#F5F2EA",
+  backgroundImage: [
+    "linear-gradient(rgba(150,190,220,0.2) 1px, transparent 1px)",
+    "linear-gradient(90deg, rgba(150,190,220,0.2) 1px, transparent 1px)",
+  ].join(", "),
+  backgroundSize: "36px 36px",
+};
+
+const STEPS = [
   {
+    n: "01",
     title: "Dump It",
-    icon: "/icon_howItWorks/dump-it.png",
-    color: "#CAFF00",
-    desc: "Write whatever is floating around in your head. Tasks, links, ideas. The bucket doesn't care."
+    img: "/icon_howItWorks/dump-it.png",
+    desc: "Write whatever is floating around in your head. Tasks, links, half-baked ideas. The bucket doesn't judge.",
+    accent: "#FF6A00",
   },
   {
-    title: "Let It Sit",
-    icon: "/icon_howItWorks/Let-it-brew.png",
-    color: "#B3D9FF",
-    desc: "Some things matter tomorrow. Some never matter again. You decide how long it stays."
+    n: "02",
+    title: "Let It Brew",
+    img: "/icon_howItWorks/Let-it-brew.png",
+    desc: "Some things matter tomorrow. Some never matter again. Let them sit until you know which is which.",
+    accent: "#1A1208",
   },
   {
+    n: "03",
     title: "Find It",
-    icon: "/icon_howItWorks/keep-what-matters.png",
-    color: "#FFB3D0",
-    desc: "Search, filter, or sort. Or just forget about it until future-you suddenly needs it."
+    img: "/icon_howItWorks/keep-what-matters.png",
+    desc: "Search, filter by tag, or sort by brew score. Future-you will know exactly where to look.",
+    accent: "#FF6A00",
   },
   {
+    n: "04",
     title: "Or Forget It",
-    icon: "/icon_howItWorks/work-it.png",
-    color: "#FFE9A0",
-    desc: "If it's shit, let it expire. The things you throw into the bucket stay yours."
-  }
+    img: "/icon_howItWorks/work-it.png",
+    desc: "Set an expiry. If it hasn't grown legs by then, let it go. Keep the pile clean.",
+    accent: "#1A1208",
+  },
 ];
 
 export default function HowItWorks() {
-  const scrollRef = useRef(null);
-
   return (
-    <div className="flex flex-col h-full py-6 px-2 sm:px-4 max-w-[1200px] mx-auto">
-      {/* Header */}
-      <div className="mb-10 text-center">
-        <h1 className="text-[calc((32/12)*var(--base-font-size))] sm:text-5xl font-black uppercase tracking-tighter leading-none text-black">
-          How It Works
-        </h1>
-        <div className="h-2 w-20 bg-[#FF6A00] mx-auto mt-6 rounded-full" />
-      </div>
+    <div className="-m-6 overflow-y-auto" style={GRID_BG}>
+      <div className="p-8">
 
-      {/* Mobile Slider / Desktop Flex Row */}
-      <div 
-        ref={scrollRef}
-        className="flex overflow-x-auto sm:overflow-x-visible snap-x snap-mandatory sm:snap-none no-scrollbar gap-6 pb-8 -mx-2 px-4 sm:px-0 sm:flex-wrap sm:justify-center lg:flex-nowrap"
-      >
-        {sections.map((s, idx) => (
-          <div 
-            key={s.title}
-            className="flex-shrink-0 w-[280px] sm:w-[calc(50%-12px)] lg:flex-1 snap-center flex flex-col border-4 border-black rounded-[40px] overflow-hidden shadow-hard transition-transform hover:scale-[1.02] bg-white"
+        {/* Header */}
+        <div className="mb-8">
+          <p
+            style={{
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.25em",
+              color: "#1A1208",
+              opacity: 0.35,
+              textTransform: "uppercase",
+              marginBottom: 10,
+            }}
           >
-            {/* Visual Header */}
-            <div 
-              className="h-44 sm:h-52 flex items-center justify-center p-8 border-b-4 border-black"
-              style={{ backgroundColor: s.color }}
-            >
-              <img 
-                src={s.icon} 
-                alt={s.title} 
-                className="w-full h-full object-contain pointer-events-none" 
-              />
-            </div>
-            
-            {/* Content Area */}
-            <div className="p-8 flex-1 flex flex-col justify-start">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-black/20 border-2 border-black/10 rounded-full px-2.5 py-1 shrink-0">
-                  STEP {idx + 1}
-                </span>
-                <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-black truncate">{s.title}</h2>
-              </div>
-              <p className="text-[calc((14/12)*var(--base-font-size))] font-bold text-black/60 leading-snug">
-                {s.desc}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
+            / workflow
+          </p>
+          <h1
+            style={{
+              fontFamily: "'Barlow', sans-serif",
+              fontSize: "clamp(32px, 5vw, 48px)",
+              fontWeight: 900,
+              lineHeight: 0.95,
+              color: "#1A1208",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            How It{" "}
+            <span style={{ color: "#FF6A00", fontStyle: "italic" }}>Works</span>
+          </h1>
+        </div>
 
-      {/* Slider Indicator (Mobile Only) */}
-      <div className="flex justify-center gap-2 mt-2 sm:hidden">
-        {sections.map((_, i) => (
-          <div key={i} className="w-2 h-2 rounded-full bg-black/10" />
-        ))}
+        {/* 2×2 grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {STEPS.map((s) => (
+            <div
+              key={s.n}
+              style={{
+                background: "#ffffff",
+                border: "2px solid #1A1208",
+                boxShadow: `4px 4px 0px ${s.accent}`,
+              }}
+            >
+              {/* Step label bar */}
+              <div
+                style={{
+                  borderBottom: "2px solid #1A1208",
+                  padding: "8px 16px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  background: s.accent === "#FF6A00" ? "#FF6A00" : "#1A1208",
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: "'IBM Plex Mono', monospace",
+                    fontSize: 10,
+                    fontWeight: 700,
+                    letterSpacing: "0.2em",
+                    color: "#F5F2EA",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Step {s.n}
+                </span>
+                <span
+                  style={{
+                    fontFamily: "'Barlow', sans-serif",
+                    fontSize: 13,
+                    fontWeight: 800,
+                    color: "#F5F2EA",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                  }}
+                >
+                  {s.title}
+                </span>
+              </div>
+
+              {/* Illustration */}
+              <div
+                style={{
+                  borderBottom: "2px solid #1A1208",
+                  background: "#F5F2EA",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "24px",
+                  height: 180,
+                }}
+              >
+                <img
+                  src={s.img}
+                  alt={s.title}
+                  style={{ height: "100%", width: "auto", objectFit: "contain" }}
+                />
+              </div>
+
+              {/* Description */}
+              <div style={{ padding: "16px" }}>
+                <p
+                  style={{
+                    fontFamily: "'Barlow', sans-serif",
+                    fontSize: 13,
+                    fontWeight: 500,
+                    lineHeight: 1.65,
+                    color: "#1A1208",
+                    opacity: 0.7,
+                    margin: 0,
+                  }}
+                >
+                  {s.desc}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
       </div>
     </div>
   );
