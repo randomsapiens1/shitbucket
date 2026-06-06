@@ -196,7 +196,6 @@ const ICON_H = 116;
 
 export default function Desktop() {
   const [openWindows, setOpenWindows] = useState([{ id: "welcome", zIndex: 100 }]);
-  const [startMenuOpen, setStartMenuOpen] = useState(false);
   const [iconPositions, setIconPositions] = useState(null);
   const topZ = useRef(100);
 
@@ -262,7 +261,6 @@ export default function Desktop() {
       if (exists) return prev.map(w => w.id === id ? { ...w, zIndex: z } : w);
       return [...prev, { id, zIndex: z }];
     });
-    setStartMenuOpen(false);
   }, []);
 
   const closeWindow  = useCallback((id) => setOpenWindows(prev => prev.filter(w => w.id !== id)), []);
@@ -346,53 +344,16 @@ export default function Desktop() {
       {/* ── Bottom Taskbar ── */}
       <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#f1dbbe] border-t-2 border-black flex items-center px-4 z-[9999]">
         <button
-          onClick={() => setStartMenuOpen(!startMenuOpen)}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black transition-all shadow-[3px_3px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${startMenuOpen ? "bg-black text-white" : "bg-white text-black hover:bg-[#FF6A00] hover:text-white"}`}
+          onClick={() => openWindow("welcome")}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black transition-all shadow-[3px_3px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none bg-white text-black hover:bg-[#FF6A00] hover:text-white"
         >
           <img
             src="/logo-shitBucket-day.png"
             alt="Start"
-            className={`w-8 h-8 object-contain ${startMenuOpen ? "invert" : ""}`}
+            className="w-8 h-8 object-contain"
           />
           <span className="font-black text-base uppercase tracking-widest">Start</span>
         </button>
-
-        {/* Start Menu Popup */}
-        {startMenuOpen && (
-          <div className="absolute bottom-22 left-4 w-64 bg-white border-2 border-black rounded-xl shadow-[6px_6px_0px_#000] overflow-hidden animate-in slide-in-from-bottom-2 duration-200">
-            <div className="bg-black text-white px-4 py-3 flex items-center gap-2">
-              <img src="/logo-shitBucket-day.png" alt="SB" className="w-5 h-5 object-contain invert" />
-              <span className="font-black text-[10px] uppercase tracking-widest">ShitBucket OS v1.0</span>
-            </div>
-            <div className="p-2">
-              <button
-                onClick={() => openWindow("welcome")}
-                className="w-full text-left px-4 py-3 rounded-lg hover:bg-[#FF6A00] hover:text-white font-black text-xs uppercase tracking-wider transition-colors flex items-center gap-3"
-              >
-                <span className="w-5 h-5 flex items-center justify-center text-base">👋</span> Welcome
-              </button>
-              <button
-                onClick={() => openWindow("how-it-works")}
-                className="w-full text-left px-4 py-3 rounded-lg hover:bg-[#FF6A00] hover:text-white font-black text-xs uppercase tracking-wider transition-colors flex items-center gap-3"
-              >
-                <img src="/icon_set/How-it-works.png" alt="" className="w-5 h-5 object-contain" /> How It Works
-              </button>
-              <button
-                onClick={() => openWindow("shitbucket-app")}
-                className="w-full text-left px-4 py-3 rounded-lg hover:bg-[#FF6A00] hover:text-white font-black text-xs uppercase tracking-wider transition-colors flex items-center gap-3"
-              >
-                <img src="/icon_set/shit-bucket.exe.png" alt="" className="w-5 h-5 object-contain" /> ShitBucket.exe
-              </button>
-              <div className="h-px bg-black/10 my-2" />
-              <Link
-                href="/"
-                className="w-full text-left px-4 py-3 rounded-lg hover:bg-black hover:text-white font-black text-xs uppercase tracking-wider transition-colors flex items-center gap-3"
-              >
-                <span className="w-5 h-5 flex items-center justify-center text-base">🚀</span> Open Dashboard
-              </Link>
-            </div>
-          </div>
-        )}
 
         <div className="w-px h-10 bg-black/20 mx-4 shrink-0" />
 
