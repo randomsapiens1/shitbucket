@@ -1,9 +1,17 @@
-const CACHE_NAME = "shitbucket-v3";
+const CACHE_NAME = "shitbucket-v4";
 const STATIC_ASSETS = [
   "/",
+  "/about",
   "/manifest.json",
   "/logo-shitBucket-day.png",
   "/shitBucket-day.png",
+  "/wallpaper.jpg",
+  "/icon_set/How-it-works.png",
+  "/icon_set/why-shit-bucket.png",
+  "/icon_set/contact me.png",
+  "/icon_set/design-philosophy.png",
+  "/icon_set/shit-bucket.exe.png",
+  "/icon_set/welcome-logo.png",
 ];
 
 self.addEventListener("install", (event) => {

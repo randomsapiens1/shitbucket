@@ -102,7 +102,13 @@ export default function Bucket({ onLogout, userId }) {
       setIdeas(data);
     } catch (e) {
       console.error("Failed to load:", e);
-      setError(e.message || "Failed to load your pile. Check your connection.");
+      // If we have cached ideas, don't show a blocking error for network failures
+      const isNetworkError = !navigator.onLine || e.message?.includes("fetch") || e.message?.includes("NetworkError");
+      if (ideas.length > 0 && isNetworkError) {
+        console.warn("Offline or network error, but we have cached ideas. Suppressing error UI.");
+      } else {
+        setError(e.message || "Failed to load your pile. Check your connection.");
+      }
     }
     setLoading(false);
   }
