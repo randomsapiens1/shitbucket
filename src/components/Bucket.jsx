@@ -8,6 +8,7 @@ import LoadingScreen from "@/components/ui/LoadingScreen";
 import ListView from "@/components/list/ListView";
 import DetailView from "@/components/detail/DetailView";
 import SettingsView from "@/components/detail/SettingsView";
+import { arrayMove } from "@dnd-kit/sortable";
 
 export default function Bucket({ onLogout, userId }) {
   const [ideas,       setIdeas]       = useState([]);
@@ -115,6 +116,7 @@ export default function Bucket({ onLogout, userId }) {
 
   const activeIdea = ideas.find(i => i.id === activeId);
   const allTags    = [...new Set(ideas.flatMap(i => i.tags || []))];
+  const allTopics  = [...new Set(ideas.map(i => i.topic || "General"))];
 
   const filtered = useMemo(() => {
     return ideas
@@ -140,12 +142,13 @@ export default function Bucket({ onLogout, userId }) {
       });
   }, [ideas, filterTag, searchQuery, sortBy]);
 
-  async function handleDump(title, tags = [], expiresAt = null) {
+  async function handleDump(title, tags = [], expiresAt = null, topic = "General") {
     const tempId = genId();
     const optimisticIdea = {
       id: tempId,
       title,
       tags,
+      topic,
       expires_at: expiresAt,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -160,7 +163,7 @@ export default function Bucket({ onLogout, userId }) {
     setIdeas(prev => [optimisticIdea, ...prev]);
 
     try {
-      const newIdea = await createIdea({ title, tags, expires_at: expiresAt });
+      const newIdea = await createIdea({ title, tags, expires_at: expiresAt, topic });
       setIdeas(prev => prev.map(i => i.id === tempId ? newIdea : i));
     } catch (e) {
       setIdeas(prev => prev.filter(i => i.id !== tempId));
@@ -190,6 +193,7 @@ export default function Bucket({ onLogout, userId }) {
         tasks:      updated.tasks,
         pinned:     updated.pinned,
         expires_at: updated.expires_at,
+        topic:      updated.topic,
       };
 
       dbUpdateIdea(id, payload).catch(e => {
@@ -258,6 +262,7 @@ export default function Bucket({ onLogout, userId }) {
         ideas={ideas}
         filtered={filtered}
         allTags={allTags}
+        allTopics={allTopics}
         filterTag={filterTag}
         setFilterTag={setFilterTag}
         searchQuery={searchQuery}

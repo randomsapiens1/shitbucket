@@ -1,11 +1,14 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 
-export default function QuickDump({ onDump, allTags = [] }) {
+export default function QuickDump({ onDump, allTags = [], allTopics = [] }) {
   const [charCount, setCharCount] = useState(0);
   const [tagInput, setTagInput]   = useState("");
   const [tags, setTags]           = useState([]);
   const [expiry, setExpiry]       = useState("forever");
+  const [topic, setTopic]         = useState("General");
+  const [isNewTopic, setIsNewTopic] = useState(false);
+  const [newTopic, setNewTopic]   = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   const ref          = useRef(null);
@@ -37,12 +40,15 @@ export default function QuickDump({ onDump, allTags = [] }) {
     if (expiry === "48h") expiresAt = new Date(now.getTime() + 48 * 60 * 60 * 1000).toISOString();
     if (expiry === "1w")  expiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
-    onDump(val, tags, expiresAt);
+    const selectedTopic = isNewTopic ? newTopic.trim() || "General" : topic;
+    onDump(val, tags, expiresAt, selectedTopic);
     ref.current.value = "";
     setCharCount(0);
     setTags([]);
     setTagInput("");
     setExpiry("forever");
+    setIsNewTopic(false);
+    setNewTopic("");
   }
 
   function addTag(tag) {
@@ -75,7 +81,7 @@ export default function QuickDump({ onDump, allTags = [] }) {
         {/* Textarea */}
         <textarea
           ref={ref}
-          rows={6}
+          rows={5}
           maxLength={500}
           placeholder="write it down..."
           onChange={(e) => setCharCount(e.target.value.length)}
@@ -84,6 +90,45 @@ export default function QuickDump({ onDump, allTags = [] }) {
           }}
           className="w-full rounded-2xl border-2 border-black bg-[#FFF8EE] px-4 py-4 text-black font-bold resize-none outline-none placeholder:text-black/30 text-[calc((15/12)*var(--base-font-size))] leading-relaxed focus:border-black transition"
         />
+
+        {/* Topic Selection */}
+        <div className="mt-4">
+          <p className="text-[calc((10/12)*var(--base-font-size))] font-extrabold uppercase tracking-[0.12em] text-black/40 mb-2">Topic</p>
+          <div className="flex gap-2 mb-2 overflow-x-auto pb-1 no-scrollbar">
+            {["General", ...allTopics.filter(t => t !== "General")].slice(0, 4).map(t => (
+              <button
+                key={t}
+                onClick={() => { setTopic(t); setIsNewTopic(false); }}
+                className="px-3 py-1.5 rounded-xl text-[calc((11/12)*var(--base-font-size))] font-extrabold border-2 border-black whitespace-nowrap"
+                style={{
+                  background: !isNewTopic && topic === t ? "#FF6A00" : "#fff",
+                  color:      !isNewTopic && topic === t ? "#fff" : "#000",
+                }}
+              >
+                {t}
+              </button>
+            ))}
+            <button
+              onClick={() => setIsNewTopic(true)}
+              className="px-3 py-1.5 rounded-xl text-[calc((11/12)*var(--base-font-size))] font-extrabold border-2 border-black whitespace-nowrap"
+              style={{
+                background: isNewTopic ? "#FF6A00" : "#fff",
+                color:      isNewTopic ? "#fff" : "#000",
+              }}
+            >
+              + custom
+            </button>
+          </div>
+          {isNewTopic && (
+            <input
+              className="w-full bg-[#FFF8EE] border-2 border-black rounded-xl px-4 py-2 text-[calc((13/12)*var(--base-font-size))] font-bold text-black outline-none placeholder:text-black/30 mb-2 focus:bg-white transition"
+              placeholder="name your topic..."
+              value={newTopic}
+              onChange={(e) => setNewTopic(e.target.value)}
+              autoFocus
+            />
+          )}
+        </div>
 
         {/* Expiry */}
         <div className="mt-4">
@@ -124,7 +169,7 @@ export default function QuickDump({ onDump, allTags = [] }) {
           <div className="relative">
             <input
               className="w-full bg-[#FFF8EE] border-2 border-black rounded-xl px-4 py-2.5 text-[calc((13/12)*var(--base-font-size))] font-bold text-black outline-none placeholder:text-black/30 focus:bg-white transition"
-              placeholder="+ add topic (press Enter)"
+              placeholder="+ add tag (press Enter)"
               value={tagInput}
               onFocus={() => setShowSuggestions(true)}
               onChange={(e) => { setTagInput(e.target.value); setShowSuggestions(true); }}

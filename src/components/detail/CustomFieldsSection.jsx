@@ -154,12 +154,12 @@ export default function CustomFieldsSection({ fields, onAdd, onUpdate, onRemove,
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
-          <div className="flex gap-1.5">
+          <div className="flex gap-1.5 overflow-x-auto pb-2 no-scrollbar">
             {FIELD_TYPES.map(ft => (
               <button
                 key={ft.key}
                 onClick={() => setType(ft.key)}
-                className="flex flex-col items-center gap-0.5 px-3 py-2.5 border-2 rounded-xl flex-1 font-extrabold transition-all"
+                className="flex flex-col items-center gap-0.5 px-3 py-2.5 border-2 rounded-xl min-w-[64px] font-extrabold transition-all"
                 style={{
                   background:  type === ft.key ? "#000" : "#fff",
                   borderColor: "#000",

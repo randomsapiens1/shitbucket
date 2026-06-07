@@ -25,6 +25,13 @@ export function calcBrewProgress(idea) {
   score += Math.min((idea.thoughts || []).length * 6, 30);
   if ((idea.tags || []).length > 0) score += 10;
   if ((idea.links || []).length > 0) score += 10;
+  
+  // Scripts contribution
+  const scripts = idea.scripts || [];
+  if (scripts.length > 0) score += 10;
+  const filledScripts = scripts.filter(s => s.content?.trim()).length;
+  if (scripts.length > 0) score += Math.round((filledScripts / scripts.length) * 10);
+
   const filledFields = (idea.fields || []).filter(f =>
     f.type === "checkbox" ? f.value : f.value?.toString().trim()
   );

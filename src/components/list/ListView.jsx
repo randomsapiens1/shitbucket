@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import HamburgerMenu from "@/components/ui/HamburgerMenu";
 import SortDropdown from "@/components/ui/SortDropdown";
 import QuickDump from "@/components/list/QuickDump";
@@ -33,6 +33,7 @@ export default function ListView({
   ideas,
   filtered,
   allTags,
+  allTopics,
   filterTag,
   setFilterTag,
   searchQuery,
@@ -45,6 +46,7 @@ export default function ListView({
   onSelectIdea,
   onLogout,
   onUpdateIdea,
+  onPinIdea,
   onReorderIdeas,
   sessionStart,
   userId,
@@ -55,6 +57,28 @@ export default function ListView({
   const [showMenu,    setShowMenu]    = useState(false);
   const [showManifesto, setShowManifesto] = useState(false);
   const [now,         setNow]         = useState(null);
+
+  // Group filtered ideas by topic
+  const groupedByTopic = useMemo(() => {
+    const groups = {};
+    filtered.forEach(idea => {
+      const t = idea.topic || "General";
+      if (!groups[t]) groups[t] = [];
+      groups[t].push(idea);
+    });
+    return groups;
+  }, [filtered]);
+
+  const sortedTopics = useMemo(() => {
+    const topics = Object.keys(groupedByTopic).sort();
+    // Keep General at top if it exists
+    const generalIdx = topics.indexOf("General");
+    if (generalIdx > -1) {
+      topics.splice(generalIdx, 1);
+      topics.unshift("General");
+    }
+    return topics;
+  }, [groupedByTopic]);
 
   useEffect(() => {
     setNow(new Date());
@@ -245,7 +269,7 @@ export default function ListView({
       </div>
 
       {/* Quick dump */}
-      <QuickDump onDump={onDump} allTags={allTags} />
+      <QuickDump onDump={onDump} allTags={allTags} allTopics={allTopics} />
 
       {/* Tag filters */}
       {allTags.length > 0 && (
@@ -262,36 +286,54 @@ export default function ListView({
         </div>
       )}
 
-      {/* Idea cards */}
-      <div className="px-4 pt-1 space-y-3 pb-4">
-        {filtered.length === 0 && ideas.length > 0 && (
-          <div className="text-center font-bold text-black/30 text-[calc((13/12)*var(--base-font-size))] py-16">
-            nothing here yet.
-          </div>
-        )}
+      {/* Idea cards grouped by topic */}
+      <div className="px-4 pt-1 space-y-8 pb-4">
         {ideas.length === 0 && (
           <div className="text-center font-bold text-black/30 text-[calc((13/12)*var(--base-font-size))] py-10">
             your pile is empty. dump something!
           </div>
         )}
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-          modifiers={[restrictToVerticalAxis]}
-        >
-          <SortableContext items={filtered.map(i => i.id)} strategy={verticalListSortingStrategy}>
-            {filtered.map(idea => (
-              <IdeaCard
-                key={idea.id}
-                idea={idea}
-                onClick={() => onSelectIdea(idea.id)}
-                onPin={(pinned) => onUpdateIdea(idea.id, (i) => { i.pinned = pinned; })}
-                userId={userId}
-              />
-            ))}
-          </SortableContext>
-        </DndContext>
+        
+        {filtered.length === 0 && ideas.length > 0 && (
+          <div className="text-center font-bold text-black/30 text-[calc((13/12)*var(--base-font-size))] py-16">
+            nothing here yet.
+          </div>
+        )}
+
+        {sortedTopics.map(topicName => (
+          <div key={topicName} className="space-y-3">
+            <div className="flex items-center gap-3 sticky top-[0px] bg-[#FFF8EE] py-2 z-10">
+              <span className="bg-black text-white px-3 py-1 rounded-lg text-[calc((10/12)*var(--base-font-size))] font-black uppercase tracking-widest">
+                {topicName}
+              </span>
+              <div className="flex-1 h-px bg-black/10" />
+              <span className="text-[calc((10/12)*var(--base-font-size))] font-bold text-black/30 uppercase">
+                {groupedByTopic[topicName].length}
+              </span>
+            </div>
+
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+              modifiers={[restrictToVerticalAxis]}
+            >
+              <SortableContext items={groupedByTopic[topicName].map(i => i.id)} strategy={verticalListSortingStrategy}>
+                <div className="space-y-3">
+                  {groupedByTopic[topicName].map(idea => (
+                    <IdeaCard
+                      key={idea.id}
+                      idea={idea}
+                      onClick={() => onSelectIdea(idea.id)}
+                      onPin={(pinned) => onUpdateIdea(idea.id, (i) => { i.pinned = pinned; })}
+                      userId={userId}
+                    />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
+          </div>
+        ))}
       </div>
 
       {showManifesto && (
