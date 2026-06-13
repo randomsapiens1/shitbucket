@@ -14,7 +14,6 @@ create table if not exists public.ideas (
   links jsonb default '[]'::jsonb,
   fields jsonb default '[]'::jsonb,
   tasks jsonb default '[]'::jsonb,
-  scripts jsonb default '[]'::jsonb,
   topic text default 'General',
   pinned boolean default false,
   expires_at timestamptz,

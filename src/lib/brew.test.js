@@ -36,17 +36,6 @@ describe('calcBrewProgress', () => {
     expect(calcBrewProgress(idea)).toBe(10);
   });
 
-  it('should add points for scripts (10 for having, +10 for filled content)', () => {
-    const idea = { 
-      scripts: [
-        { title: 'S1', content: 'C1' },
-        { title: 'S2', content: '' }
-      ] 
-    };
-    // 10 (has scripts) + Math.round((1/2) * 10) = 10 + 5 = 15
-    expect(calcBrewProgress(idea)).toBe(15);
-  });
-
   it('should add points for custom fields (5 per filled field, max 15)', () => {
     const idea = { 
       fields: [
@@ -77,11 +66,10 @@ describe('calcBrewProgress', () => {
       thoughts: Array(5).fill({ text: 'T' }), // 30
       tags: ['T'], // 10
       links: [{}], // 10
-      scripts: [{ title: 'S', content: 'C' }], // 10 + 10 = 20
       fields: Array(3).fill({ type: 'text', value: 'V' }), // 15
       tasks: [{ text: 'Task', done: true }] // 10 + 15 = 25
     };
-    // 10 + 30 + 10 + 10 + 20 + 15 + 25 = 120 -> capped at 100
+    // 10 + 30 + 10 + 10 + 15 + 25 = 100
     expect(calcBrewProgress(idea)).toBe(100);
   });
 });

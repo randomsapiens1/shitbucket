@@ -1,6 +1,6 @@
 import { supabase } from "./supabase";
 
-const CORE_COLUMNS = "id, user_id, title, thought, thoughts, tags, links, fields, tasks, scripts, pinned, expires_at, created_at, updated_at, topic";
+const CORE_COLUMNS = "id, user_id, title, thought, thoughts, tags, links, fields, tasks, pinned, expires_at, created_at, updated_at, topic";
 
 export async function fetchIdeas() {
   try {
@@ -12,7 +12,7 @@ export async function fetchIdeas() {
     if (error) throw error;
     return data || [];
   } catch (e) {
-    const isSchemaError = e.message?.includes("expires_at") || e.message?.includes("pinned") || e.message?.includes("topic") || e.message?.includes("scripts") || e.code === "PGRST204";
+    const isSchemaError = e.message?.includes("expires_at") || e.message?.includes("pinned") || e.message?.includes("topic") || e.code === "PGRST204";
     
     if (isSchemaError) {
       console.warn("Schema mismatch, using base columns.");
@@ -42,7 +42,6 @@ export async function createIdea(idea) {
     links: idea.links || [],
     fields: idea.fields || [],
     tasks: idea.tasks || [],
-    scripts: idea.scripts || [],
     topic: idea.topic || "General",
   };
 
@@ -60,10 +59,10 @@ export async function createIdea(idea) {
     if (error) throw error;
     return data;
   } catch (e) {
-    const isSchemaError = e.message?.includes("expires_at") || e.message?.includes("pinned") || e.message?.includes("topic") || e.message?.includes("scripts") || e.code === "PGRST204";
+    const isSchemaError = e.message?.includes("expires_at") || e.message?.includes("pinned") || e.message?.includes("topic") || e.code === "PGRST204";
 
     if (isSchemaError) {
-      const { pinned: _p, expires_at: _e, topic: _t, scripts: _s, ...safePayload } = payload;
+      const { pinned: _p, expires_at: _e, topic: _t, ...safePayload } = payload;
       const { data: retryData, error: retryError } = await supabase
         .from("ideas")
         .insert(safePayload)
@@ -88,10 +87,10 @@ export async function updateIdea(id, updates) {
     if (error) throw error;
     return data;
   } catch (e) {
-    const isSchemaError = e.message?.includes("expires_at") || e.message?.includes("pinned") || e.message?.includes("topic") || e.message?.includes("scripts") || e.code === "PGRST204";
+    const isSchemaError = e.message?.includes("expires_at") || e.message?.includes("pinned") || e.message?.includes("topic") || e.code === "PGRST204";
     
     if (isSchemaError) {
-      const { pinned: _pinned, expires_at: _expires_at, topic: _topic, scripts: _scripts, ...safeUpdates } = updates;
+      const { pinned: _pinned, expires_at: _expires_at, topic: _topic, ...safeUpdates } = updates;
       const { data: retryData, error: retryError } = await supabase
         .from("ideas")
         .update(safeUpdates)
