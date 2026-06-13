@@ -9,11 +9,16 @@ import ListView from "@/components/list/ListView";
 import DetailView from "@/components/detail/DetailView";
 import SettingsView from "@/components/detail/SettingsView";
 import { arrayMove } from "@dnd-kit/sortable";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
 export default function Bucket({ onLogout, userId }) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
   const [ideas,       setIdeas]       = useState([]);
-  const [view,        setView]        = useState("list");
-  const [activeId,    setActiveId]    = useState(null);
+  const [view,        setView]        = useState(searchParams.get("view") || "list");
+  const [activeId,    setActiveId]    = useState(searchParams.get("id"));
   const [loading,     setLoading]     = useState(true);
   const [error,       setError]       = useState(null);
   const [filterTag,   setFilterTag]   = useState(null);
@@ -75,6 +80,27 @@ export default function Bucket({ onLogout, userId }) {
     document.documentElement.style.setProperty("--base-font-size", `${fontSize}px`);
     localStorage.setItem("shitbucket-font-size", fontSize.toString());
   }, [fontSize]);
+
+  // Sync state to URL
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (view === "list") {
+      params.delete("view");
+      params.delete("id");
+    } else {
+      params.set("view", view);
+      if (activeId) params.set("id", activeId);
+      else params.delete("id");
+    }
+    
+    const newQuery = params.toString();
+    const currentQuery = searchParams.toString();
+    
+    if (newQuery !== currentQuery) {
+      const url = newQuery ? `${pathname}?${newQuery}` : pathname;
+      router.replace(url, { scroll: false });
+    }
+  }, [view, activeId, pathname, router, searchParams]);
 
   // Realtime sync for shared ideas
   useEffect(() => {

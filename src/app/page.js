@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { Suspense, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Bucket from "@/components/Bucket";
@@ -48,10 +48,14 @@ export default function Home() {
   }, [router]);
 
   if (!mounted || loading) return <LoadingScreen />;
-  
+
   if (!session) {
     return <LoadingScreen />;
   }
 
-  return <Bucket onLogout={handleLogout} userId={session?.user?.id} />;
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <Bucket onLogout={handleLogout} userId={session?.user?.id} />
+    </Suspense>
+  );
 }
