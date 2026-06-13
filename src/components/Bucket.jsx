@@ -168,7 +168,7 @@ export default function Bucket({ onLogout, userId }) {
       });
   }, [ideas, filterTag, searchQuery, sortBy]);
 
-  async function handleDump(title, tags = [], expiresAt = null, topic = "General") {
+  const handleDump = useCallback(async (title, tags = [], expiresAt = null, topic = "General") => {
     const tempId = genId();
     let finalTitle = title.trim();
     let initialThought = "";
@@ -206,7 +206,31 @@ export default function Bucket({ onLogout, userId }) {
       console.error("Failed to create:", e.message || e);
       alert("Failed to save idea. Check your connection.");
     }
-  }
+  }, []);
+
+  // Handle Web Share Target
+  useEffect(() => {
+    if (loading) return;
+
+    const sharedTitle = searchParams.get("title");
+    const sharedText  = searchParams.get("text");
+    const sharedUrl   = searchParams.get("url");
+
+    if (sharedTitle || sharedText || sharedUrl) {
+      // Combine into a single title/thought
+      const combinedTitle = sharedTitle || sharedText || sharedUrl;
+      handleDump(combinedTitle);
+      
+      // Clear params so refresh doesn't duplicate
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("title");
+      params.delete("text");
+      params.delete("url");
+      const newQuery = params.toString();
+      const url = newQuery ? `${pathname}?${newQuery}` : pathname;
+      router.replace(url, { scroll: false });
+    }
+  }, [loading, searchParams, handleDump, router, pathname]);
 
   const handleUpdateIdea = useCallback(async (id, fn) => {
     setIdeas(prev => {
