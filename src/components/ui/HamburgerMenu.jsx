@@ -119,6 +119,30 @@ export default function HamburgerMenu({ open, onClose, fontSize, setFontSize, on
             </div>
           </div>
 
+          {/* Tools */}
+          <div>
+            <p className="text-[calc((10/12)*var(--base-font-size))] font-extrabold uppercase tracking-[0.15em] text-black mb-2">Tools</p>
+            <a 
+              href="/widget"
+              className="bg-white border-2 border-black rounded-2xl shadow-hard p-4 flex items-center justify-between group active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#FF6A00]/10 border-2 border-[#FF6A00]/20 flex items-center justify-center text-[#FF6A00]">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-[calc((13/12)*var(--base-font-size))] font-extrabold text-black">Widget Mode</p>
+                  <p className="text-[calc((10/12)*var(--base-font-size))] font-bold text-black/40">Perfect for Home Screen</p>
+                </div>
+              </div>
+              <svg className="text-black/20 group-hover:text-[#FF6A00] transition-colors" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </a>
+          </div>
+
         </div>
 
         {/* Footer: sign out */}
