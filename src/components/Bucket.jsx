@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { fetchIdeas, createIdea, updateIdea as dbUpdateIdea, deleteIdea as dbDeleteIdea } from "@/lib/db";
 import { calcBrewProgress } from "@/lib/brew";
-import { genId } from "@/lib/utils";
+import { genId, isVideoLink, fetchYoutubeTitle, getFriendlyName } from "@/lib/utils";
 import LoadingScreen from "@/components/ui/LoadingScreen";
 import ListView from "@/components/list/ListView";
 import DetailView from "@/components/detail/DetailView";
@@ -144,16 +144,26 @@ export default function Bucket({ onLogout, userId }) {
 
   async function handleDump(title, tags = [], expiresAt = null, topic = "General") {
     const tempId = genId();
+    let finalTitle = title.trim();
+    let initialThought = "";
+
+    // If the title is just a single link, try to fetch its real title
+    if (isVideoLink(finalTitle)) {
+      initialThought = finalTitle; // Move link to thought so it's not lost
+      const fetchedTitle = await fetchYoutubeTitle(finalTitle);
+      finalTitle = fetchedTitle || getFriendlyName(finalTitle);
+    }
+
     const optimisticIdea = {
       id: tempId,
-      title,
+      title: finalTitle,
       tags,
       topic,
       expires_at: expiresAt,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       optimistic: true,
-      thought: "",
+      thought: initialThought,
       thoughts: [],
       links: [],
       fields: [],
@@ -163,7 +173,7 @@ export default function Bucket({ onLogout, userId }) {
     setIdeas(prev => [optimisticIdea, ...prev]);
 
     try {
-      const newIdea = await createIdea({ title, tags, expires_at: expiresAt, topic });
+      const newIdea = await createIdea({ title: finalTitle, thought: initialThought, tags, expires_at: expiresAt, topic });
       setIdeas(prev => prev.map(i => i.id === tempId ? newIdea : i));
     } catch (e) {
       setIdeas(prev => prev.filter(i => i.id !== tempId));

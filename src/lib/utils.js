@@ -50,3 +50,73 @@ export function timeAgo(ts) {
   if (s < 604800) return `${Math.floor(s / 86400)}d ago`;
   return d.toLocaleDateString();
 }
+
+export function extractLinks(text) {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  return text.match(urlRegex) || [];
+}
+
+export function isVideoLink(url) {
+  return (
+    url.includes("youtube.com") || 
+    url.includes("youtu.be") || 
+    url.includes("vimeo.com")
+  );
+}
+
+export function getThumbnail(url) {
+  if (!url) return null;
+
+  // YouTube
+  const ytMatch = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if (ytMatch) {
+    return `https://img.youtube.com/vi/${ytMatch[1]}/mqdefault.jpg`;
+  }
+
+  return null;
+}
+
+export async function fetchYoutubeTitle(url) {
+  const ytMatch = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if (!ytMatch) return null;
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+    const res = await fetch(`https://www.youtube.com/oEmbed?url=${encodeURIComponent(url)}&format=json`, {
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.title || null;
+  } catch (err) {
+    // If fetch fails (CORS, network, timeout), just return null
+    return null;
+  }
+}
+
+export function getFriendlyName(url) {
+  try {
+    const uri = new URL(url);
+    if (uri.hostname.includes("youtube.com") || uri.hostname.includes("youtu.be")) return "YouTube Video";
+    if (uri.hostname.includes("vimeo.com")) return "Vimeo Video";
+    const domain = uri.hostname.replace("www.", "");
+    return domain.split('.')[0].toUpperCase() + " Article";
+  } catch (e) {
+    return "Link";
+  }
+}
+
+export function copyToClipboard(text) {
+  if (!text) return;
+  navigator.clipboard.writeText(text).catch(err => {
+    console.error("Could not copy text: ", err);
+  });
+}
+
+
+

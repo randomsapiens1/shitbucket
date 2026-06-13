@@ -14,6 +14,8 @@ create table if not exists public.ideas (
   links jsonb default '[]'::jsonb,
   fields jsonb default '[]'::jsonb,
   tasks jsonb default '[]'::jsonb,
+  scripts jsonb default '[]'::jsonb,
+  topic text default 'General',
   pinned boolean default false,
   expires_at timestamptz,
   created_at timestamptz default now(),
@@ -36,7 +38,7 @@ end $$;
 
 create policy "Users can read own ideas" on public.ideas for select using (auth.uid() = user_id);
 create policy "Users can insert own ideas" on public.ideas for insert with check (auth.uid() = user_id);
-create policy "Users can update own ideas" on public.ideas for update using (auth.uid() = user_id);
+create policy "Users can update own ideas" on public.ideas for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "Users can delete own ideas" on public.ideas for delete using (auth.uid() = user_id);
 
 -- 4. Indexes
@@ -117,9 +119,26 @@ create policy "Inviter can manage own invites"
     and idea_id in (select id from public.ideas where user_id = auth.uid())
   );
 
-create policy "Anyone can read collab invites"
-  on public.collab_invites for select
-  using (true);
+-- RPC: securely fetch invite details without a public select policy
+create or replace function get_invite_by_token(p_token text)
+returns table (
+  idea_id uuid,
+  idea_title text,
+  inviter_email text,
+  accepted_at timestamptz,
+  created_at timestamptz
+)
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  return query
+  select ci.idea_id, ci.idea_title, ci.inviter_email, ci.accepted_at, ci.created_at
+  from public.collab_invites ci
+  where ci.token = p_token;
+end;
+$$;
 
 create policy "Collaborators can read shared ideas"
   on public.ideas for select

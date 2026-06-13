@@ -9,8 +9,15 @@ export default function Home() {
   const router = useRouter();
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
     // Check session on mount
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -33,14 +40,14 @@ export default function Home() {
     );
 
     return () => subscription.unsubscribe();
-  }, [router]);
+  }, [mounted, router]);
 
   const handleLogout = useCallback(() => {
     setSession(null);
     router.push("/about");
   }, [router]);
 
-  if (loading) return <LoadingScreen />;
+  if (!mounted || loading) return <LoadingScreen />;
   
   if (!session) {
     return <LoadingScreen />;

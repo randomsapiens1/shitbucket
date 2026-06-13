@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import Section from "@/components/ui/Section";
 import { timeAgo } from "@/lib/utils";
 import AutoResizeTextarea from "@/components/ui/AutoResizeTextarea";
@@ -19,8 +20,12 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import EmbedViewer from "@/components/ui/EmbedViewer";
+import { extractLinks, isVideoLink, getThumbnail, copyToClipboard, getFriendlyName, fetchYoutubeTitle } from "@/lib/utils";
 
-function SortableThought({ t, onRemove, onUpdate, isOthers, currentUserInitials }) {
+function SortableThought({ t, onRemove, onUpdate, isOthers, currentUserInitials, onOpenEmbed }) {
+  const [copied, setCopied] = useState(false);
+  const [linkTitle, setLinkTitle] = useState(null);
   const {
     attributes,
     listeners,
@@ -36,6 +41,25 @@ function SortableThought({ t, onRemove, onUpdate, isOthers, currentUserInitials 
     zIndex: isDragging ? 10 : 1,
     opacity: isDragging ? 0.6 : 1,
   };
+
+  const linksInText = extractLinks(t.text);
+  const firstLink = linksInText[0];
+  const isVideo = firstLink ? isVideoLink(firstLink) : false;
+  const thumb = firstLink ? getThumbnail(firstLink) : null;
+
+  useEffect(() => {
+    if (firstLink && isVideo) {
+      fetchYoutubeTitle(firstLink)
+        .then(title => { if (title) setLinkTitle(title); })
+        .catch(() => {}); // Secondary safeguard
+    }
+  }, [firstLink, isVideo]);
+
+  function handleCopy() {
+    copyToClipboard(firstLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
 
   return (
     <div
@@ -57,12 +81,47 @@ function SortableThought({ t, onRemove, onUpdate, isOthers, currentUserInitials 
           </svg>
         </div>
 
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <AutoResizeTextarea
             className={`w-full bg-transparent text-[calc((13/12)*var(--base-font-size))] font-bold leading-relaxed pr-6 outline-none border-none ${isOthers ? "text-[#FF6A00]" : "text-black"}`}
             value={t.text}
             onChange={(e) => onUpdate(t.id, e.target.value)}
           />
+          
+          {firstLink && (
+            <div className="mt-1 mb-2 flex items-center gap-1 flex-wrap">
+              <button 
+                onClick={() => onOpenEmbed(firstLink, linkTitle || getFriendlyName(firstLink))}
+                className="bg-black/5 hover:bg-black hover:text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-md transition-colors"
+              >
+                {isVideo ? `▶ ${linkTitle || "Play Video"}` : `👁 ${getFriendlyName(firstLink)}`}
+              </button>
+              <button 
+                onClick={handleCopy}
+                className="bg-black/5 hover:bg-black hover:text-white text-[9px] font-black uppercase px-2 py-1 rounded-lg transition-all"
+                title="Copy Link"
+              >
+                {copied ? <span className="text-[9px] font-black uppercase px-1">✓</span> : <span className="text-xs">📋</span>}
+              </button>
+            </div>
+          )}
+
+          {thumb && (
+            <div className="mt-2 mb-4">
+              <button
+                onClick={() => onOpenEmbed(firstLink, linkTitle || t.text.slice(0, 30) + "...")}
+                className="relative w-full aspect-video rounded-xl overflow-hidden border-2 border-black shadow-hard-sm hover:shadow-hard transition-all active:shadow-none active:translate-x-[1px] active:translate-y-[1px]"
+              >
+                <img src={thumb} alt={t.text} className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-black/10 flex items-center justify-center">
+                   <div className="bg-white/80 backdrop-blur-sm rounded-full w-8 h-8 flex items-center justify-center border-2 border-black">
+                     <span className="text-black text-xs ml-0.5">▶</span>
+                   </div>
+                </div>
+              </button>
+            </div>
+          )}
+
           <div className="flex justify-between items-center mt-2">
             <div className="flex items-center gap-2">
               <span className="text-[calc((10/12)*var(--base-font-size))] font-bold text-black/40">{timeAgo(t.ts)}</span>
@@ -81,6 +140,7 @@ function SortableThought({ t, onRemove, onUpdate, isOthers, currentUserInitials 
 }
 
 export default function ThoughtsSection({ thoughts, newThought, setNewThought, onAdd, onRemove, onUpdate, onReorder, currentUserInitials }) {
+  const [activeEmbed, setActiveEmbed] = useState(null);
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -109,6 +169,13 @@ export default function ThoughtsSection({ thoughts, newThought, setNewThought, o
 
   return (
     <Section label="thoughts">
+      {activeEmbed && (
+        <EmbedViewer 
+          url={activeEmbed.url} 
+          title={activeEmbed.title} 
+          onClose={() => setActiveEmbed(null)} 
+        />
+      )}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -124,10 +191,12 @@ export default function ThoughtsSection({ thoughts, newThought, setNewThought, o
               onUpdate={onUpdate}
               isOthers={t.by && t.by !== currentUserInitials}
               currentUserInitials={currentUserInitials}
+              onOpenEmbed={(url, title) => setActiveEmbed({ url, title })}
             />
           ))}
         </SortableContext>
       </DndContext>
+
 
       <textarea
         className="w-full bg-[#FFF8EE] border-2 border-black/20 focus:border-black rounded-xl px-4 py-3 text-black text-[calc((13/12)*var(--base-font-size))] font-bold outline-none resize-none mt-2 transition placeholder:text-black/30"

@@ -7,6 +7,7 @@ import TasksSection from "./TasksSection";
 import ThoughtsSection from "./ThoughtsSection";
 import LinksSection from "./LinksSection";
 import CustomFieldsSection from "./CustomFieldsSection";
+import ScriptsSection from "./ScriptsSection";
 import DetailMenu from "./DetailMenu";
 import CollaboratorsSection from "./CollaboratorsSection";
 import BrewStatus from "./BrewStatus";
@@ -94,6 +95,24 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
   function handleReorderFields(oldIndex, newIndex) {
     onUpdate(i => {
       i.fields = arrayMove(i.fields || [], oldIndex, newIndex);
+    });
+  }
+
+  function addScript({ title, content }) {
+    onUpdate(i => { i.scripts = [...(i.scripts || []), { id: genId(), title, content }]; });
+  }
+
+  function updateScript(sid, updates) {
+    onUpdate(i => { i.scripts = (i.scripts || []).map(s => s.id === sid ? { ...s, ...updates } : s); });
+  }
+
+  function removeScript(sid) {
+    onUpdate(i => { i.scripts = (i.scripts || []).filter(s => s.id !== sid); });
+  }
+
+  function handleReorderScripts(oldIndex, newIndex) {
+    onUpdate(i => {
+      i.scripts = arrayMove(i.scripts || [], oldIndex, newIndex);
     });
   }
 
@@ -248,6 +267,14 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
           onUpdate={updateTask}
           onReorder={handleReorderTasks}
           currentUserInitials={userInitials}
+        />
+
+        <ScriptsSection
+          scripts={idea.scripts}
+          onAdd={addScript}
+          onUpdate={updateScript}
+          onRemove={removeScript}
+          onReorder={handleReorderScripts}
         />
 
         <LinksSection

@@ -82,6 +82,12 @@
 - Done items visually struck through; checkbox fills orange when complete
 - Task completion ratio feeds into brew score
 
+### Scripts & Content
+- Large-form text content or scripts attached to an idea
+- Each script has a title and a content area
+- "Studio" mode for focused writing (modal view)
+- Contributes significantly to the brew score
+
 ### Tags
 - Add and remove lowercase tags
 - Each tag shown as a bordered pill chip
