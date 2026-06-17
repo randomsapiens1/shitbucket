@@ -1,4 +1,4 @@
-const CACHE_NAME = "shitbucket-v9";
+const CACHE_NAME = "shitbucket-v10";
 const STATIC_ASSETS = [
   "/",
   "/about",
@@ -36,32 +36,6 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   if (event.request.url.includes("supabase.co")) return;
 
-  const url = new URL(event.request.url);
-  const isHtml = event.request.mode === "navigate" || 
-                 (event.request.headers.get("accept") && event.request.headers.get("accept").includes("text/html"));
-
-  if (isHtml) {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-          return response;
-        })
-        .catch(async () => {
-          const cachedResponse = await caches.match(event.request);
-          if (cachedResponse) return cachedResponse;
-          
-          // Fallback for sub-pages if not cached
-          return caches.match("/");
-        })
-    );
-    return;
-  }
-
-  // Assets: Stale-while-revalidate
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const fetchPromise = fetch(event.request).then((networkResponse) => {
@@ -74,10 +48,12 @@ self.addEventListener("fetch", (event) => {
         return networkResponse;
       }).catch(() => null);
 
-      return cachedResponse || fetchPromise || fetch(event.request);
+      // Return cached version immediately for speed, update in background
+      return cachedResponse || fetchPromise;
     })
   );
 });
+
 
 
 
