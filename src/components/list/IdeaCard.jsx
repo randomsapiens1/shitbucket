@@ -103,13 +103,10 @@ export default memo(function IdeaCard({ idea, onClick, onPin, userId }) {
             </div>
 
             {/* Meta counts */}
-            {(tasksTotal > 0 || (idea.thoughts || []).length > 0 || (idea.links || []).length > 0) && (
+            {(tasksTotal > 0 || (idea.links || []).length > 0) && (
               <div className="flex gap-3 mt-3">
                 {tasksTotal > 0 && (
                   <span className="text-[calc((11/12)*var(--base-font-size))] font-bold text-black/40">☑ {tasksDone}/{tasksTotal}</span>
-                )}
-                {(idea.thoughts || []).length > 0 && (
-                  <span className="text-[calc((11/12)*var(--base-font-size))] font-bold text-black/40">💭 {idea.thoughts.length}</span>
                 )}
                 {(idea.links || []).length > 0 && (
                   <span className="text-[calc((11/12)*var(--base-font-size))] font-bold text-black/40">🔗 {idea.links.length}</span>
