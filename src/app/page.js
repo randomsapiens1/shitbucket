@@ -19,13 +19,28 @@ export default function Home() {
     if (!mounted) return;
 
     // Check session on mount
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
-      if (!session) {
+    supabase.auth.getSession()
+      .then(({ data: { session }, error }) => {
+        if (error) {
+          console.error("Auth session error:", error.message);
+          // If refresh token is invalid, we must clear and logout
+          if (error.message.includes("refresh_token") || error.status === 400) {
+            localStorage.removeItem("shitbucket-auth");
+            router.push("/about");
+            return;
+          }
+        }
+        setSession(session);
+        setLoading(false);
+        if (!session) {
+          router.push("/about");
+        }
+      })
+      .catch((err) => {
+        console.error("Catastrophic auth error:", err);
+        setLoading(false);
         router.push("/about");
-      }
-    });
+      });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
