@@ -22,6 +22,9 @@ export default memo(function IdeaCard({ idea, onClick, onPin, userId }) {
     zIndex: isDragging ? 10 : 1,
   };
 
+  const drawField = (idea.fields || []).find(f => f.type === "draw" && Array.isArray(f.value) && f.value.length > 0);
+  const previewSketch = drawField?.value[0];
+
   return (
     <div ref={setNodeRef} style={style} className="relative group">
       <button
@@ -30,7 +33,7 @@ export default memo(function IdeaCard({ idea, onClick, onPin, userId }) {
           idea.pinned ? "border-l-[6px] border-l-[#FF6A00]" : ""
         } ${idea.optimistic ? "opacity-60 grayscale-[50%]" : "opacity-100"}`}
       >
-        <div className="flex gap-3">
+        <div className="flex gap-4">
           {/* Drag Handle */}
           <div
             {...attributes}
@@ -95,8 +98,20 @@ export default memo(function IdeaCard({ idea, onClick, onPin, userId }) {
               </div>
             )}
           </div>
+
+          {/* Art Preview */}
+          {previewSketch && (
+            <div className="shrink-0 self-start">
+              <div className="w-16 h-12 bg-white border-2 border-black p-1 shadow-hard-sm">
+                <div className="w-full h-full bg-[#FFF8EE] border border-black/5 overflow-hidden">
+                  <img src={previewSketch.data} alt="preview" className="w-full h-full object-contain grayscale-[20%]" />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </button>
+
 
       {/* Pin toggle */}
       <button

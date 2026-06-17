@@ -113,25 +113,35 @@ export function SortableField({ f, onUpdate, onRemove, onOpenDraw }) {
         )}
         {f.type === "draw" && (
           <div className="flex flex-col gap-6">
-            {/* List of existing sketches - Full Width */}
+            {/* List of existing sketches - Framed Look */}
             {Array.isArray(f.value) && f.value.map((sketch) => (
               <div key={sketch.id} className="relative group">
-                <div className="flex flex-col gap-2">
-                  <div className="flex justify-between items-center px-1">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-black/60">{sketch.name}</span>
-                    <button 
-                      onClick={() => removeSketch(sketch.id)}
-                      className="text-black/20 hover:text-red-500 transition-colors font-bold text-xs"
-                    >
-                      delete
-                    </button>
-                  </div>
+                <div className="flex flex-col gap-0">
+                  {/* Frame Container */}
                   <button
                     onClick={() => onOpenDraw(f.id, sketch.id, sketch.data, sketch.name)}
-                    className="w-full aspect-[4/3] bg-[#FFF8EE] border-2 border-black/10 rounded-2xl overflow-hidden hover:border-black transition-all shadow-hard-sm active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+                    className="w-full aspect-[4/3] bg-white border-[3px] border-black p-4 shadow-hard-lg transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:shadow-hard group/frame"
                   >
-                    <img src={sketch.data} alt={sketch.name} className="w-full h-full object-contain" />
+                    <div className="w-full h-full bg-[#FFF8EE] border border-black/5 overflow-hidden flex items-center justify-center relative">
+                      <img src={sketch.data} alt={sketch.name} className="w-full h-full object-contain relative z-10" />
+                      {/* Subtle inner shadow for depth */}
+                      <div className="absolute inset-0 shadow-inner pointer-events-none z-20" />
+                    </div>
                   </button>
+
+                  {/* Museum Label */}
+                  <div className="flex justify-between items-center mt-3 px-1">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-black">{sketch.name}</span>
+                      <span className="text-[8px] font-bold uppercase text-black/30 tracking-widest">original sketch • {f.name}</span>
+                    </div>
+                    <button 
+                      onClick={() => removeSketch(sketch.id)}
+                      className="bg-black text-white px-2 py-1 rounded text-[8px] font-black uppercase tracking-tighter opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500"
+                    >
+                      discard
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
