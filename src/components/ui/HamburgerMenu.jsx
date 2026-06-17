@@ -104,7 +104,7 @@ export default function HamburgerMenu({ open, onClose, fontSize, setFontSize, on
               </div>
               <input
                 type="range"
-                min="12"
+                min="10"
                 max="24"
                 step="1"
                 value={fontSize}

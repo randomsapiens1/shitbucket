@@ -23,7 +23,7 @@ export default function Bucket({ onLogout, userId }) {
   const [filterTag,   setFilterTag]   = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy,      setSortBy]      = useState("newest");
-  const [fontSize,    setFontSize]    = useState(16);
+  const [fontSize,    setFontSize]    = useState(12);
   const sessionStart = useRef(Date.now());
 
   // 1. Initial Load (SWR)
@@ -71,7 +71,7 @@ export default function Bucket({ onLogout, userId }) {
 
   // Sync font size with localStorage and DOM
   useEffect(() => {
-    const savedSize = parseInt(localStorage.getItem("shitbucket-font-size") || "16");
+    const savedSize = parseInt(localStorage.getItem("shitbucket-font-size") || "12");
     setFontSize(savedSize);
   }, []);
 
