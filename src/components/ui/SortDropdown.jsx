@@ -4,8 +4,7 @@ import { useState, useEffect, useRef } from "react";
 const OPTIONS = [
   { key: "newest", label: "Newest first" },
   { key: "oldest", label: "Oldest first" },
-  { key: "brew",   label: "Most brewed"  },
-  { key: "alpha",  label: "A-Z"          },
+  { key: "alpha",  label: "A–Z Alpha"    },
   { key: "manual", label: "Custom order" },
 ];
 

@@ -31,7 +31,7 @@ const PRINCIPLES = [
   {
     n: "P4",
     title: "Earn Your Polish",
-    desc: "Ideas start messy. The Brew system rewards detail over time. Structure emerges when an idea deserves it — not before.",
+    desc: "Ideas start messy. ShitBucket rewards clarity over time. Structure emerges when an idea deserves it — not before.",
     accent: "#1A1208",
   },
 ];

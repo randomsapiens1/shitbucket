@@ -30,19 +30,7 @@ Most ideas start as "shit." They are raw, messy, and incomplete. ShitBucket enco
 
 1.  **Dump:** Get it out of your head in under 5 seconds.
 2.  **Brew:** Let it sit. Add thoughts, tasks, and links over time.
-3.  **Refine:** Watch the "Brew Progress" bar fill up as your idea matures.
-
----
-
-## 🧪 The Brewing Algorithm
-
-ShitBucket uses a deterministic scoring system (0–100%) to track the maturity of an idea:
-
--   **Description:** +10 points for a main thought.
--   **Notes:** +6 points per sub-thought (up to 30).
--   **Tags & Links:** +10 points each if present.
--   **Fields:** +5 points per custom field (up to 15).
--   **Tasks:** +10 points for having tasks + up to 15 points for completion ratio.
+3.  **Refine:** Add thoughts, tasks, and links over time.
 
 ---
 

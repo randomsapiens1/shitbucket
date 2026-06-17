@@ -2,7 +2,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { fetchIdeas, createIdea, updateIdea as dbUpdateIdea, deleteIdea as dbDeleteIdea } from "@/lib/db";
-import { calcBrewProgress } from "@/lib/brew";
 import { genId, isVideoLink, fetchYoutubeTitle, getFriendlyName } from "@/lib/utils";
 import LoadingScreen from "@/components/ui/LoadingScreen";
 import ListView from "@/components/list/ListView";
@@ -162,7 +161,6 @@ export default function Bucket({ onLogout, userId }) {
         if (!a.pinned && b.pinned) return 1;
         if (sortBy === "newest") return new Date(b.updated_at) - new Date(a.updated_at);
         if (sortBy === "oldest") return new Date(a.updated_at) - new Date(b.updated_at);
-        if (sortBy === "brew") return calcBrewProgress(b) - calcBrewProgress(a);
         if (sortBy === "alpha") return a.title.localeCompare(b.title);
         return 0;
       });

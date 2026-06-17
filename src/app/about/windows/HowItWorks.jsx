@@ -28,7 +28,7 @@ const STEPS = [
     n: "03",
     title: "Find It",
     img: "/icon_howItWorks/keep-what-matters.png",
-    desc: "Search, filter by tag, or sort by brew score. Future-you will know exactly where to look.",
+    desc: "Search, filter by tag, or sort by latest. Future-you will know exactly where to look.",
     accent: "#FF6A00",
   },
   {

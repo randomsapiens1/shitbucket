@@ -27,14 +27,8 @@
 ## Idea List (The Pile)
 
 - Vertical card stack of all ideas, newest first by default
-- **Brew pill** color scales with progress:
-  - 0–19%: grey
-  - 20–44%: warm peach
-  - 45–69%: light orange
-  - 70–94%: orange — `#FF6A00`
-  - 95–100%: deep burnt orange — `#CC5500`
 - Task completion count (☑ done/total)
-- Thought count (💭) and link count (🔗) shown if present
+- Link count (🔗) shown if present
 - Expiry countdown label on cards with a set expiry
 - Press-down micro-interaction: card physically sinks on tap (shadow removed + 4px translate)
 
@@ -67,10 +61,6 @@
 - Main thought/description textarea
 - Context menu (⋯) for share, expiry, and delete actions
 
-### Brew Status
-- Progress bar showing score (0–100%) with gradient fill
-- Stage label displayed next to bar
-
 ### Thoughts
 - Multiple time-stamped notes/reflections attached to an idea
 - Each thought shown in a cream-tinted card
@@ -93,23 +83,7 @@
 ### Custom Fields
 - Fully dynamic metadata attached to an idea
 - Four field types: **Text**, **Number**, **Checkbox**, **Link**
-- Inline editing; filled fields contribute to brew score
-
----
-
-## Brew Progress System
-
-Deterministic 0–100% score computed from idea completeness:
-
-| Signal | Points |
-|---|---|
-| Main thought filled | +10 |
-| Each thought added (max 5) | +6 each |
-| Has tags | +10 |
-| Has links | +10 |
-| Filled custom fields (max 3) | +5 each |
-| Has tasks | +10 |
-| Task completion ratio | up to +15 |
+- Inline editing.
 
 ---
 

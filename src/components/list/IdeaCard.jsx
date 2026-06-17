@@ -1,23 +1,11 @@
 import { memo } from "react";
-import { calcBrewProgress, getBrewStage } from "@/lib/brew";
 import { timeAgo, formatCountdown } from "@/lib/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-const BREW_PILL = {
-  raw:     { bg: "#EFEFEF", color: "#555555" },
-  maybe:   { bg: "#FFE0CC", color: "#000000" },
-  cooking: { bg: "#FFD4B0", color: "#000000" },
-  slaps:   { bg: "#FF6A00", color: "#ffffff" },
-  gold:    { bg: "#CC5500", color: "#ffffff" },
-};
-
 export default memo(function IdeaCard({ idea, onClick, onPin, userId }) {
-  const brew       = calcBrewProgress(idea);
-  const stage      = getBrewStage(brew);
   const tasksDone  = (idea.tasks || []).filter(t => t.done).length;
   const tasksTotal = (idea.tasks || []).length;
-  const pill       = BREW_PILL[stage.label] || BREW_PILL.raw;
 
   const {
     attributes,
@@ -83,15 +71,8 @@ export default memo(function IdeaCard({ idea, onClick, onPin, userId }) {
               )}
             </div>
 
-            {/* Brew pill + tags */}
+            {/* Tags */}
             <div className="mt-3.5 flex items-center gap-2 flex-wrap">
-              <span
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[calc((11/12)*var(--base-font-size))] font-extrabold uppercase tracking-wide border border-black/15 shadow-hard-sm"
-                style={{ backgroundColor: pill.bg, color: pill.color }}
-              >
-                {brew}%
-              </span>
-
               {(idea.tags || []).map(tag => (
                 <span
                   key={tag}

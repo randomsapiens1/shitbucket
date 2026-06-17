@@ -9,7 +9,6 @@ import LinksSection from "./LinksSection";
 import CustomFieldsSection from "./CustomFieldsSection";
 import DetailMenu from "./DetailMenu";
 import CollaboratorsSection from "./CollaboratorsSection";
-import BrewStatus from "./BrewStatus";
 import AutoResizeTextarea from "@/components/ui/AutoResizeTextarea";
 import { arrayMove } from "@dnd-kit/sortable";
 
