@@ -306,7 +306,13 @@ export default function Desktop() {
       />
 
       {/* ── Taskbar (Top) ── */}
-      <div className="absolute top-0 left-0 right-0 h-20 bg-[#f1dbbe]/85 backdrop-blur-md border-b-2 border-black flex items-center gap-4 px-4 z-[9999] shadow-sm">
+      <div 
+        className="absolute top-0 left-0 right-0 bg-[#f1dbbe]/85 backdrop-blur-md border-b-2 border-black flex items-center gap-4 px-4 z-[9999] shadow-sm"
+        style={{ 
+          height: "calc(80px + env(safe-area-inset-top))", 
+          paddingTop: "env(safe-area-inset-top)" 
+        }}
+      >
         <img
           src="/logo-shitBucket-day.png"
           alt="ShitBucket"
@@ -352,7 +358,13 @@ export default function Desktop() {
       </div>
 
       {/* ── Main Desktop Interaction Area ── */}
-      <div className="absolute top-20 left-0 right-0 bottom-20 overflow-hidden">
+      <div 
+        className="absolute left-0 right-0 overflow-hidden"
+        style={{
+          top: "calc(80px + env(safe-area-inset-top))",
+          bottom: "calc(80px + env(safe-area-inset-bottom))"
+        }}
+      >
         {/* Draggable desktop icons */}
         {iconPositions && ALL_ICONS.map(ic => (
           <div
@@ -379,7 +391,13 @@ export default function Desktop() {
       </div>
 
       {/* ── Bottom Taskbar ── */}
-      <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#f1dbbe] border-t-2 border-black flex items-center px-4 z-[9999]">
+      <div 
+        className="absolute bottom-0 left-0 right-0 bg-[#f1dbbe] border-t-2 border-black flex items-center px-4 z-[9999]"
+        style={{
+          height: "calc(80px + env(safe-area-inset-bottom))",
+          paddingBottom: "env(safe-area-inset-bottom)"
+        }}
+      >
         <button
           onClick={() => openWindow("welcome")}
           className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black transition-all shadow-[3px_3px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none bg-white text-black hover:bg-[#FF6A00] hover:text-white"

@@ -90,7 +90,10 @@ export default function ListView({
   }
 
   return (
-    <div className="min-h-screen bg-[#FFF8EE] text-[#121212] pb-24 max-w-xl mx-auto">
+    <div 
+      className="min-h-screen bg-[#FFF8EE] text-[#121212] max-w-xl mx-auto"
+      style={{ paddingBottom: "calc(96px + env(safe-area-inset-bottom))" }}
+    >
 
       {/* Error state */}
       {error && (
@@ -123,7 +126,10 @@ export default function ListView({
       />
 
       {/* ── Header (logo + clock + menu merged) ── */}
-      <div className="px-4 pt-4 pb-2">
+      <div 
+        className="px-4 pb-2"
+        style={{ paddingTop: "calc(16px + env(safe-area-inset-top))" }}
+      >
         <div
           className="flex items-center gap-3"
           style={{

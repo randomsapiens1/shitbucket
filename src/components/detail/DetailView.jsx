@@ -228,7 +228,10 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
   }
 
   return (
-    <div className="min-h-screen bg-[#FFF8EE] text-black pb-24 max-w-xl mx-auto">
+    <div 
+      className="min-h-screen bg-[#FFF8EE] text-black max-w-xl mx-auto"
+      style={{ paddingBottom: "calc(96px + env(safe-area-inset-bottom))" }}
+    >
       {activeDraw && (
         <DrawingCanvas
           initialData={activeDraw.data}
@@ -260,7 +263,10 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
       )}
 
       {/* Header */}
-      <div className="flex justify-between items-center px-4 py-4 border-b-2 border-black bg-white">
+      <div 
+        className="flex justify-between items-center px-4 pb-4 border-b-2 border-black bg-white"
+        style={{ paddingTop: "calc(16px + env(safe-area-inset-top))" }}
+      >
         <button
           onClick={onBack}
           className="flex items-center gap-1.5 text-black font-extrabold text-[calc((13/12)*var(--base-font-size))] bg-[#FFF8EE] border-2 border-black rounded-xl px-3 py-1.5 shadow-hard-sm transition-all active:shadow-none active:translate-x-[3px] active:translate-y-[3px]"
