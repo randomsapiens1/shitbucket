@@ -29,11 +29,11 @@ export default memo(function IdeaCard({ idea, onClick, onPin, userId }) {
     <div ref={setNodeRef} style={style} className="relative group">
       <button
         onClick={onClick}
-        className={`w-full text-left rounded-3xl border-2 border-black shadow-hard p-5 bg-white transition-all active:shadow-none active:translate-x-[4px] active:translate-y-[4px] ${
+        className={`w-full text-left rounded-3xl border-2 border-black shadow-hard sm:p-5 p-4 bg-white transition-all active:shadow-none active:translate-x-[4px] active:translate-y-[4px] min-h-[110px] flex flex-col justify-center ${
           idea.pinned ? "border-l-[6px] border-l-[#FF6A00]" : ""
         } ${idea.optimistic ? "opacity-60 grayscale-[50%]" : "opacity-100"}`}
       >
-        <div className="flex gap-4">
+        <div className="flex gap-3 sm:gap-4 items-start w-full">
           {/* Drag Handle */}
           <div
             {...attributes}
@@ -50,7 +50,7 @@ export default memo(function IdeaCard({ idea, onClick, onPin, userId }) {
 
           <div className="flex-1 min-w-0">
             {/* Title */}
-            <div className="text-[calc((16/12)*var(--base-font-size))] font-extrabold leading-snug text-black pr-8">
+            <div className="text-[calc((16/12)*var(--base-font-size))] font-extrabold leading-snug text-black pr-8 break-all">
               {idea.title}
             </div>
 
@@ -79,7 +79,7 @@ export default memo(function IdeaCard({ idea, onClick, onPin, userId }) {
               {(idea.tags || []).map(tag => (
                 <span
                   key={tag}
-                  className="px-2.5 py-1 rounded-full text-[calc((11/12)*var(--base-font-size))] font-bold border border-black/20 bg-[#FFF8EE] text-black"
+                  className="px-2.5 py-1 rounded-full text-[calc((11/12)*var(--base-font-size))] font-bold border border-black/20 bg-[#FFF8EE] text-black break-all"
                 >
                   {tag}
                 </span>

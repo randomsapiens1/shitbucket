@@ -52,7 +52,7 @@ export default function CollaboratorsSection({ idea }) {
                   <div className="w-7 h-7 rounded-full bg-black flex items-center justify-center text-white text-[calc((10/12)*var(--base-font-size))] font-extrabold shrink-0">
                     {(c.user_email || "?")[0].toUpperCase()}
                   </div>
-                  <span className="text-[calc((12/12)*var(--base-font-size))] font-bold text-black">{c.user_email}</span>
+                  <span className="text-[calc((12/12)*var(--base-font-size))] font-bold text-black break-all">{c.user_email}</span>
                 </div>
                 <button
                   onClick={() => handleRemove(c.user_id)}

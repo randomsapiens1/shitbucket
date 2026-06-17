@@ -82,7 +82,7 @@ function SortableLink({ l, onRemove, onOpenEmbed }) {
           </div>
           <div className="flex flex-col min-w-0">
             <div
-              className="text-black text-[calc((13/12)*var(--base-font-size))] font-extrabold leading-tight break-words"
+              className="text-black text-[calc((13/12)*var(--base-font-size))] font-extrabold leading-tight break-all"
             >
               {displayTitle}
             </div>

@@ -137,14 +137,15 @@ export default function ListView({
           }}
         >
           {/* Left: logo + wordmark */}
-          <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex items-center gap-2.5 shrink min-w-0">
             <img
               src="/logo-shitBucket-day.png"
               alt="ShitBucket"
               style={{ width: 28, height: 28, objectFit: "contain" }}
+              className="shrink-0"
             />
             <span
-              className="leading-none select-none"
+              className="leading-none select-none truncate"
               style={{
                 fontFamily: "'Inter', sans-serif",
                 fontSize: 'calc((18/12)*var(--base-font-size))',

@@ -309,7 +309,7 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
       {/* Content */}
       <div className="px-4 pb-10">
         <AutoResizeTextarea
-          className="w-full bg-transparent text-[calc((24/12)*var(--base-font-size))] font-extrabold text-black leading-snug pt-5 pb-1 outline-none border-none placeholder:text-black/20"
+          className="w-full bg-transparent text-[calc((24/12)*var(--base-font-size))] font-extrabold text-black leading-snug pt-5 pb-1 outline-none border-none placeholder:text-black/20 break-all"
           value={idea.title}
           onChange={(e) => onUpdate(i => { i.title = e.target.value; })}
           placeholder="Idea title..."

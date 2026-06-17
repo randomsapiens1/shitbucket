@@ -100,7 +100,7 @@ export default function QuickDump({ onDump, allTags = [], allTopics = [] }) {
 
   return (
     <div className="relative px-4 pt-5" ref={containerRef}>
-      <div className="rounded-3xl bg-white border-2 border-black shadow-hard p-5">
+      <div className="rounded-3xl bg-white border-2 border-black shadow-hard sm:p-5 p-4">
 
         {/* Header row */}
         <div className="flex justify-between items-baseline mb-3">
@@ -228,7 +228,7 @@ export default function QuickDump({ onDump, allTags = [], allTopics = [] }) {
               {tags.map(t => (
                 <span
                   key={t}
-                  className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[calc((11/12)*var(--base-font-size))] font-extrabold bg-black text-white border-2 border-black"
+                  className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[calc((11/12)*var(--base-font-size))] font-extrabold bg-black text-white border-2 border-black break-all"
                 >
                   {t}
                   <button onClick={() => setTags(tags.filter(x => x !== t))} className="opacity-60 hover:opacity-100 ml-0.5">×</button>
