@@ -81,9 +81,29 @@
 - Displayed as tappable bordered rows
 
 ### Custom Fields
-- Fully dynamic metadata attached to an idea
-- Four field types: **Text**, **Number**, **Checkbox**, **Link**
-- Inline editing.
+- Fully dynamic metadata attached to an idea.
+- Supported types: **Text**, **Number**, **Checkbox**, **Link**, and **Draw**.
+- **Specialized Draw Flow**: Picking the "Draw" type immediately triggers a request for a drawing name, followed by an instant transition to the sketchpad.
+- **Organization**: Drawings are automatically grouped into a dedicated "draw" section on the board.
+- Inline editing for all non-drawing types.
+
+---
+
+## Sketchpad & Drawing
+
+A premium, integrated sketching experience for visual idea capture.
+
+- **Name-then-Draw Workflow**: Instant creativity—enter a sketch name and start drawing immediately.
+- **Full-Width Display**: Sketches are rendered at 4:3 aspect ratio, stacked vertically for maximum visibility.
+- **History Management**: 
+  - **Past Version (Undo)**: Step back through your brush strokes.
+  - **Future Version (Redo)**: Jump forward to restore changes.
+- **Advanced Tools**:
+  - **Eraser**: Dedicated sponge tool for surgical corrections.
+  - **Dynamic Cursors**: Context-aware feedback—pencil cursor (✏️) for drawing, sponge cursor (🧽) for erasing.
+  - **Precision Brush**: Adjustable line width with live numerical readout.
+  - **Quick Reset**: Clear the entire canvas with one tap.
+- **Persistence**: Sketches are saved as high-resolution PNG snapshots directly to the idea's database entry.
 
 ---
 
