@@ -1,4 +1,4 @@
-const CACHE_NAME = "shitbucket-v7";
+const CACHE_NAME = "shitbucket-v8";
 const STATIC_ASSETS = [
   "/",
   "/about",
@@ -13,6 +13,9 @@ const STATIC_ASSETS = [
   "/icon_set/shit-bucket.exe.png",
   "/icon_set/welcome-logo.png",
 ];
+
+// Timeout helper
+const timeout = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), ms));
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -37,20 +40,22 @@ self.addEventListener("fetch", (event) => {
   if (event.request.url.includes("supabase.co")) return;
 
   const isHtml = event.request.mode === "navigate" || 
-                 event.request.headers.get("accept").includes("text/html");
+                 (event.request.headers.get("accept") && event.request.headers.get("accept").includes("text/html"));
 
   if (isHtml) {
-    // Network first for HTML/Navigation
+    // Network first with timeout fallback to cache
     event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-          return response;
-        })
-        .catch(() => caches.match(event.request))
+      Promise.race([
+        fetch(event.request)
+          .then((response) => {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+            return response;
+          }),
+        timeout(3000) // 3 second timeout
+      ]).catch(() => caches.match(event.request))
     );
     return;
   }
@@ -65,9 +70,10 @@ self.addEventListener("fetch", (event) => {
           });
         }
         return networkResponse;
-      });
+      }).catch(() => null);
       return cachedResponse || fetchPromise;
     })
   );
 });
+
 
