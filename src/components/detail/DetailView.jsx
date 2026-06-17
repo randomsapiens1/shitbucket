@@ -19,6 +19,7 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
   const [showMenu,          setShowMenu]          = useState(false);
   const [showCollaborators, setShowCollaborators] = useState(false);
   const [userInitials,      setUserInitials]      = useState("??");
+  const [ideaCopied,        setIdeaCopied]        = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -33,6 +34,35 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
   }, []);
 
   const isOwner = !userId || idea.user_id === userId;
+
+  const handleCopyIdea = () => {
+    let prompt = `IDEA: ${idea.title.toUpperCase()}\n`;
+    if (idea.thought) prompt += `Description: ${idea.thought}\n`;
+    
+    if (idea.thoughts && idea.thoughts.length > 0) {
+      prompt += "\nThoughts:\n";
+      idea.thoughts.forEach(t => prompt += `- ${t.text}\n`);
+    }
+
+    if (idea.tasks && idea.tasks.length > 0) {
+      prompt += "\nTasks:\n";
+      idea.tasks.forEach(t => prompt += `${t.done ? "[x]" : "[ ]"} ${t.text}\n`);
+    }
+
+    if (idea.links && idea.links.length > 0) {
+      prompt += "\nLinks:\n";
+      idea.links.forEach(l => prompt += `- ${l.label || l.url}: ${l.url}\n`);
+    }
+
+    if (idea.tags && idea.tags.length > 0) {
+      prompt += `\nTags: ${idea.tags.join(", ")}\n`;
+    }
+
+    navigator.clipboard.writeText(prompt).then(() => {
+      setIdeaCopied(true);
+      setTimeout(() => setIdeaCopied(false), 2000);
+    });
+  };
 
   function addThought() {
     if (!newThought.trim()) return;
@@ -135,6 +165,16 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
     });
   }
 
+  const handleCopySection = (label, content) => {
+    let prompt = `IDEA: ${idea.title.toUpperCase()}\n`;
+    if (idea.thought) prompt += `Gist: ${idea.thought}\n`;
+    prompt += `\n${label.toUpperCase()}:\n${content}`;
+
+    navigator.clipboard.writeText(prompt).then(() => {
+      // We'll use a local state in the section to show "copied"
+    });
+  };
+
   return (
     <div className="min-h-screen bg-[#FFF8EE] text-black pb-24 max-w-xl mx-auto">
 
@@ -148,11 +188,22 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
         </button>
         <div className="flex gap-2">
           <button
-            onClick={() => setShowCollaborators(true)}
-            title="Invite a friend?"
-            className="border-2 border-black text-black font-extrabold text-base px-2.5 py-1.5 rounded-xl shadow-hard-sm transition-all active:shadow-none active:translate-x-[3px] active:translate-y-[3px] hover:bg-black/5"
+            onClick={handleCopyIdea}
+            title="Copy entire board for AI"
+            className={`flex items-center justify-center border-2 border-black rounded-xl w-10 h-10 shadow-hard-sm transition-all active:shadow-none active:translate-x-[3px] active:translate-y-[3px] ${
+              ideaCopied ? "bg-[#CAFF00] text-black" : "bg-white text-[#FF6A00] hover:bg-black/5"
+            }`}
           >
-            ↗
+            {ideaCopied ? (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            )}
           </button>
           {isOwner && (
             <button
@@ -170,6 +221,8 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
         onClose={() => setShowMenu(false)}
         onDelete={onDelete}
         isOwner={isOwner}
+        idea={idea}
+        onShowCollaborators={() => setShowCollaborators(true)}
       />
 
       {/* Content */}
@@ -235,6 +288,7 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
           onUpdate={updateThought}
           onReorder={handleReorderThoughts}
           currentUserInitials={userInitials}
+          onCopy={(content) => handleCopySection("thoughts", content)}
         />
 
         <TasksSection
@@ -247,6 +301,7 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
           onUpdate={updateTask}
           onReorder={handleReorderTasks}
           currentUserInitials={userInitials}
+          onCopy={(content) => handleCopySection("tasks", content)}
         />
 
         <LinksSection
@@ -254,6 +309,7 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
           onAdd={addLink}
           onRemove={removeLink}
           onReorder={handleReorderLinks}
+          onCopy={(content) => handleCopySection("links & inspo", content)}
         />
 
         <CustomFieldsSection

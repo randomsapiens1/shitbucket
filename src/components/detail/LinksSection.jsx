@@ -100,7 +100,7 @@ function SortableLink({ l, onRemove, onOpenEmbed }) {
             onClick={() => onOpenEmbed(l.url, displayTitle)}
             className="bg-black text-white text-[9px] font-black uppercase px-2 py-2 rounded-lg hover:bg-[#FF6A00] transition-colors shadow-hard-sm active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
           >
-            {isVideo ? "▶ play" : "👁 view"}
+            {isVideo ? "play" : "view"}
           </button>
           <button onClick={() => onRemove(l.id)} className="text-black/30 hover:text-black text-base px-1 ml-1 transition font-bold shrink-0">×</button>
         </div>
@@ -125,12 +125,21 @@ function SortableLink({ l, onRemove, onOpenEmbed }) {
   );
 }
 
-export default function LinksSection({ links, onAdd, onRemove, onReorder }) {
+export default function LinksSection({ links, onAdd, onRemove, onReorder, onCopy }) {
   const [show,  setShow]  = useState(false);
   const [url,   setUrl]   = useState("");
   const [label, setLabel] = useState("");
   const [loadingTitle, setLoadingTitle] = useState(false);
   const [activeEmbed, setActiveEmbed] = useState(null);
+  const [isCopied, setIsCopied] = useState(false);
+
+  const handleSectionCopy = () => {
+    if (!links || links.length === 0) return;
+    const content = links.map(l => `- ${l.label || l.url}: ${l.url}`).join("\n");
+    onCopy(content);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -172,7 +181,7 @@ export default function LinksSection({ links, onAdd, onRemove, onReorder }) {
   }
 
   return (
-    <Section label="links & inspo">
+    <Section label="links & inspo" onCopy={handleSectionCopy} isCopied={isCopied}>
       {activeEmbed && (
         <EmbedViewer 
           url={activeEmbed.url} 

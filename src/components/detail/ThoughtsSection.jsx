@@ -94,7 +94,7 @@ function SortableThought({ t, onRemove, onUpdate, isOthers, currentUserInitials,
                 onClick={() => onOpenEmbed(firstLink, linkTitle || getFriendlyName(firstLink))}
                 className="bg-black/5 hover:bg-black hover:text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-md transition-colors"
               >
-                {isVideo ? `▶ ${linkTitle || "Play Video"}` : `👁 ${getFriendlyName(firstLink)}`}
+                {isVideo ? `${linkTitle || "Play Video"}` : `${getFriendlyName(firstLink)}`}
               </button>
               <button 
                 onClick={handleCopy}
@@ -139,8 +139,18 @@ function SortableThought({ t, onRemove, onUpdate, isOthers, currentUserInitials,
   );
 }
 
-export default function ThoughtsSection({ thoughts, newThought, setNewThought, onAdd, onRemove, onUpdate, onReorder, currentUserInitials }) {
+export default function ThoughtsSection({ thoughts, newThought, setNewThought, onAdd, onRemove, onUpdate, onReorder, currentUserInitials, onCopy }) {
   const [activeEmbed, setActiveEmbed] = useState(null);
+  const [isCopied, setIsCopied] = useState(false);
+
+  const handleSectionCopy = () => {
+    if (!thoughts || thoughts.length === 0) return;
+    const content = thoughts.map(t => `- ${t.text}`).join("\n");
+    onCopy(content);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -168,7 +178,7 @@ export default function ThoughtsSection({ thoughts, newThought, setNewThought, o
   }
 
   return (
-    <Section label="thoughts">
+    <Section label="thoughts" onCopy={handleSectionCopy} isCopied={isCopied}>
       {activeEmbed && (
         <EmbedViewer 
           url={activeEmbed.url} 

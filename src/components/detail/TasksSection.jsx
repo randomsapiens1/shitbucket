@@ -101,7 +101,7 @@ function SortableTask({ t, onToggle, onRemove, onUpdate, isOthers, currentUserIn
                 onClick={() => onOpenEmbed(firstLink, linkTitle || getFriendlyName(firstLink))}
                 className="bg-black/5 hover:bg-black hover:text-white text-[9px] font-black uppercase px-2 py-1 rounded-lg transition-colors"
               >
-                {isVideo ? `▶ ${linkTitle || "Play Video"}` : `👁 ${getFriendlyName(firstLink)}`}
+                {isVideo ? `${linkTitle || "Play Video"}` : `${getFriendlyName(firstLink)}`}
               </button>
               <button 
                 onClick={handleCopy}
@@ -141,8 +141,18 @@ function SortableTask({ t, onToggle, onRemove, onUpdate, isOthers, currentUserIn
   );
 }
 
-export default function TasksSection({ tasks, newTask, setNewTask, onAdd, onToggle, onRemove, onUpdate, onReorder, currentUserInitials }) {
+export default function TasksSection({ tasks, newTask, setNewTask, onAdd, onToggle, onRemove, onUpdate, onReorder, currentUserInitials, onCopy }) {
   const [activeEmbed, setActiveEmbed] = useState(null);
+  const [isCopied, setIsCopied] = useState(false);
+
+  const handleSectionCopy = () => {
+    if (!tasks || tasks.length === 0) return;
+    const content = tasks.map(t => `${t.done ? "[x]" : "[ ]"} ${t.text}`).join("\n");
+    onCopy(content);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -174,7 +184,7 @@ export default function TasksSection({ tasks, newTask, setNewTask, onAdd, onTogg
   }
 
   return (
-    <Section label="tasks">
+    <Section label="tasks" onCopy={handleSectionCopy} isCopied={isCopied}>
       {activeEmbed && (
         <EmbedViewer 
           url={activeEmbed.url} 
