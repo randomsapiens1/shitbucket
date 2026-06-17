@@ -6,7 +6,7 @@ import "./globals.css";
 export const metadata = {
   metadataBase: new URL("https://shitbucket.io"), // Replace with actual domain if known, or leave as placeholder
   title: {
-    default: "ShitBucket — Dump your ideas, let them brew.",
+    default: "ShitBucket | Dump it",
     template: "%s | ShitBucket",
   },
   description: "The place for your unfinished thoughts, shower ideas, and browser tabs. Dump them, let them brew, and find what actually matters.",
@@ -29,7 +29,7 @@ export const metadata = {
   },
   openGraph: {
     title: "ShitBucket",
-    description: "Dump your unfinished thoughts. Let them brew. Go for gold.",
+    description: "Dump your unfinished thoughts. Let them brew.",
     url: "https://shitbucket.io",
     siteName: "ShitBucket",
     images: [
@@ -46,7 +46,7 @@ export const metadata = {
   twitter: {
     card: "summary_large_image",
     title: "ShitBucket",
-    description: "Dump your unfinished thoughts. Let them brew. Go for gold.",
+    description: "Dump your unfinished thoughts. Let them brew.",
     images: ["/screenshot_1.jpeg"],
   },
   appleWebApp: {

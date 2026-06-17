@@ -1,14 +1,13 @@
-import { getBrewStage, calcBrewProgress } from "@/lib/brew";
+import { calcBrewProgress } from "@/lib/brew";
 
 export default function BrewStatus({ idea }) {
   const brew  = calcBrewProgress(idea);
-  const stage = getBrewStage(brew);
 
   return (
     <div className="bg-white border-2 border-black/10 rounded-2xl p-5 mb-8 shadow-hard-sm">
       <div className="flex justify-between items-center mb-3">
         <span className="text-[calc((10/12)*var(--base-font-size))] text-black/40 uppercase tracking-[0.15em] font-extrabold">brew status</span>
-        <span className="text-[calc((13/12)*var(--base-font-size))] text-[#FF6A00] font-extrabold">{stage.emoji} {stage.label}</span>
+        <span className="text-[calc((13/12)*var(--base-font-size))] text-[#FF6A00] font-extrabold">{brew}%</span>
       </div>
       <div className="w-full h-3 bg-[#FFF8EE] border-2 border-black/5 rounded-full overflow-hidden">
         <div
@@ -16,7 +15,6 @@ export default function BrewStatus({ idea }) {
           style={{ width: `${brew}%`, background: "linear-gradient(90deg, #FF6A00, #FFD4B0)" }}
         />
       </div>
-      <div className="text-[calc((11/12)*var(--base-font-size))] text-black/30 mt-2 font-bold text-right">{brew}% brewed</div>
     </div>
   );
 }

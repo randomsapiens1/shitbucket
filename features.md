@@ -27,13 +27,12 @@
 ## Idea List (The Pile)
 
 - Vertical card stack of all ideas, newest first by default
-- Each card shows: title, last-updated timestamp, brew stage pill, tags, and meta counts
 - **Brew pill** color scales with progress:
-  - Raw (0–19%): grey
-  - Maybe (20–44%): warm peach
-  - Cooking (45–69%): light orange
-  - Slaps (70–94%): orange — `#FF6A00`
-  - Gold (95–100%): deep burnt orange — `#CC5500`
+  - 0–19%: grey
+  - 20–44%: warm peach
+  - 45–69%: light orange
+  - 70–94%: orange — `#FF6A00`
+  - 95–100%: deep burnt orange — `#CC5500`
 - Task completion count (☑ done/total)
 - Thought count (💭) and link count (🔗) shown if present
 - Expiry countdown label on cards with a set expiry
@@ -111,16 +110,6 @@ Deterministic 0–100% score computed from idea completeness:
 | Filled custom fields (max 3) | +5 each |
 | Has tasks | +10 |
 | Task completion ratio | up to +15 |
-
-Five stages (star rating displayed on cards):
-
-| Stage | Min % | Stars |
-|---|---|---|
-| raw | 0 | ★☆☆☆☆ |
-| maybe | 20 | ★★☆☆☆ |
-| cooking | 45 | ★★★☆☆ |
-| slaps | 70 | ★★★★☆ |
-| gold | 95 | ★★★★★ |
 
 ---
 

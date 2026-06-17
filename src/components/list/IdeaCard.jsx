@@ -89,7 +89,7 @@ export default memo(function IdeaCard({ idea, onClick, onPin, userId }) {
                 className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[calc((11/12)*var(--base-font-size))] font-extrabold uppercase tracking-wide border border-black/15 shadow-hard-sm"
                 style={{ backgroundColor: pill.bg, color: pill.color }}
               >
-                {stage.emoji} {brew}%
+                {brew}%
               </span>
 
               {(idea.tags || []).map(tag => (

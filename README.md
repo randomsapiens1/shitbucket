@@ -30,7 +30,7 @@ Most ideas start as "shit." They are raw, messy, and incomplete. ShitBucket enco
 
 1.  **Dump:** Get it out of your head in under 5 seconds.
 2.  **Brew:** Let it sit. Add thoughts, tasks, and links over time.
-3.  **Gold:** Watch the "Brew Progress" bar move from **Raw** to **Gold** as your idea matures.
+3.  **Refine:** Watch the "Brew Progress" bar fill up as your idea matures.
 
 ---
 
