@@ -19,8 +19,10 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import DrawingCanvas from "@/components/ui/DrawingCanvas";
 
-function SortableField({ f, onUpdate, onRemove }) {
+export function SortableField({ f, onUpdate, onRemove, onOpenDraw }) {
+  const [newSketchName, setNewSketchName] = useState("");
   const {
     attributes,
     listeners,
@@ -37,15 +39,27 @@ function SortableField({ f, onUpdate, onRemove }) {
     opacity: isDragging ? 0.6 : 1,
   };
 
+  const addSketch = () => {
+    if (!newSketchName.trim()) return;
+    const sketchId = Math.random().toString(36).slice(2, 9);
+    onOpenDraw(f.id, sketchId, null, newSketchName.trim());
+    setNewSketchName("");
+  };
+
+  const removeSketch = (sid) => {
+    const newVal = (f.value || []).filter(s => s.id !== sid);
+    onUpdate(f.id, newVal);
+  };
+
   const inputClass = `w-full bg-[#FFF8EE] border-2 border-black/20 focus:border-black rounded-xl px-3 py-2.5 text-black font-bold text-[calc((14/12)*var(--base-font-size))] outline-none transition placeholder:text-black/30`;
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className="bg-white border-2 border-black/10 rounded-xl p-4 mb-3 shadow-hard-sm"
+      className="bg-white border-2 border-black/10 rounded-xl p-4 mb-6 shadow-hard-sm"
     >
-      <div className="flex justify-between items-center mb-2.5">
+      <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
           <div
             {...attributes}
@@ -58,102 +72,131 @@ function SortableField({ f, onUpdate, onRemove }) {
               <circle cx="8" cy="2.5" r="1.2" /><circle cx="8" cy="7.5" r="1.2" /><circle cx="8" cy="12.5" r="1.2" />
             </svg>
           </div>
-          <span className="text-[calc((11/12)*var(--base-font-size))] font-extrabold uppercase tracking-wide text-black">{f.name}</span>
+          <span className="text-[calc((11/12)*var(--base-font-size))] font-black uppercase tracking-[0.2em] text-black/40">
+            {f.name}
+          </span>
         </div>
         <button onClick={() => onRemove(f.id)} className="text-black/30 hover:text-black text-base px-1 transition font-bold">×</button>
       </div>
 
-      {(f.type === "text" || f.type === "link") && (
-        <input
-          className={inputClass}
-          value={f.value || ""}
-          onChange={(e) => onUpdate(f.id, e.target.value)}
-          placeholder={f.type === "link" ? "https://..." : "enter value..."}
-        />
-      )}
-      {f.type === "number" && (
-        <input
-          type="number"
-          className={inputClass}
-          value={f.value || ""}
-          onChange={(e) => onUpdate(f.id, e.target.value)}
-          placeholder="0"
-        />
-      )}
-      {f.type === "checkbox" && (
-        <label className="flex items-center gap-3 cursor-pointer">
-          <div
-            className="w-5 h-5 rounded-md border-2 border-black flex items-center justify-center transition-all"
-            style={{ background: f.value ? "#FF6A00" : "transparent" }}
-            onClick={() => onUpdate(f.id, !f.value)}
-          >
-            {f.value && <span className="text-black text-xs font-black">✓</span>}
+      <div className="flex flex-col gap-4">
+        {(f.type === "text" || f.type === "link") && (
+          <input
+            className={inputClass}
+            value={f.value || ""}
+            onChange={(e) => onUpdate(f.id, e.target.value)}
+            placeholder={f.type === "link" ? "https://..." : "enter value..."}
+          />
+        )}
+        {f.type === "number" && (
+          <input
+            type="number"
+            className={inputClass}
+            value={f.value || ""}
+            onChange={(e) => onUpdate(f.id, e.target.value)}
+            placeholder="0"
+          />
+        )}
+        {f.type === "checkbox" && (
+          <label className="flex items-center gap-3 cursor-pointer">
+            <div
+              className="w-5 h-5 rounded-md border-2 border-black flex items-center justify-center transition-all"
+              style={{ background: f.value ? "#FF6A00" : "transparent" }}
+              onClick={() => onUpdate(f.id, !f.value)}
+            >
+              {f.value && <span className="text-black text-xs font-black">✓</span>}
+            </div>
+            <span className="text-[calc((13/12)*var(--base-font-size))] font-bold text-black/50">
+              {f.value ? "yes" : "no"}
+            </span>
+          </label>
+        )}
+        {f.type === "draw" && (
+          <div className="flex flex-col gap-6">
+            {/* List of existing sketches - Full Width */}
+            {Array.isArray(f.value) && f.value.map((sketch) => (
+              <div key={sketch.id} className="relative group">
+                <div className="flex flex-col gap-2">
+                  <div className="flex justify-between items-center px-1">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-black/60">{sketch.name}</span>
+                    <button 
+                      onClick={() => removeSketch(sketch.id)}
+                      className="text-black/20 hover:text-red-500 transition-colors font-bold text-xs"
+                    >
+                      delete
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => onOpenDraw(f.id, sketch.id, sketch.data, sketch.name)}
+                    className="w-full aspect-[4/3] bg-[#FFF8EE] border-2 border-black/10 rounded-2xl overflow-hidden hover:border-black transition-all shadow-hard-sm active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+                  >
+                    <img src={sketch.data} alt={sketch.name} className="w-full h-full object-contain" />
+                  </button>
+                </div>
+              </div>
+            ))}
+
+            {/* Add new drawing input at bottom */}
+            <div className="mt-2 pt-6 border-t-2 border-dashed border-black/5">
+              <div className="flex flex-col gap-3">
+                <p className="text-[9px] font-black uppercase tracking-[0.15em] text-black/30 px-1">add another drawing</p>
+                <div className="flex gap-2">
+                  <input
+                    className="flex-1 bg-[#FFF8EE] border-2 border-black/20 focus:border-black rounded-xl px-4 py-3 text-black font-bold text-[calc((14/12)*var(--base-font-size))] outline-none transition placeholder:text-black/20 shadow-inner"
+                    placeholder="Sketch name..."
+                    value={newSketchName}
+                    onChange={(e) => setNewSketchName(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && addSketch()}
+                  />
+                  <button
+                    onClick={addSketch}
+                    disabled={!newSketchName.trim()}
+                    className="w-14 h-14 rounded-xl bg-black text-white flex items-center justify-center shadow-hard-sm transition-all active:shadow-none active:translate-x-[2px] active:translate-y-[2px] disabled:opacity-20 shrink-0"
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-          <span className="text-[calc((13/12)*var(--base-font-size))] font-bold text-black/50">
-            {f.value ? "yes" : "no"}
-          </span>
-        </label>
-      )}
+        )}
+      </div>
     </div>
   );
 }
 
-export default function CustomFieldsSection({ fields, onAdd, onUpdate, onRemove, onReorder }) {
+export default function AddCustomFieldSection({ onAdd }) {
   const [show, setShow] = useState(false);
   const [name, setName] = useState("");
+  const [sketchName, setSketchName] = useState("");
   const [type, setType] = useState("text");
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
-  );
-
   function handleAdd() {
-    if (!name.trim()) return;
-    onAdd({ name: name.trim(), type, value: type === "checkbox" ? false : "" });
-    setName(""); setType("text"); setShow(false);
-  }
-
-  function handleDragEnd(event) {
-    const { active, over } = event;
-    if (active.id !== over?.id) {
-      const oldIndex = fields.findIndex((f) => f.id === active.id);
-      const newIndex = fields.findIndex((f) => f.id === over.id);
-      onReorder(oldIndex, newIndex);
+    if (type === "draw") {
+      if (!sketchName.trim()) return;
+      onAdd({ name: "draw", type: "draw", value: [], autoDrawName: sketchName.trim() });
+    } else {
+      if (!name.trim()) return;
+      const initialValue = type === "checkbox" ? false : "";
+      onAdd({ name: name.trim(), type, value: initialValue });
     }
+    setName(""); setSketchName(""); setShow(false);
   }
 
   return (
-    <Section label="custom fields">
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-        modifiers={[restrictToVerticalAxis]}
-      >
-        <SortableContext items={fields || []} strategy={verticalListSortingStrategy}>
-          {(fields || []).map(f => (
-            <SortableField key={f.id} f={f} onUpdate={onUpdate} onRemove={onRemove} />
-          ))}
-        </SortableContext>
-      </DndContext>
-
+    <div className="mt-4">
       {!show ? (
         <button
           onClick={() => setShow(true)}
-          className="w-full border-2 border-dashed border-black/20 hover:border-black rounded-xl py-3 text-black/40 hover:text-black font-extrabold text-[calc((12/12)*var(--base-font-size))] mt-1 transition"
+          className="w-full border-2 border-dashed border-black/20 hover:border-black rounded-xl py-4 flex items-center justify-center gap-2 text-black/40 hover:text-black font-extrabold text-[calc((13/12)*var(--base-font-size))] transition bg-white/50"
         >
-          + add field
+          + add custom field
         </button>
       ) : (
-        <div className="flex flex-col gap-2 mt-2">
-          <input
-            className="w-full bg-[#FFF8EE] border-2 border-black/20 focus:border-black rounded-xl px-3 py-2.5 text-black font-bold text-[calc((14/12)*var(--base-font-size))] outline-none transition placeholder:text-black/30"
-            placeholder="field name (e.g. Budget)"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
+        <div className="bg-white border-2 border-black rounded-2xl shadow-hard p-4 flex flex-col gap-3">
           <div className="flex gap-1.5 overflow-x-auto pb-2 no-scrollbar">
             {FIELD_TYPES.map(ft => (
               <button
@@ -171,17 +214,47 @@ export default function CustomFieldsSection({ fields, onAdd, onUpdate, onRemove,
               </button>
             ))}
           </div>
+
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-black text-white flex items-center justify-center shrink-0">
+              {FIELD_TYPES.find(t => t.key === type)?.icon}
+            </div>
+            {type === "draw" ? (
+              <input
+                autoFocus
+                className="w-full bg-[#FFF8EE] border-2 border-black/20 focus:border-black rounded-xl px-3 py-2.5 text-black font-bold text-[calc((14/12)*var(--base-font-size))] outline-none transition placeholder:text-black/30"
+                placeholder="Drawing name (e.g. Penis)"
+                value={sketchName}
+                onChange={(e) => setSketchName(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleAdd()}
+              />
+            ) : (
+              <input
+                autoFocus
+                className="w-full bg-[#FFF8EE] border-2 border-black/20 focus:border-black rounded-xl px-3 py-2.5 text-black font-bold text-[calc((14/12)*var(--base-font-size))] outline-none transition placeholder:text-black/30"
+                placeholder="Field name (e.g. Budget)"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleAdd()}
+              />
+            )}
+          </div>
+
           <div className="flex gap-2">
             <button
               onClick={handleAdd}
-              className="bg-black text-white border-2 border-black rounded-xl px-4 py-2 text-[calc((12/12)*var(--base-font-size))] font-extrabold shadow-hard-sm transition-all active:shadow-none active:translate-x-[3px] active:translate-y-[3px] hover:bg-[#FF6A00] hover:text-white"
+              disabled={type === "draw" ? !sketchName.trim() : !name.trim()}
+              className="flex-1 bg-black text-white border-2 border-black rounded-xl px-4 py-2.5 text-[calc((12/12)*var(--base-font-size))] font-extrabold shadow-hard-sm transition-all active:shadow-none active:translate-x-[3px] active:translate-y-[3px] hover:bg-[#FF6A00] disabled:opacity-30"
             >
-              add
+              {type === "draw" ? "start drawing" : "create field"}
             </button>
-            <button onClick={() => setShow(false)} className="text-black/40 text-[calc((12/12)*var(--base-font-size))] font-bold hover:text-black transition">cancel</button>
+            <button onClick={() => setShow(false)} className="px-4 text-black/40 text-[calc((12/12)*var(--base-font-size))] font-bold hover:text-black transition">cancel</button>
           </div>
         </div>
       )}
-    </Section>
+    </div>
   );
 }
+
+
+

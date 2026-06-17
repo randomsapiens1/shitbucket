@@ -6,11 +6,15 @@ import TagsSection from "./TagsSection";
 import TasksSection from "./TasksSection";
 import ThoughtsSection from "./ThoughtsSection";
 import LinksSection from "./LinksSection";
-import CustomFieldsSection from "./CustomFieldsSection";
+import AddCustomFieldSection, { SortableField } from "./CustomFieldsSection";
 import DetailMenu from "./DetailMenu";
 import CollaboratorsSection from "./CollaboratorsSection";
 import AutoResizeTextarea from "@/components/ui/AutoResizeTextarea";
-import { arrayMove } from "@dnd-kit/sortable";
+import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, TouchSensor } from "@dnd-kit/core";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import Section from "@/components/ui/Section";
+import DrawingCanvas from "@/components/ui/DrawingCanvas";
 
 export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, userId }) {
   const [newThought,        setNewThought]        = useState("");
@@ -20,6 +24,14 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
   const [showCollaborators, setShowCollaborators] = useState(false);
   const [userInitials,      setUserInitials]      = useState("??");
   const [ideaCopied,        setIdeaCopied]        = useState(false);
+  const [activeDraw,        setActiveDraw]        = useState(null);
+  const [copiedFields,      setCopiedFields]      = useState({});
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
+    useSensor(KeyboardSensor, {})
+  );
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -52,6 +64,14 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
     if (idea.links && idea.links.length > 0) {
       prompt += "\nLinks:\n";
       idea.links.forEach(l => prompt += `- ${l.label || l.url}: ${l.url}\n`);
+    }
+
+    if (idea.fields && idea.fields.length > 0) {
+      prompt += "\nCustom Fields:\n";
+      idea.fields.forEach(f => {
+        const val = f.type === "draw" ? (f.value ? "[Drawing Attachment]" : "[Empty Drawing]") : f.value;
+        prompt += `${f.name}: ${val}\n`;
+      });
     }
 
     if (idea.tags && idea.tags.length > 0) {
@@ -104,9 +124,17 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
     onUpdate(i => { i.links = (i.links || []).filter(l => l.id !== lid); });
   }
 
-  function addField({ name, type, value }) {
-    onUpdate(i => { i.fields = [...(i.fields || []), { id: genId(), name, type, value }]; });
+  function addField({ name, type, value, autoDrawName }) {
+    const newId = genId();
+    onUpdate(i => { i.fields = [...(i.fields || []), { id: newId, name, type, value }]; });
+    
+    if (autoDrawName) {
+      setTimeout(() => {
+        setActiveDraw({ fieldId: newId, sketchId: genId(), data: null, name: autoDrawName });
+      }, 0);
+    }
   }
+
   function updateField(fid, value) {
     onUpdate(i => { i.fields = (i.fields || []).map(f => f.id === fid ? { ...f, value } : f); });
   }
@@ -171,12 +199,65 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
     prompt += `\n${label.toUpperCase()}:\n${content}`;
 
     navigator.clipboard.writeText(prompt).then(() => {
-      // We'll use a local state in the section to show "copied"
+      // Handled by local states in sections
     });
   };
 
+  const handleCopyField = (f) => {
+    let val = "";
+    if (f.type === "draw") {
+      if (!f.value || f.value.length === 0) val = "[Empty Drawing Collection]";
+      else {
+        val = (f.value || []).map(s => `- ${s.name.toUpperCase()}: [Drawing]`).join("\n");
+      }
+    } else {
+      val = f.value;
+    }
+    handleCopySection(f.name, val);
+    setCopiedFields(prev => ({ ...prev, [f.id]: true }));
+    setTimeout(() => setCopiedFields(prev => ({ ...prev, [f.id]: false })), 2000);
+  };
+
+  function handleFieldDragEnd(event) {
+    const { active, over } = event;
+    if (active.id !== over?.id) {
+      const oldIndex = idea.fields.findIndex((f) => f.id === active.id);
+      const newIndex = idea.fields.findIndex((f) => f.id === over.id);
+      handleReorderFields(oldIndex, newIndex);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#FFF8EE] text-black pb-24 max-w-xl mx-auto">
+      {activeDraw && (
+        <DrawingCanvas
+          initialData={activeDraw.data}
+          onSave={(newData) => {
+            onUpdate(i => {
+              i.fields = (i.fields || []).map(f => {
+                if (f.id === activeDraw.fieldId) {
+                  const existing = f.value || [];
+                  const exists = existing.find(s => s.id === activeDraw.sketchId);
+                  if (exists) {
+                    return {
+                      ...f,
+                      value: existing.map(s => s.id === activeDraw.sketchId ? { ...s, data: newData } : s)
+                    };
+                  } else {
+                    return {
+                      ...f,
+                      value: [...existing, { id: activeDraw.sketchId, name: activeDraw.name, data: newData }]
+                    };
+                  }
+                }
+                return f;
+              });
+            });
+            setActiveDraw(null);
+          }}
+          onClose={() => setActiveDraw(null)}
+        />
+      )}
 
       {/* Header */}
       <div className="flex justify-between items-center px-4 py-4 border-b-2 border-black bg-white">
@@ -312,13 +393,33 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
           onCopy={(content) => handleCopySection("links & inspo", content)}
         />
 
-        <CustomFieldsSection
-          fields={idea.fields}
-          onAdd={addField}
-          onUpdate={updateField}
-          onRemove={removeField}
-          onReorder={handleReorderFields}
-        />
+        {/* Individual Custom Field Sections */}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleFieldDragEnd}
+          modifiers={[restrictToVerticalAxis]}
+        >
+          <SortableContext items={(idea.fields || []).map(f => f.id)} strategy={verticalListSortingStrategy}>
+            {(idea.fields || []).map(f => (
+              <Section 
+                key={f.id} 
+                label={f.name} 
+                onCopy={() => handleCopyField(f)} 
+                isCopied={copiedFields[f.id]}
+              >
+                <SortableField 
+                  f={f} 
+                  onUpdate={updateField} 
+                  onRemove={removeField} 
+                  onOpenDraw={(fieldId, sketchId, data, name) => setActiveDraw({ fieldId, sketchId, data, name })}
+                />
+              </Section>
+            ))}
+          </SortableContext>
+        </DndContext>
+
+        <AddCustomFieldSection onAdd={addField} />
       </div>
     </div>
   );
