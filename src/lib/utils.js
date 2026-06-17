@@ -102,10 +102,10 @@ export async function fetchYoutubeTitle(url) {
 export function getFriendlyName(url) {
   try {
     const uri = new URL(url);
-    if (uri.hostname.includes("youtube.com") || uri.hostname.includes("youtu.be")) return "YouTube Video";
-    if (uri.hostname.includes("vimeo.com")) return "Vimeo Video";
+    if (uri.hostname.includes("youtube.com") || uri.hostname.includes("youtu.be")) return "YouTube";
+    if (uri.hostname.includes("vimeo.com")) return "Vimeo";
     const domain = uri.hostname.replace("www.", "");
-    return domain.split('.')[0].toUpperCase() + " Article";
+    return domain.split('.')[0].toUpperCase();
   } catch (e) {
     return "Link";
   }

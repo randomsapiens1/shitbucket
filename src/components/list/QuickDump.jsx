@@ -58,6 +58,36 @@ export default function QuickDump({ onDump, allTags = [], allTopics = [] }) {
     setShowSuggestions(false);
   }
 
+  function toggleChecklist() {
+    const textarea = ref.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const value = textarea.value;
+    
+    const linesBefore = value.substring(0, start).split("\n");
+    const currentLineIndex = linesBefore.length - 1;
+    const allLines = value.split("\n");
+    const currentLine = allLines[currentLineIndex];
+
+    if (currentLine.startsWith("- [ ] ")) {
+      // Remove checklist prefix
+      allLines[currentLineIndex] = currentLine.substring(6);
+      textarea.value = allLines.join("\n");
+      const newPos = Math.max(0, start - 6);
+      textarea.setSelectionRange(newPos, newPos);
+    } else {
+      // Add checklist prefix
+      allLines[currentLineIndex] = "- [ ] " + currentLine;
+      textarea.value = allLines.join("\n");
+      const newPos = start + 6;
+      textarea.setSelectionRange(newPos, newPos);
+    }
+    
+    textarea.focus();
+    setCharCount(textarea.value.length);
+  }
+
   useEffect(() => {
     function handleClickOutside(e) {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
@@ -79,17 +109,58 @@ export default function QuickDump({ onDump, allTags = [], allTopics = [] }) {
         </div>
 
         {/* Textarea */}
-        <textarea
-          ref={ref}
-          rows={5}
-          maxLength={500}
-          placeholder="write it down..."
-          onChange={(e) => setCharCount(e.target.value.length)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleDump(); }
-          }}
-          className="w-full rounded-2xl border-2 border-black bg-[#FFF8EE] px-4 py-4 text-black font-bold resize-none outline-none placeholder:text-black/30 text-[calc((15/12)*var(--base-font-size))] leading-relaxed focus:border-black transition"
-        />
+        <div className="relative group/textarea">
+          <textarea
+            ref={ref}
+            rows={5}
+            maxLength={500}
+            placeholder="write it down..."
+            onChange={(e) => setCharCount(e.target.value.length)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) { 
+                const value = ref.current.value;
+                const start = ref.current.selectionStart;
+                const linesBefore = value.substring(0, start).split("\n");
+                const currentLine = linesBefore[linesBefore.length - 1];
+
+                if (currentLine.startsWith("- [ ] ")) {
+                  e.preventDefault();
+                  if (currentLine.trim() === "- [ ]") {
+                    // If line is only the prefix, toggle it off and finish
+                    const before = value.substring(0, start - currentLine.length);
+                    const after = value.substring(start);
+                    ref.current.value = before + (after.startsWith("\n") ? after.substring(1) : after);
+                    ref.current.setSelectionRange(before.length, before.length);
+                    setCharCount(ref.current.value.length);
+                  } else {
+                    // Continue checklist on new line
+                    const before = value.substring(0, start);
+                    const after = value.substring(start);
+                    const added = "\n- [ ] ";
+                    ref.current.value = before + added + after;
+                    ref.current.setSelectionRange(start + added.length, start + added.length);
+                    setCharCount(ref.current.value.length);
+                  }
+                } else {
+                  e.preventDefault(); 
+                  handleDump(); 
+                }
+              }
+            }}
+            className="w-full rounded-2xl border-2 border-black bg-[#FFF8EE] px-4 py-4 text-black font-bold resize-none outline-none placeholder:text-black/30 text-[calc((15/12)*var(--base-font-size))] leading-relaxed focus:border-black transition"
+          />
+          <button
+            type="button"
+            onClick={toggleChecklist}
+            className="absolute bottom-3 right-3 p-2 rounded-xl bg-black/5 hover:bg-black/10 transition-colors text-black/40 hover:text-black"
+            title="Create checklist"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/>
+              <circle cx="4" cy="6" r="1.5" /><circle cx="4" cy="12" r="1.5" /><circle cx="4" cy="18" r="1.5" />
+            </svg>
+          </button>
+        </div>
 
         {/* Topic Selection */}
         <div className="mt-4">

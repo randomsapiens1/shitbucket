@@ -168,16 +168,52 @@ export default function Bucket({ onLogout, userId }) {
       });
   }, [ideas, filterTag, searchQuery, sortBy]);
 
-  const handleDump = useCallback(async (title, tags = [], expiresAt = null, topic = "General") => {
+  const handleDump = useCallback(async (content, tags = [], expiresAt = null, topic = "General") => {
     const tempId = genId();
-    let finalTitle = title.trim();
+    
+    // Parse checklist items
+    const lines = content.split("\n");
+    const taskData = [];
+    const textLines = [];
+
+    lines.forEach(line => {
+      const trimmed = line.trim();
+      if (trimmed.startsWith("- [ ]") || trimmed.startsWith("- [x]") || trimmed.startsWith("- [X]")) {
+        taskData.push({
+          id: genId(),
+          text: trimmed.replace(/^-\s*\[\s*[xX]?\s*\]\s*/, ""),
+          done: trimmed.toLowerCase().startsWith("- [x]"),
+          ts: Date.now()
+        });
+      } else if (trimmed) {
+        textLines.push(trimmed);
+      }
+    });
+
+    let finalTitle = "";
     let initialThought = "";
 
+    if (textLines.length > 0) {
+      finalTitle = textLines[0];
+      if (textLines.length > 1) {
+        initialThought = textLines.slice(1).join("\n");
+      }
+    } else if (taskData.length > 0) {
+      finalTitle = taskData[0].text || "Untitled Checklist";
+    } else {
+      finalTitle = content.trim();
+    }
+
     // If the title is just a single link, try to fetch its real title
-    if (isVideoLink(finalTitle)) {
+    const isLink = /^https?:\/\/[^\s]+$/.test(finalTitle);
+    if (textLines.length === 1 && isLink && taskData.length === 0) {
       initialThought = finalTitle; // Move link to thought so it's not lost
-      const fetchedTitle = await fetchYoutubeTitle(finalTitle);
-      finalTitle = fetchedTitle || getFriendlyName(finalTitle);
+      if (isVideoLink(finalTitle)) {
+        const fetchedTitle = await fetchYoutubeTitle(finalTitle);
+        finalTitle = fetchedTitle || getFriendlyName(finalTitle);
+      } else {
+        finalTitle = getFriendlyName(finalTitle);
+      }
     }
 
     const optimisticIdea = {
@@ -193,13 +229,20 @@ export default function Bucket({ onLogout, userId }) {
       thoughts: [],
       links: [],
       fields: [],
-      tasks: [],
+      tasks: taskData,
     };
 
     setIdeas(prev => [optimisticIdea, ...prev]);
 
     try {
-      const newIdea = await createIdea({ title: finalTitle, thought: initialThought, tags, expires_at: expiresAt, topic });
+      const newIdea = await createIdea({ 
+        title: finalTitle, 
+        thought: initialThought, 
+        tags, 
+        expires_at: expiresAt, 
+        topic,
+        tasks: taskData 
+      });
       setIdeas(prev => prev.map(i => i.id === tempId ? newIdea : i));
     } catch (e) {
       setIdeas(prev => prev.filter(i => i.id !== tempId));
