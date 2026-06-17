@@ -7,8 +7,9 @@
   "scope": "/",
   "display": "standalone",
   "background_color": "#FFF8EE",
-  "theme_color": "#FF6A00",
-  "orientation": "portrait",
+  "theme_color": "#FFF8EE",
+  "orientation": "any",
+
   "icons": [
     {
       "src": "/logo-shitBucket-day.png",

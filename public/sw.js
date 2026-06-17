@@ -1,4 +1,4 @@
-const CACHE_NAME = "shitbucket-v10";
+const CACHE_NAME = "shitbucket-v11";
 const STATIC_ASSETS = [
   "/",
   "/about",
