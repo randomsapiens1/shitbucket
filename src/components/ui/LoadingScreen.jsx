@@ -31,7 +31,23 @@ export default function LoadingScreen() {
             scouring the bucket
           </div>
         </div>
+
+        {/* Manual Reset for Mobile/Stuck states */}
+        <div className="mt-20 flex flex-col items-center gap-2">
+          <p className="text-[9px] font-bold text-black/20 uppercase tracking-widest">taking too long?</p>
+          <button 
+            onClick={() => {
+              localStorage.clear();
+              sessionStorage.clear();
+              window.location.reload();
+            }}
+            className="text-[10px] font-black uppercase text-[#FF6A00] border-2 border-[#FF6A00]/20 hover:border-[#FF6A00] rounded-full px-4 py-1.5 transition-all active:scale-95"
+          >
+            Reset App Cache
+          </button>
+        </div>
       </div>
+
     </div>
   );
 }

@@ -1,4 +1,4 @@
-const CACHE_NAME = "shitbucket-v5";
+const CACHE_NAME = "shitbucket-v7";
 const STATIC_ASSETS = [
   "/",
   "/about",
@@ -33,36 +33,41 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  // Only handle GET requests
   if (event.request.method !== "GET") return;
-
-  // Handle Supabase/API calls differently (network only or very short cache)
   if (event.request.url.includes("supabase.co")) return;
 
+  const isHtml = event.request.mode === "navigate" || 
+                 event.request.headers.get("accept").includes("text/html");
+
+  if (isHtml) {
+    // Network first for HTML/Navigation
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // Stale-while-revalidate for assets
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        // Stale-while-revalidate: return cached, but update in background
-        fetch(event.request).then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, networkResponse);
-            });
-          }
-        });
-        return cachedResponse;
-      }
-
-      return fetch(event.request).then((response) => {
-        if (!response || response.status !== 200 || response.type !== "basic") {
-          return response;
+      const fetchPromise = fetch(event.request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, networkResponse);
+          });
         }
-        const responseToCache = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
-        return response;
+        return networkResponse;
       });
+      return cachedResponse || fetchPromise;
     })
   );
 });
+

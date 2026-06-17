@@ -119,6 +119,30 @@ export default function HamburgerMenu({ open, onClose, fontSize, setFontSize, on
             </div>
           </div>
 
+          {/* System */}
+          <div>
+            <p className="text-[calc((10/12)*var(--base-font-size))] font-extrabold uppercase tracking-[0.15em] text-black mb-2">System</p>
+            <button
+              onClick={() => {
+                if ('serviceWorker' in navigator) {
+                  navigator.serviceWorker.ready.then(reg => {
+                    reg.update().then(() => {
+                      window.location.reload();
+                    });
+                  });
+                } else {
+                  window.location.reload();
+                }
+              }}
+              className="w-full bg-white border-2 border-black rounded-2xl shadow-hard-sm p-4 flex items-center justify-between hover:bg-black/5 transition-all active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
+            >
+              <span className="text-[calc((12/12)*var(--base-font-size))] font-extrabold text-black">Force Update App</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 2v6h-6M3 22v-6h6M21 13a9 9 0 1 1-3-7.7L21 8M3 11a9 9 0 0 1 3-7.7L3 6" />
+              </svg>
+            </button>
+          </div>
+
         </div>
 
         {/* Footer: sign out */}
@@ -137,7 +161,7 @@ export default function HamburgerMenu({ open, onClose, fontSize, setFontSize, on
             {lateNight ? "🚨 get out" : "sign out"}
           </button>
           <p className="text-center text-[calc((10/12)*var(--base-font-size))] font-bold text-black/30 mt-3">
-            shitbucket v1.0.0 · made for the dumpers
+            shitbucket v1.1.0 · made for the dumpers
           </p>
         </div>
       </div>
