@@ -1,5 +1,6 @@
 import SWRegistration from "@/components/ui/SWRegistration";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { PHProvider } from "./providers";
 import "./globals.css";
 
@@ -81,6 +82,7 @@ export default function RootLayout({ children }) {
         <PHProvider>
           {children}
           <Analytics />
+          <SpeedInsights />
           <SWRegistration />
         </PHProvider>
       </body>
