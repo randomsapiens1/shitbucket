@@ -2,6 +2,7 @@ import SWRegistration from "@/components/ui/SWRegistration";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { PHProvider } from "./providers";
+import Script from "next/script";
 import "./globals.css";
 
 export const metadata = {
@@ -79,6 +80,15 @@ export default function RootLayout({ children }) {
         <link rel="apple-touch-icon" href="/logo-shitBucket-day.png" />
       </head>
       <body>
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-CM5EDFY44L" strategy="afterInteractive" />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-CM5EDFY44L');
+          `}
+        </Script>
         <PHProvider>
           {children}
           <Analytics />
