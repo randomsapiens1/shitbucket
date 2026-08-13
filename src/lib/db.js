@@ -1,6 +1,16 @@
 import { supabase } from "./supabase";
 
-const CORE_COLUMNS = "id, user_id, title, thought, thoughts, tags, links, fields, tasks, pinned, expires_at, created_at, updated_at, topic";
+const OPTIONAL_COLUMNS = ["pinned", "expires_at", "topic", "template_data"];
+const CORE_COLUMNS = `id, user_id, title, thought, thoughts, tags, links, fields, tasks, created_at, updated_at, ${OPTIONAL_COLUMNS.join(", ")}`;
+
+function isSchemaError(e) {
+  return e.code === "PGRST204" || OPTIONAL_COLUMNS.some(c => e.message?.includes(c));
+}
+
+// Only the specific columns named in the error are unsupported by this DB - keep the rest.
+function missingColumns(e) {
+  return OPTIONAL_COLUMNS.filter(c => e.message?.includes(c));
+}
 
 export async function fetchIdeas() {
   try {
@@ -12,13 +22,13 @@ export async function fetchIdeas() {
     if (error) throw error;
     return data || [];
   } catch (e) {
-    const isSchemaError = e.message?.includes("expires_at") || e.message?.includes("pinned") || e.message?.includes("topic") || e.code === "PGRST204";
-    
-    if (isSchemaError) {
-      console.warn("Schema mismatch, using base columns.");
+    if (isSchemaError(e)) {
+      const missing = new Set(missingColumns(e));
+      const fallbackColumns = ["id, user_id, title, thought, thoughts, tags, links, fields, tasks, created_at, updated_at", ...OPTIONAL_COLUMNS.filter(c => !missing.has(c))].join(", ");
+      console.warn(`Schema mismatch (missing: ${[...missing].join(", ") || "unknown"}), retrying without those columns.`);
       const { data, error } = await supabase
         .from("ideas")
-        .select("id, user_id, title, thought, thoughts, tags, links, fields, tasks, created_at, updated_at")
+        .select(fallbackColumns)
         .order("updated_at", { ascending: false });
       if (error) throw error;
       return data || [];
@@ -43,6 +53,7 @@ export async function createIdea(idea) {
     fields: idea.fields || [],
     tasks: idea.tasks || [],
     topic: idea.topic || "General",
+    template_data: idea.template_data || {},
   };
 
   // Only send these if they are truthy to avoid schema errors on old databases
@@ -59,14 +70,14 @@ export async function createIdea(idea) {
     if (error) throw error;
     return data;
   } catch (e) {
-    const isSchemaError = e.message?.includes("expires_at") || e.message?.includes("pinned") || e.message?.includes("topic") || e.code === "PGRST204";
-
-    if (isSchemaError) {
-      const { pinned: _p, expires_at: _e, topic: _t, ...safePayload } = payload;
+    if (isSchemaError(e)) {
+      const missing = new Set(missingColumns(e));
+      const safePayload = Object.fromEntries(Object.entries(payload).filter(([k]) => !missing.has(k)));
+      const retryColumns = ["id, user_id, title, thought, thoughts, tags, links, fields, tasks, created_at, updated_at", ...OPTIONAL_COLUMNS.filter(c => !missing.has(c))].join(", ");
       const { data: retryData, error: retryError } = await supabase
         .from("ideas")
         .insert(safePayload)
-        .select("id, user_id, title, thought, thoughts, tags, links, fields, tasks, created_at, updated_at")
+        .select(retryColumns)
         .single();
       if (retryError) throw retryError;
       return retryData;
@@ -87,15 +98,15 @@ export async function updateIdea(id, updates) {
     if (error) throw error;
     return data;
   } catch (e) {
-    const isSchemaError = e.message?.includes("expires_at") || e.message?.includes("pinned") || e.message?.includes("topic") || e.code === "PGRST204";
-    
-    if (isSchemaError) {
-      const { pinned: _pinned, expires_at: _expires_at, topic: _topic, ...safeUpdates } = updates;
+    if (isSchemaError(e)) {
+      const missing = new Set(missingColumns(e));
+      const safeUpdates = Object.fromEntries(Object.entries(updates).filter(([k]) => !missing.has(k)));
+      const retryColumns = ["id, user_id, title, thought, thoughts, tags, links, fields, tasks, created_at, updated_at", ...OPTIONAL_COLUMNS.filter(c => !missing.has(c))].join(", ");
       const { data: retryData, error: retryError } = await supabase
         .from("ideas")
         .update(safeUpdates)
         .eq("id", id)
-        .select("id, user_id, title, thought, thoughts, tags, links, fields, tasks, created_at, updated_at")
+        .select(retryColumns)
         .single();
       if (retryError) throw retryError;
       return retryData;

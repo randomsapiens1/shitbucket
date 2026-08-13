@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { fetchIdeas, createIdea, updateIdea as dbUpdateIdea, deleteIdea as dbDeleteIdea } from "@/lib/db";
 import { genId, isVideoLink, fetchYoutubeTitle, getFriendlyName } from "@/lib/utils";
+import { getTopicTemplate } from "@/lib/topicTemplates";
 import LoadingScreen from "@/components/ui/LoadingScreen";
 import ListView from "@/components/list/ListView";
 import DetailView from "@/components/detail/DetailView";
@@ -167,8 +168,19 @@ export default function Bucket({ onLogout, userId }) {
   }, [ideas, filterTag, searchQuery, sortBy]);
 
   const handleDump = useCallback(async (content, tags = [], expiresAt = null, topic = "General") => {
+    // Template topics (e.g. "workout") are a single ongoing tab per person -
+    // route into the existing one instead of fragmenting the log across duplicates.
+    if (getTopicTemplate(topic)) {
+      const existing = ideas.find(i => (i.topic || "General").toLowerCase() === topic.trim().toLowerCase());
+      if (existing) {
+        setActiveId(existing.id);
+        setView("detail");
+        return;
+      }
+    }
+
     const tempId = genId();
-    
+
     // Parse checklist items
     const lines = content.split("\n");
     const taskData = [];
@@ -247,7 +259,7 @@ export default function Bucket({ onLogout, userId }) {
       console.error("Failed to create:", e.message || e);
       alert("Failed to save idea. Check your connection.");
     }
-  }, []);
+  }, [ideas]);
 
   // Handle Web Share Target
   useEffect(() => {
@@ -295,6 +307,7 @@ export default function Bucket({ onLogout, userId }) {
         pinned:     updated.pinned,
         expires_at: updated.expires_at,
         topic:      updated.topic,
+        template_data: updated.template_data,
       };
 
       dbUpdateIdea(id, payload).catch(e => {

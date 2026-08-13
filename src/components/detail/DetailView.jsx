@@ -15,8 +15,10 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import Section from "@/components/ui/Section";
 import DrawingCanvas from "@/components/ui/DrawingCanvas";
+import { getTopicTemplate } from "@/lib/topicTemplates";
 
 export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, userId }) {
+  const TopicTemplate = getTopicTemplate(idea.topic);
   const [newThought,        setNewThought]        = useState("");
   const [newTag,            setNewTag]            = useState("");
   const [newTask,           setNewTask]           = useState("");
@@ -346,86 +348,93 @@ export default function DetailView({ idea, allTags, onBack, onUpdate, onDelete, 
           <CollaboratorsSection idea={idea} />
         )}
 
-        {/* Main Thought / Description */}
-        <div className="mb-8">
-          <AutoResizeTextarea
-            className="w-full bg-white border-2 border-black/10 focus:border-black rounded-2xl px-5 py-4 text-black text-[calc((15/12)*var(--base-font-size))] font-bold outline-none transition placeholder:text-black/20 shadow-hard-sm focus:shadow-hard"
-            placeholder="What's the main gist?"
-            value={idea.thought || ""}
-            onChange={(e) => onUpdate(i => { i.thought = e.target.value; })}
-            rows={2}
-          />
-        </div>
+        {TopicTemplate ? (
+          <div className="mb-8">
+            <TopicTemplate idea={idea} onUpdate={onUpdate} />
+          </div>
+        ) : (
+          <>
+            <div className="mb-8">
+              <AutoResizeTextarea
+                className="w-full bg-white border-2 border-black/10 focus:border-black rounded-2xl px-5 py-4 text-black text-[calc((15/12)*var(--base-font-size))] font-bold outline-none transition placeholder:text-black/20 shadow-hard-sm focus:shadow-hard"
+                placeholder="What's the main gist?"
+                value={idea.thought || ""}
+                onChange={(e) => onUpdate(i => { i.thought = e.target.value; })}
+                rows={2}
+              />
+            </div>
 
-        <TagsSection
-          tags={idea.tags}
-          allTags={allTags}
-          newTag={newTag}
-          setNewTag={setNewTag}
-          onAdd={addTag}
-          onRemove={removeTag}
-        />
+            <TagsSection
+              tags={idea.tags}
+              allTags={allTags}
+              newTag={newTag}
+              setNewTag={setNewTag}
+              onAdd={addTag}
+              onRemove={removeTag}
+            />
 
-        <ThoughtsSection
-          thoughts={idea.thoughts}
-          newThought={newThought}
-          setNewThought={setNewThought}
-          onAdd={addThought}
-          onRemove={removeThought}
-          onUpdate={updateThought}
-          onReorder={handleReorderThoughts}
-          currentUserInitials={userInitials}
-          onCopy={(content) => handleCopySection("thoughts", content)}
-        />
+            <ThoughtsSection
+              thoughts={idea.thoughts}
+              newThought={newThought}
+              setNewThought={setNewThought}
+              onAdd={addThought}
+              onRemove={removeThought}
+              onUpdate={updateThought}
+              onReorder={handleReorderThoughts}
+              currentUserInitials={userInitials}
+              onCopy={(content) => handleCopySection("thoughts", content)}
+            />
 
-        <TasksSection
-          tasks={idea.tasks}
-          newTask={newTask}
-          setNewTask={setNewTask}
-          onAdd={addTask}
-          onToggle={toggleTask}
-          onRemove={removeTask}
-          onUpdate={updateTask}
-          onReorder={handleReorderTasks}
-          currentUserInitials={userInitials}
-          onCopy={(content) => handleCopySection("tasks", content)}
-        />
+            <TasksSection
+              tasks={idea.tasks}
+              newTask={newTask}
+              setNewTask={setNewTask}
+              onAdd={addTask}
+              onToggle={toggleTask}
+              onRemove={removeTask}
+              onUpdate={updateTask}
+              onReorder={handleReorderTasks}
+              currentUserInitials={userInitials}
+              onCopy={(content) => handleCopySection("tasks", content)}
+            />
 
-        <LinksSection
-          links={idea.links}
-          onAdd={addLink}
-          onRemove={removeLink}
-          onReorder={handleReorderLinks}
-          onCopy={(content) => handleCopySection("links & inspo", content)}
-        />
+            <LinksSection
+              links={idea.links}
+              onAdd={addLink}
+              onRemove={removeLink}
+              onReorder={handleReorderLinks}
+              onCopy={(content) => handleCopySection("links & inspo", content)}
+            />
 
-        {/* Individual Custom Field Sections */}
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleFieldDragEnd}
-          modifiers={[restrictToVerticalAxis]}
-        >
-          <SortableContext items={(idea.fields || []).map(f => f.id)} strategy={verticalListSortingStrategy}>
-            {(idea.fields || []).map(f => (
-              <Section 
-                key={f.id} 
-                label={f.name} 
-                onCopy={() => handleCopyField(f)} 
-                isCopied={copiedFields[f.id]}
-              >
-                <SortableField 
-                  f={f} 
-                  onUpdate={updateField} 
-                  onRemove={removeField} 
-                  onOpenDraw={(fieldId, sketchId, data, name) => setActiveDraw({ fieldId, sketchId, data, name })}
-                />
-              </Section>
-            ))}
-          </SortableContext>
-        </DndContext>
+            {/* Individual Custom Field Sections */}
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleFieldDragEnd}
+              modifiers={[restrictToVerticalAxis]}
+            >
+              <SortableContext items={(idea.fields || []).map(f => f.id)} strategy={verticalListSortingStrategy}>
+                {(idea.fields || []).map(f => (
+                  <Section
+                    key={f.id}
+                    label={f.name}
+                    onCopy={() => handleCopyField(f)}
+                    isCopied={copiedFields[f.id]}
+                  >
+                    <SortableField
+                      f={f}
+                      onUpdate={updateField}
+                      onRemove={removeField}
+                      onOpenDraw={(fieldId, sketchId, data, name) => setActiveDraw({ fieldId, sketchId, data, name })}
+                    />
+                  </Section>
+                ))}
+              </SortableContext>
+            </DndContext>
 
-        <AddCustomFieldSection onAdd={addField} />
+            <AddCustomFieldSection onAdd={addField} />
+          </>
+        )}
       </div>
     </div>
   );

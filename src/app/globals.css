@@ -4,6 +4,7 @@
 
 @layer base {
   :root {
+    color-scheme: light;
     --bg:           #FFF8EE;
     --card:         #FFFFFF;
     --border:       rgba(18, 18, 18, 0.12);

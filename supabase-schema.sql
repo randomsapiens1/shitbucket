@@ -18,8 +18,12 @@ create table if not exists public.ideas (
   pinned boolean default false,
   expires_at timestamptz,
   created_at timestamptz default now(),
-  updated_at timestamptz default now()
+  updated_at timestamptz default now(),
+  template_data jsonb default '{}'::jsonb
 );
+
+-- Backfill for existing databases (create table above only runs on fresh installs)
+alter table public.ideas add column if not exists template_data jsonb default '{}'::jsonb;
 
 -- 2. Clean up old sharing table (removed in favor of collaborator-only sharing)
 drop table if exists public.shared_links cascade;
