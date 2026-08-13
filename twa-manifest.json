@@ -1,0 +1,30 @@
+{
+  "packageId": "com.shitbucket.twa",
+  "host": "www.shitbucket.fyi",
+  "name": "ShitBucket — Dump your ideas, let them brew.",
+  "launcherName": "ShitBucket",
+  "display": "standalone",
+  "themeColor": "#FFF8EE",
+  "navigationColor": "#FFF8EE",
+  "backgroundColor": "#FFF8EE",
+  "enableNotifications": true,
+  "startUrl": "/",
+  "iconUrl": "https://www.shitbucket.fyi/logo-shitBucket-day.png",
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "android"
+  },
+  "splashScreenFadeOutDuration": 300,
+  "webManifestUrl": "https://www.shitbucket.fyi/manifest.json",
+  "orientation": "any",
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "appVersion": "1.0.0",
+  "appVersionCode": 1,
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": false,
+  "enableSiteSettingsShortcut": true,
+  "fingerprints": [],
+  "additionalTrustedOrigins": []
+}

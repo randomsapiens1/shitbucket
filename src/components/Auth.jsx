@@ -47,7 +47,7 @@ export default function Auth() {
     if (result.error) setError(result.error.message);
   }
 
-  const inputClass = `w-full bg-[#FFF8EE] border-2 border-black rounded-xl px-5 py-4 text-black font-bold text-[calc((14/12)*var(--base-font-size))] outline-none transition placeholder:text-black/20 focus:border-[#FF6A00] focus:shadow-hard-sm`;
+  const inputClass = `w-full bg-[#FFF8EE] border-2 border-black rounded-xl px-5 py-4 text-black font-bold text-[calc((14/12)*var(--base-font-size))] outline-none transition placeholder:text-black/20 focus:border-[#FF6A00]`;
   const labelClass = `text-[10px] font-black uppercase tracking-[0.2em] text-black/40 ml-1 mb-1.5 block`;
 
   return (

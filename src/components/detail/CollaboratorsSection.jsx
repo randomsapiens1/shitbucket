@@ -17,7 +17,7 @@ export default function CollaboratorsSection({ idea }) {
     setGenerating(true);
     try {
       const token = await createCollabInvite(idea.id, idea.title);
-      setInviteLink(`${window.location.origin}/invite/${token}`);
+      setInviteLink(`${window.location.origin}/invite?token=${token}`);
     } catch (e) {
       console.error("Failed to create invite:", e);
     }

@@ -1,11 +1,12 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { getCollabInvite, acceptCollabInvite } from "@/lib/db";
 
-export default function InvitePage() {
-  const { token } = useParams();
+function InviteContent() {
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
   const router = useRouter();
 
   const [invite,   setInvite]   = useState(null);
@@ -18,6 +19,10 @@ export default function InvitePage() {
   const [isSignUp, setIsSignUp] = useState(false);
 
   useEffect(() => {
+    if (!token) {
+      setLoading(false);
+      return;
+    }
     async function init() {
       const [inviteData, { data: { session: sess } }] = await Promise.all([
         getCollabInvite(token),
@@ -37,7 +42,7 @@ export default function InvitePage() {
 
   async function joinBucket(sess) {
     const activeSession = sess ?? session;
-    if (!activeSession) return;
+    if (!activeSession || !token) return;
     setJoining(true);
     setError("");
     try {
@@ -50,6 +55,7 @@ export default function InvitePage() {
   }
 
   async function handleAuth() {
+    if (!token) return;
     setJoining(true);
     setError("");
     const result = isSignUp
@@ -72,7 +78,7 @@ export default function InvitePage() {
     );
   }
 
-  if (!invite) {
+  if (!token || !invite) {
     return (
       <div className="min-h-screen bg-[#FFF8EE] flex flex-col items-center justify-center gap-4 px-4">
         <div className="text-4xl">🪣</div>
@@ -166,5 +172,17 @@ export default function InvitePage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function InvitePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#FFF8EE] flex items-center justify-center">
+        <div className="text-5xl">🪣</div>
+      </div>
+    }>
+      <InviteContent />
+    </Suspense>
   );
 }
