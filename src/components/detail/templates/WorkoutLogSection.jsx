@@ -13,7 +13,7 @@ import {
   estimateOneRepMax,
   getPersonalRecords,
   WEEKDAY_LABELS,
-  MUSCLE_GROUPS,
+  MOVEMENT_PATTERNS,
 } from "@/lib/workoutLog";
 
 function cleanSets(sets) {
@@ -62,10 +62,10 @@ function SetRows({ sets, onUpdateSet, onRemoveSet }) {
   );
 }
 
-function MuscleGroupPicker({ value, onChange }) {
+function MovementPatternPicker({ value, onChange }) {
   return (
     <div className="flex flex-wrap gap-1.5 mb-2">
-      {MUSCLE_GROUPS.map(g => (
+      {MOVEMENT_PATTERNS.map(g => (
         <button
           key={g}
           onClick={() => onChange(value === g ? "" : g)}
@@ -307,7 +307,7 @@ export default function WorkoutLogSection({ idea, onUpdate }) {
                     value={editExercise}
                     onChange={(ev) => setEditExercise(ev.target.value)}
                   />
-                  <MuscleGroupPicker value={editCategory} onChange={setEditCategory} />
+                  <MovementPatternPicker value={editCategory} onChange={setEditCategory} />
                   <SetRows sets={editSets} onUpdateSet={updateEditSet} onRemoveSet={removeEditSetRow} />
                   <div className="flex items-center justify-between">
                     <button
@@ -394,7 +394,7 @@ export default function WorkoutLogSection({ idea, onUpdate }) {
             onChange={(e) => setExercise(e.target.value)}
           />
 
-          <MuscleGroupPicker value={category} onChange={setCategory} />
+          <MovementPatternPicker value={category} onChange={setCategory} />
 
           <SetRows sets={sets} onUpdateSet={updateSet} onRemoveSet={removeSetRow} />
 

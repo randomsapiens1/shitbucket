@@ -1,5 +1,5 @@
 export const WEEKDAY_LABELS = ["S", "M", "T", "W", "T", "F", "S"];
-export const MUSCLE_GROUPS = ["push", "pull", "legs", "core", "cardio"];
+export const MOVEMENT_PATTERNS = ["squat", "hinge", "push", "pull", "lunge", "rotate", "carry"];
 
 // Local date key (not UTC) so "today" matches the user's calendar day
 export function dateKey(d = new Date()) {
