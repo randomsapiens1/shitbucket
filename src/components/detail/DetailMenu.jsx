@@ -1,8 +1,10 @@
 "use client";
 import { useState } from "react";
+import { getTopicTemplate } from "@/lib/topicTemplates";
 
 export default function DetailMenu({ show, onClose, onDelete, isOwner, idea, onShowCollaborators }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const isPermanent = !!getTopicTemplate(idea.topic);
 
   if (!show) return null;
 
@@ -25,7 +27,7 @@ export default function DetailMenu({ show, onClose, onDelete, isOwner, idea, onS
             </button>
           )}
           
-          {isOwner && (
+          {isOwner && !isPermanent && (
             <button
               className="flex items-center gap-3 w-full text-left text-black font-bold text-[calc((13/12)*var(--base-font-size))] px-3 py-2.5 rounded-xl hover:bg-[#FFB3D0] transition mt-1"
               onClick={() => setConfirmDelete(true)}
@@ -38,6 +40,12 @@ export default function DetailMenu({ show, onClose, onDelete, isOwner, idea, onS
               </svg>
               flush forever?
             </button>
+          )}
+
+          {isOwner && isPermanent && (
+            <p className="text-black/30 font-bold text-[calc((11/12)*var(--base-font-size))] px-3 py-2.5">
+              {`this is your permanent ${idea.topic} tab — can't be flushed.`}
+            </p>
           )}
         </>
       ) : (

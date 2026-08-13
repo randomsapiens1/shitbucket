@@ -57,7 +57,7 @@ export default function Bucket({ onLogout, userId }) {
   useEffect(() => {
     if (ideas.length === 0) return;
     const now     = new Date();
-    const expired = ideas.filter(i => i.expires_at && new Date(i.expires_at) <= now);
+    const expired = ideas.filter(i => i.expires_at && new Date(i.expires_at) <= now && !getTopicTemplate(i.topic));
     if (expired.length > 0) {
       const ids = expired.map(i => i.id);
       const timer = setTimeout(async () => {
@@ -177,6 +177,8 @@ export default function Bucket({ onLogout, userId }) {
         setView("detail");
         return;
       }
+      // Permanent topics never expire, even on first creation
+      expiresAt = null;
     }
 
     const tempId = genId();
@@ -323,8 +325,8 @@ export default function Bucket({ onLogout, userId }) {
   const handleDeleteIdea = useCallback(async (id) => {
     setIdeas(prev => {
       const deletedIdea = prev.find(i => i.id === id);
-      if (!deletedIdea) return prev;
-      
+      if (!deletedIdea || getTopicTemplate(deletedIdea.topic)) return prev;
+
       // Optimistic delete
       const newIdeas = prev.filter(i => i.id !== id);
       
