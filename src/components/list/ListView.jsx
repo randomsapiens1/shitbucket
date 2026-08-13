@@ -123,6 +123,8 @@ export default function ListView({
         setFontSize={setFontSize}
         onLogout={onLogout}
         lateNight={lateNight}
+        ideas={ideas}
+        onSelectIdea={onSelectIdea}
       />
 
       {/* ── Header (logo + clock + menu merged) ── */}

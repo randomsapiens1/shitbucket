@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { getTopicTemplate } from "@/lib/topicTemplates";
 
 function getTimeOfDayIcon(h) {
   if (h >= 5  && h < 12) return "☀";
@@ -9,9 +10,11 @@ function getTimeOfDayIcon(h) {
   return "●";
 }
 
-export default function HamburgerMenu({ open, onClose, fontSize, setFontSize, onLogout, lateNight }) {
+export default function HamburgerMenu({ open, onClose, fontSize, setFontSize, onLogout, lateNight, ideas = [], onSelectIdea }) {
   const [user, setUser] = useState(null);
   const [now,  setNow]  = useState(null);
+
+  const permanentTabs = ideas.filter(i => getTopicTemplate(i.topic));
 
   useEffect(() => {
     if (open) {
@@ -90,6 +93,27 @@ export default function HamburgerMenu({ open, onClose, fontSize, setFontSize, on
                   {user.email[0].toUpperCase()}
                 </div>
                 <p className="text-[calc((12/12)*var(--base-font-size))] font-extrabold text-black truncate">{user.email}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Permanent tabs (workout, etc.) */}
+          {permanentTabs.length > 0 && (
+            <div>
+              <p className="text-[calc((10/12)*var(--base-font-size))] font-extrabold uppercase tracking-[0.15em] text-black mb-2">Tabs</p>
+              <div className="flex flex-col gap-2">
+                {permanentTabs.map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => { onSelectIdea(tab.id); onClose(); }}
+                    className="w-full bg-white border-2 border-black rounded-2xl shadow-hard-sm p-4 flex items-center justify-between hover:bg-[#FF6A00]/10 transition-all active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
+                  >
+                    <span className="text-[calc((12/12)*var(--base-font-size))] font-extrabold text-black capitalize">{tab.topic}</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                  </button>
+                ))}
               </div>
             </div>
           )}
