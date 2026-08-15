@@ -1,6 +1,33 @@
 import { generateText } from "ai";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 
+const PROMPTS = {
+  day: (label, log) =>
+    `Analyze this single workout session I just completed.\n\n` +
+    `Workout Log (${label}):\n${log}\n\n` +
+    `Please provide a short analysis covering:\n` +
+    `- Overall volume and intensity of this session.\n` +
+    `- Exercise order efficiency (did exercise selection or order cause early fatigue?).\n` +
+    `- Quick form/recovery tips or immediate adjustments for next time.`,
+
+  week: (label, log) =>
+    `Analyze my workout log for this past week.\n\n` +
+    `Weekly Log (${label}):\n${log}\n\n` +
+    `Please provide a concise analysis covering:\n` +
+    `- Push vs. Pull & Upper vs. Lower Balance: Are any muscle groups over- or under-trained?\n` +
+    `- Volume & Fatigue Check: Did my strength drop off significantly across sets or sessions?\n` +
+    `- Action Plan: 2-3 actionable tweaks for next week to maintain progressive overload.`,
+
+  month: (label, log) =>
+    `Analyze my workout logs from this past month.\n\n` +
+    `Monthly Log (${label}):\n${log}\n\n` +
+    `Please provide a short, high-level analysis covering:\n` +
+    `- Strength Progression: Clear callouts of exercises where weights/reps increased vs. where I plateaued.\n` +
+    `- Structural Balance & Gaps: Muscle balance ratio (push/pull/legs) and any missing movement patterns.\n` +
+    `- Adaptation Focus: Whether my training currently favors strength, hypertrophy, or muscular endurance based on rep ranges.\n` +
+    `- Realistic Calorie Burn Estimate: Total estimated active calorie burn across all sessions.`,
+};
+
 export async function POST(req) {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
@@ -13,24 +40,13 @@ export async function POST(req) {
   }
 
   const openrouter = createOpenRouter({ apiKey });
+  const buildPrompt = PROMPTS[scope] || PROMPTS.day;
 
   try {
     const { text } = await generateText({
       model: openrouter("deepseek/deepseek-v4-flash"),
       temperature: 0.3,
-      prompt:
-        `You're reviewing a lifter's ${scope} log for ${label}.\n\n` +
-        `Raw log (date: exercise sets):\n${log}\n\n` +
-        `Rewrite this as a tight, specific breakdown - NOT a paragraph, no fluff, no commentary. ` +
-        `One line per exercise, restating the exact sets and reps from the log verbatim (never invent or round numbers). ` +
-        `If the same exercise appears on multiple days, list it once per day. ` +
-        `After the exercise lines, add one final line estimating total calories burned across the whole ${scope}, ` +
-        `based on typical strength-training energy expenditure - clearly mark it as a rough estimate.\n\n` +
-        `Use exactly this format, nothing else:\n` +
-        `<exercise>: <set1>, <set2>, ...\n` +
-        `<exercise>: <set1>, <set2>, ...\n` +
-        `...\n` +
-        `est. calories burned: ~<number> kcal (rough estimate)`,
+      prompt: buildPrompt(label, log),
     });
 
     return Response.json({ summary: text });
