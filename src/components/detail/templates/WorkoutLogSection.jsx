@@ -96,7 +96,7 @@ export default function WorkoutLogSection({ idea, onUpdate }) {
   const [editCategory, setEditCategory] = useState("");
   const [editSets, setEditSets] = useState([]);
 
-  const [summaryScope, setSummaryScope] = useState("week");
+  const [summaryScope, setSummaryScope] = useState("day");
   const [aiSummary, setAiSummary] = useState(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState("");
@@ -108,12 +108,16 @@ export default function WorkoutLogSection({ idea, onUpdate }) {
   });
 
   const selectedDateObj = useMemo(() => new Date(`${selected}T00:00:00`), [selected]);
-  const summaryDateKeys = useMemo(
-    () => (summaryScope === "week" ? weekDates.map(dateKey) : getMonthDateKeys(selectedDateObj)),
-    [summaryScope, weekDates, selectedDateObj]
-  );
+  const summaryDateKeys = useMemo(() => {
+    if (summaryScope === "day") return [selected];
+    if (summaryScope === "week") return weekDates.map(dateKey);
+    return getMonthDateKeys(selectedDateObj);
+  }, [summaryScope, weekDates, selectedDateObj, selected]);
   const summary = useMemo(() => summarizeLog(log, summaryDateKeys), [log, summaryDateKeys]);
-  const summaryLabel = summaryScope === "week" ? formatWeekRange(weekDates) : formatMonthLabel(selectedDateObj);
+  const summaryLabel =
+    summaryScope === "day" ? selectedLabel :
+    summaryScope === "week" ? formatWeekRange(weekDates) :
+    formatMonthLabel(selectedDateObj);
 
   // Best est. 1RM per exercise from every OTHER day, used to flag PR sets on the selected day
   const priorBests = useMemo(() => {
@@ -131,7 +135,10 @@ export default function WorkoutLogSection({ idea, onUpdate }) {
     return map;
   }, [log, selected]);
 
-  const personalRecords = useMemo(() => getPersonalRecords(log), [log]);
+  const personalRecords = useMemo(() => {
+    const todaysExercises = new Set(selectedEntries.map(e => e.exercise));
+    return getPersonalRecords(log).filter(pr => todaysExercises.has(pr.exercise));
+  }, [log, selectedEntries]);
 
   useEffect(() => {
     setAiSummary(null);
@@ -445,6 +452,14 @@ export default function WorkoutLogSection({ idea, onUpdate }) {
           </p>
           <div className="flex gap-1">
             <button
+              onClick={() => setSummaryScope("day")}
+              className={`px-2.5 py-1 rounded-lg text-[9px] font-extrabold uppercase border-2 border-black transition-all ${
+                summaryScope === "day" ? "bg-black text-white" : "bg-white text-black"
+              }`}
+            >
+              day
+            </button>
+            <button
               onClick={() => setSummaryScope("week")}
               className={`px-2.5 py-1 rounded-lg text-[9px] font-extrabold uppercase border-2 border-black transition-all ${
                 summaryScope === "week" ? "bg-black text-white" : "bg-white text-black"
@@ -465,7 +480,7 @@ export default function WorkoutLogSection({ idea, onUpdate }) {
 
         {summary.days === 0 ? (
             <p className="text-[calc((12/12)*var(--base-font-size))] font-bold text-black/30 py-2">
-              nothing logged {summaryScope === "week" ? "this week" : "this month"} yet.
+              nothing logged {summaryScope === "day" ? "today" : summaryScope === "week" ? "this week" : "this month"} yet.
             </p>
           ) : (
             <>
