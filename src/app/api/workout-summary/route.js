@@ -1,6 +1,10 @@
 import { generateText } from "ai";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 
+const FORMAT_RULES =
+  `\n\nFormatting rules: plain text only, no markdown (no #, *, _, backticks, no bullet dashes). ` +
+  `Use short UPPERCASE section labels on their own line, then 2-4 terse sentences under each, with a blank line between sections.`;
+
 const PROMPTS = {
   day: (label, log) =>
     `Analyze this single workout session I just completed.\n\n` +
@@ -8,7 +12,8 @@ const PROMPTS = {
     `Please provide a short analysis covering:\n` +
     `- Overall volume and intensity of this session.\n` +
     `- Exercise order efficiency (did exercise selection or order cause early fatigue?).\n` +
-    `- Quick form/recovery tips or immediate adjustments for next time.`,
+    `- Quick form/recovery tips or immediate adjustments for next time.` +
+    FORMAT_RULES,
 
   week: (label, log) =>
     `Analyze my workout log for this past week.\n\n` +
@@ -16,7 +21,8 @@ const PROMPTS = {
     `Please provide a concise analysis covering:\n` +
     `- Push vs. Pull & Upper vs. Lower Balance: Are any muscle groups over- or under-trained?\n` +
     `- Volume & Fatigue Check: Did my strength drop off significantly across sets or sessions?\n` +
-    `- Action Plan: 2-3 actionable tweaks for next week to maintain progressive overload.`,
+    `- Action Plan: 2-3 actionable tweaks for next week to maintain progressive overload.` +
+    FORMAT_RULES,
 
   month: (label, log) =>
     `Analyze my workout logs from this past month.\n\n` +
@@ -25,7 +31,8 @@ const PROMPTS = {
     `- Strength Progression: Clear callouts of exercises where weights/reps increased vs. where I plateaued.\n` +
     `- Structural Balance & Gaps: Muscle balance ratio (push/pull/legs) and any missing movement patterns.\n` +
     `- Adaptation Focus: Whether my training currently favors strength, hypertrophy, or muscular endurance based on rep ranges.\n` +
-    `- Realistic Calorie Burn Estimate: Total estimated active calorie burn across all sessions.`,
+    `- Realistic Calorie Burn Estimate: Total estimated active calorie burn across all sessions.` +
+    FORMAT_RULES,
 };
 
 export async function POST(req) {
