@@ -2,8 +2,9 @@ import { generateText } from "ai";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 
 const FORMAT_RULES =
-  `\n\nFormatting rules: plain text only, no markdown (no #, *, _, backticks, no bullet dashes). ` +
-  `Use short UPPERCASE section labels on their own line, then 2-4 terse sentences under each, with a blank line between sections.`;
+  `\n\nFormatting rules: no markdown headers (#), no bullet or dash lists, no backticks. ` +
+  `Start each section with its label in **bold** on its own line, then 2-4 terse sentences below it in plain text. ` +
+  `Use **bold** sparingly elsewhere only for key numbers or exercise names. Separate sections with a blank line.`;
 
 const PROMPTS = {
   day: (label, log) =>

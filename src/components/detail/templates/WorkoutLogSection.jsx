@@ -80,6 +80,28 @@ function MovementPatternPicker({ value, onChange }) {
   );
 }
 
+// Renders the AI summary's lightweight markdown (**bold**) as real bold text
+// and drops stray #/* characters instead of showing them literally.
+function FormattedSummary({ text }) {
+  const lines = text.split("\n");
+  return (
+    <>
+      {lines.map((line, i) => {
+        const clean = line.replace(/^#+\s*/, "");
+        const parts = clean.split(/(\*\*[^*]+\*\*)/g).filter(Boolean);
+        return (
+          <p key={i} className={clean.trim() ? "mb-1.5" : "mb-1.5 h-1"}>
+            {parts.map((part, j) => {
+              const bold = part.match(/^\*\*(.+)\*\*$/);
+              return bold ? <strong key={j}>{bold[1]}</strong> : part.replace(/[*#]/g, "");
+            })}
+          </p>
+        );
+      })}
+    </>
+  );
+}
+
 export default function WorkoutLogSection({ idea, onUpdate }) {
   const log = idea.template_data || {};
   const today = useMemo(() => new Date(), []);
@@ -538,14 +560,14 @@ export default function WorkoutLogSection({ idea, onUpdate }) {
               )}
 
               {aiSummary && (
-                <div className="mt-3 bg-black text-white rounded-xl p-4">
+                <div className="mt-3 bg-white text-black border-2 border-black/10 rounded-xl p-4">
                   <div className="flex justify-between items-start gap-2 mb-1">
-                    <p className="text-[9px] font-extrabold uppercase tracking-[0.12em] text-white/40">{summaryLabel}</p>
+                    <p className="text-[9px] font-extrabold uppercase tracking-[0.12em] text-black/40">{summaryLabel}</p>
                     <button
                       onClick={copySummary}
                       title="Copy summary"
                       className={`flex items-center justify-center w-7 h-7 shrink-0 transition-all active:scale-90 ${
-                        summaryCopied ? "text-[#CAFF00]" : "text-white/50 hover:text-white"
+                        summaryCopied ? "text-[#CAFF00]" : "text-[#FF6A00] opacity-50 hover:opacity-100"
                       }`}
                     >
                       {summaryCopied ? (
@@ -560,7 +582,9 @@ export default function WorkoutLogSection({ idea, onUpdate }) {
                       )}
                     </button>
                   </div>
-                  <p className="whitespace-pre-line font-mono text-[calc((12/12)*var(--base-font-size))] font-bold leading-relaxed">{aiSummary}</p>
+                  <div className="text-[calc((12/12)*var(--base-font-size))] font-bold leading-relaxed">
+                    <FormattedSummary text={aiSummary} />
+                  </div>
                 </div>
               )}
             </>
