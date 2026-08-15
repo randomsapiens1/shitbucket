@@ -1,7 +1,7 @@
 "use client";
 import { useState, useMemo, useEffect } from "react";
 import Section from "@/components/ui/Section";
-import { genId } from "@/lib/utils";
+import { genId, copyToClipboard } from "@/lib/utils";
 import {
   dateKey,
   getWeekDates,
@@ -100,6 +100,7 @@ export default function WorkoutLogSection({ idea, onUpdate }) {
   const [aiSummary, setAiSummary] = useState(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState("");
+  const [logCopied, setLogCopied] = useState(false);
 
   const weekDates = useMemo(() => getWeekDates(today, weekOffset), [today, weekOffset]);
   const selectedEntries = log[selected] || [];
@@ -249,9 +250,16 @@ export default function WorkoutLogSection({ idea, onUpdate }) {
     setEditingId(null);
   }
 
+  function copyAllLog() {
+    const allDates = Object.keys(log).sort();
+    copyToClipboard(formatLogForPrompt(log, allDates));
+    setLogCopied(true);
+    setTimeout(() => setLogCopied(false), 2000);
+  }
+
   return (
     <>
-    <Section label="workout log">
+    <Section label="workout log" onCopy={copyAllLog} isCopied={logCopied}>
       {/* Week nav */}
       <div className="flex items-center justify-between mb-3">
         <button
