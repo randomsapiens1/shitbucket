@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { fetchIdeas, createIdea, updateIdea as dbUpdateIdea, deleteIdea as dbDeleteIdea } from "@/lib/db";
 import { genId, isVideoLink, fetchYoutubeTitle, getFriendlyName } from "@/lib/utils";
-import { getTopicTemplate } from "@/lib/topicTemplates";
+import { getTopicTemplate, TOPIC_TEMPLATE_KEYS } from "@/lib/topicTemplates";
 import LoadingScreen from "@/components/ui/LoadingScreen";
 import ListView from "@/components/list/ListView";
 import DetailView from "@/components/detail/DetailView";
@@ -127,6 +127,7 @@ export default function Bucket({ onLogout, userId }) {
     try {
       const data = await fetchIdeas();
       setIdeas(data);
+      await ensurePermanentTopics(data);
     } catch (e) {
       console.error("Failed to load:", e);
       // If we have cached ideas, don't show a blocking error for network failures
@@ -138,6 +139,26 @@ export default function Bucket({ onLogout, userId }) {
       }
     }
     setLoading(false);
+  }
+
+  // Every account gets a permanent tab for each topic template (e.g. "workout"),
+  // provisioned on first load rather than left for the user to discover.
+  async function ensurePermanentTopics(existingIdeas) {
+    const missing = TOPIC_TEMPLATE_KEYS.filter(
+      topic => !existingIdeas.some(i => (i.topic || "").toLowerCase() === topic)
+    );
+    for (const topic of missing) {
+      try {
+        const newIdea = await createIdea({
+          title: topic.charAt(0).toUpperCase() + topic.slice(1),
+          topic,
+          expires_at: null,
+        });
+        setIdeas(prev => [newIdea, ...prev]);
+      } catch (e) {
+        console.error("Failed to provision permanent topic:", topic, e);
+      }
+    }
   }
 
   const activeIdea = ideas.find(i => i.id === activeId);
