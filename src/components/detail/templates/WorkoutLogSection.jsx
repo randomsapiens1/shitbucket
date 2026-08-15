@@ -100,7 +100,7 @@ export default function WorkoutLogSection({ idea, onUpdate }) {
   const [aiSummary, setAiSummary] = useState(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState("");
-  const [logCopied, setLogCopied] = useState(false);
+  const [summaryCopied, setSummaryCopied] = useState(false);
 
   const weekDates = useMemo(() => getWeekDates(today, weekOffset), [today, weekOffset]);
   const selectedEntries = log[selected] || [];
@@ -144,6 +144,7 @@ export default function WorkoutLogSection({ idea, onUpdate }) {
   useEffect(() => {
     setAiSummary(null);
     setAiError("");
+    setSummaryCopied(false);
   }, [summaryScope, summaryDateKeys]);
 
   async function generateAiSummary() {
@@ -250,16 +251,16 @@ export default function WorkoutLogSection({ idea, onUpdate }) {
     setEditingId(null);
   }
 
-  function copyAllLog() {
-    const allDates = Object.keys(log).sort();
-    copyToClipboard(formatLogForPrompt(log, allDates));
-    setLogCopied(true);
-    setTimeout(() => setLogCopied(false), 2000);
+  function copySummary() {
+    if (!aiSummary) return;
+    copyToClipboard(aiSummary);
+    setSummaryCopied(true);
+    setTimeout(() => setSummaryCopied(false), 2000);
   }
 
   return (
     <>
-    <Section label="workout log" onCopy={copyAllLog} isCopied={logCopied}>
+    <Section label="workout log">
       {/* Week nav */}
       <div className="flex items-center justify-between mb-3">
         <button
@@ -538,6 +539,27 @@ export default function WorkoutLogSection({ idea, onUpdate }) {
 
               {aiSummary && (
                 <div className="mt-3 bg-black text-white rounded-xl p-4">
+                  <div className="flex justify-between items-start gap-2 mb-1">
+                    <p className="text-[9px] font-extrabold uppercase tracking-[0.12em] text-white/40">{summaryLabel}</p>
+                    <button
+                      onClick={copySummary}
+                      title="Copy summary"
+                      className={`flex items-center justify-center w-7 h-7 shrink-0 transition-all active:scale-90 ${
+                        summaryCopied ? "text-[#CAFF00]" : "text-white/50 hover:text-white"
+                      }`}
+                    >
+                      {summaryCopied ? (
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      ) : (
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                   <p className="whitespace-pre-line font-mono text-[calc((12/12)*var(--base-font-size))] font-bold leading-relaxed">{aiSummary}</p>
                 </div>
               )}
