@@ -93,7 +93,7 @@ export async function fetchYoutubeTitle(url) {
     if (!res.ok) return null;
     const data = await res.json();
     return data.title || null;
-  } catch (err) {
+  } catch {
     // If fetch fails (CORS, network, timeout), just return null
     return null;
   }
@@ -106,7 +106,7 @@ export function getFriendlyName(url) {
     if (uri.hostname.includes("vimeo.com")) return "Vimeo";
     const domain = uri.hostname.replace("www.", "");
     return domain.split('.')[0].toUpperCase();
-  } catch (e) {
+  } catch {
     return "Link";
   }
 }
