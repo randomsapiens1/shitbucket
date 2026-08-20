@@ -91,6 +91,20 @@ export function getPersonalRecords(log) {
   return Object.values(bests).sort((a, b) => b.date.localeCompare(a.date));
 }
 
+// Exercise names the user has logged before, most recently used first (deduped, case-insensitive)
+export function getKnownExercises(log) {
+  const seen = new Map();
+  Object.keys(log)
+    .sort((a, b) => b.localeCompare(a))
+    .forEach(date => {
+      log[date].forEach(e => {
+        const key = e.exercise.toLowerCase();
+        if (!seen.has(key)) seen.set(key, e.exercise);
+      });
+    });
+  return Array.from(seen.values());
+}
+
 // Flatten a log into "date: exercise sets" lines for an AI prompt
 export function formatLogForPrompt(log, dateKeys) {
   return dateKeys

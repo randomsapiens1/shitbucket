@@ -12,6 +12,7 @@ import {
   formatLogForPrompt,
   estimateOneRepMax,
   getPersonalRecords,
+  getKnownExercises,
   WEEKDAY_LABELS,
   MOVEMENT_PATTERNS,
 } from "@/lib/workoutLog";
@@ -58,6 +59,44 @@ function SetRows({ sets, onUpdateSet, onRemoveSet }) {
           )}
         </div>
       ))}
+    </div>
+  );
+}
+
+function ExerciseNameInput({ value, onChange, knownExercises, className }) {
+  const [focused, setFocused] = useState(false);
+
+  const trimmed = value.trim().toLowerCase();
+  const suggestions = trimmed
+    ? knownExercises.filter(name => name.toLowerCase().startsWith(trimmed) && name.toLowerCase() !== trimmed).slice(0, 5)
+    : [];
+  const showDropdown = focused && suggestions.length > 0;
+
+  return (
+    <div className="relative">
+      <input
+        className={className}
+        placeholder="exercise name"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+      />
+      {showDropdown && (
+        <div className="absolute z-10 top-full left-0 right-0 mt-1 bg-white border-2 border-black rounded-lg overflow-hidden shadow-hard-sm">
+          {suggestions.map(name => (
+            <button
+              key={name}
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => { onChange(name); setFocused(false); }}
+              className="w-full text-left px-3 py-2 text-black text-[calc((13/12)*var(--base-font-size))] font-bold capitalize hover:bg-[#FFF8EE] transition"
+            >
+              {name}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -125,6 +164,7 @@ export default function WorkoutLogSection({ idea, onUpdate }) {
   const [summaryCopied, setSummaryCopied] = useState(false);
 
   const weekDates = useMemo(() => getWeekDates(today, weekOffset), [today, weekOffset]);
+  const knownExercises = useMemo(() => getKnownExercises(log), [log]);
   const selectedEntries = log[selected] || [];
   const selectedLabel = new Date(`${selected}T00:00:00`).toLocaleDateString("en-GB", {
     weekday: "long", day: "numeric", month: "short",
@@ -425,12 +465,14 @@ export default function WorkoutLogSection({ idea, onUpdate }) {
 
         {/* Composer */}
         <div className="bg-[#FFF8EE] border-2 border-black/10 rounded-xl p-3">
-          <input
-            className="w-full bg-white border-2 border-black/20 focus:border-black rounded-lg px-3 py-2 text-black text-[calc((13/12)*var(--base-font-size))] font-bold outline-none transition placeholder:text-black/30 mb-2"
-            placeholder="exercise name"
-            value={exercise}
-            onChange={(e) => setExercise(e.target.value)}
-          />
+          <div className="mb-2">
+            <ExerciseNameInput
+              value={exercise}
+              onChange={setExercise}
+              knownExercises={knownExercises}
+              className="w-full bg-white border-2 border-black/20 focus:border-black rounded-lg px-3 py-2 text-black text-[calc((13/12)*var(--base-font-size))] font-bold outline-none transition placeholder:text-black/30"
+            />
+          </div>
 
           <MovementPatternPicker value={category} onChange={setCategory} />
 
