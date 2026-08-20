@@ -1,7 +1,7 @@
 "use client";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import Section from "@/components/ui/Section";
-import { genId, copyToClipboard } from "@/lib/utils";
+import { genId, copyToClipboard, downloadFile, timeAgo } from "@/lib/utils";
 import {
   dateKey,
   getWeekDates,
@@ -13,9 +13,15 @@ import {
   estimateOneRepMax,
   getPersonalRecords,
   getKnownExercises,
+  loadLocalBackups,
+  saveLocalBackup,
   WEEKDAY_LABELS,
   MOVEMENT_PATTERNS,
 } from "@/lib/workoutLog";
+
+// How long to wait after the last edit before pushing a Telegram backup,
+// so a burst of set-logging doesn't spam the chat with one message per set.
+const TELEGRAM_BACKUP_DEBOUNCE_MS = 60_000;
 
 function cleanSets(sets) {
   return sets
@@ -103,6 +109,53 @@ function ExerciseNameInput({ value, onChange, knownExercises, className }) {
   );
 }
 
+function LocalBackupsPanel({ ideaId, onRestore, refreshKey }) {
+  const [open, setOpen] = useState(false);
+  const [confirmIdx, setConfirmIdx] = useState(null);
+
+  // Re-read whenever the log changes (refreshKey) so newly-saved snapshots show up
+  const backups = useMemo(() => loadLocalBackups(ideaId), [ideaId, refreshKey]);
+
+  if (backups.length === 0) return null;
+
+  return (
+    <div className="mt-3">
+      <button
+        onClick={() => { setOpen(o => !o); setConfirmIdx(null); }}
+        className="text-[10px] font-extrabold uppercase tracking-wide text-black/30 hover:text-black transition"
+      >
+        {open ? "hide local backups" : "local backups"}
+      </button>
+      {open && (
+        <div className="flex flex-col gap-1.5 mt-2">
+          {backups.map((b, i) => (
+            <div key={b.savedAt} className="flex items-center justify-between bg-[#FFF8EE] border border-black/10 rounded-lg px-2.5 py-1.5">
+              <span className="text-[10px] font-bold text-black/50">{timeAgo(new Date(b.savedAt).getTime())}</span>
+              {confirmIdx === i ? (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => { onRestore(b.log); setConfirmIdx(null); setOpen(false); }}
+                    className="text-[10px] font-extrabold text-[#FF6A00]"
+                  >
+                    confirm restore
+                  </button>
+                  <button onClick={() => setConfirmIdx(null)} className="text-[10px] font-bold text-black/30">
+                    cancel
+                  </button>
+                </div>
+              ) : (
+                <button onClick={() => setConfirmIdx(i)} className="text-[10px] font-extrabold text-black/40 hover:text-black transition">
+                  restore
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function MovementPatternPicker({ value, onChange }) {
   return (
     <div className="flex flex-wrap gap-1.5 mb-2">
@@ -164,6 +217,10 @@ export default function WorkoutLogSection({ idea, onUpdate }) {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState("");
   const [summaryCopied, setSummaryCopied] = useState(false);
+
+  const [telegramStatus, setTelegramStatus] = useState("idle");
+  const telegramTimerRef = useRef(null);
+  const isFirstLogRender = useRef(true);
 
   const weekDates = useMemo(() => getWeekDates(today, weekOffset), [today, weekOffset]);
   const knownExercises = useMemo(() => getKnownExercises(log), [log]);
@@ -264,6 +321,63 @@ export default function WorkoutLogSection({ idea, onUpdate }) {
     setSets([{ weight: "", reps: "" }]);
   }
 
+  function exportBackup() {
+    const payload = {
+      exported_at: new Date().toISOString(),
+      idea: idea.title || "Workout",
+      log,
+    };
+    downloadFile(`workout-log-backup-${todayKey}.json`, JSON.stringify(payload, null, 2));
+  }
+
+  // Silent, automatic safety net - snapshots to this browser's localStorage on every change
+  useEffect(() => {
+    saveLocalBackup(idea.id, log);
+  }, [idea.id, log]);
+
+  function restoreLog(restoredLog) {
+    onUpdate(i => { i.template_data = restoredLog; });
+  }
+
+  async function sendTelegramBackup() {
+    setTelegramStatus("sending");
+    try {
+      const res = await fetch("/api/workout-backup/telegram", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idea: idea.title || "Workout", log }),
+      });
+      if (!res.ok) throw new Error();
+      setTelegramStatus("sent");
+      setTimeout(() => setTelegramStatus("idle"), 3000);
+    } catch {
+      setTelegramStatus("error");
+    }
+  }
+
+  function manualTelegramBackup() {
+    if (telegramTimerRef.current) clearTimeout(telegramTimerRef.current);
+    sendTelegramBackup();
+  }
+
+  // Automatic off-device backup - fires a debounced push to Telegram after edits settle,
+  // so a burst of logged sets doesn't spam the chat with one message each.
+  useEffect(() => {
+    if (isFirstLogRender.current) {
+      isFirstLogRender.current = false;
+      return;
+    }
+    if (Object.keys(log).length === 0) return;
+
+    if (telegramTimerRef.current) clearTimeout(telegramTimerRef.current);
+    telegramTimerRef.current = setTimeout(() => {
+      sendTelegramBackup();
+    }, TELEGRAM_BACKUP_DEBOUNCE_MS);
+
+    return () => clearTimeout(telegramTimerRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [log]);
+
   function removeEntry(id) {
     onUpdate(i => {
       const data = { ...(i.template_data || {}) };
@@ -324,7 +438,13 @@ export default function WorkoutLogSection({ idea, onUpdate }) {
 
   return (
     <>
-    <Section label="workout log">
+    <Section
+      label="workout log"
+      onDownload={exportBackup}
+      downloadTitle="Download full workout log backup"
+      onTelegramBackup={manualTelegramBackup}
+      telegramStatus={telegramStatus}
+    >
       {/* Week nav */}
       <div className="flex items-center justify-between mb-3">
         <button
@@ -497,6 +617,8 @@ export default function WorkoutLogSection({ idea, onUpdate }) {
             )}
           </div>
         </div>
+
+        <LocalBackupsPanel ideaId={idea.id} refreshKey={log} onRestore={restoreLog} />
       </div>
     </Section>
 

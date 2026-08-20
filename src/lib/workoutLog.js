@@ -117,3 +117,30 @@ export function formatLogForPrompt(log, dateKeys) {
     })
     .join("\n");
 }
+
+const LOCAL_BACKUP_PREFIX = "shitbucket:workout-backup:";
+const MAX_LOCAL_BACKUPS = 5;
+
+// Rotating local safety-net snapshots for an idea, most recent first
+export function loadLocalBackups(ideaId) {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(LOCAL_BACKUP_PREFIX + ideaId);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+// Best-effort — silently no-ops if localStorage is full or unavailable
+export function saveLocalBackup(ideaId, log) {
+  if (typeof window === "undefined") return;
+  try {
+    const existing = loadLocalBackups(ideaId);
+    if (existing[0] && JSON.stringify(existing[0].log) === JSON.stringify(log)) return;
+    const next = [{ savedAt: new Date().toISOString(), log }, ...existing].slice(0, MAX_LOCAL_BACKUPS);
+    localStorage.setItem(LOCAL_BACKUP_PREFIX + ideaId, JSON.stringify(next));
+  } catch {
+    // localStorage full/unavailable - this is only a best-effort safety net
+  }
+}
