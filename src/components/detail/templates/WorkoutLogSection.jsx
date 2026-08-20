@@ -66,11 +66,16 @@ function SetRows({ sets, onUpdateSet, onRemoveSet }) {
 function ExerciseNameInput({ value, onChange, knownExercises, className }) {
   const [focused, setFocused] = useState(false);
 
-  const trimmed = value.trim().toLowerCase();
-  const suggestions = trimmed
-    ? knownExercises.filter(name => name.toLowerCase().startsWith(trimmed) && name.toLowerCase() !== trimmed).slice(0, 5)
-    : [];
-  const showDropdown = focused && suggestions.length > 0;
+  const query = value.toLowerCase();
+  const match = query
+    ? knownExercises.find(name => name.toLowerCase().startsWith(query) && name.toLowerCase() !== query)
+    : null;
+  const suffix = match ? match.slice(value.length) : "";
+  const showGhost = focused && suffix;
+
+  function complete() {
+    if (match) onChange(match);
+  }
 
   return (
     <div className="relative">
@@ -82,19 +87,16 @@ function ExerciseNameInput({ value, onChange, knownExercises, className }) {
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
       />
-      {showDropdown && (
-        <div className="absolute z-10 top-full left-0 right-0 mt-1 bg-white border-2 border-black rounded-lg overflow-hidden shadow-hard-sm">
-          {suggestions.map(name => (
-            <button
-              key={name}
-              type="button"
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={() => { onChange(name); setFocused(false); }}
-              className="w-full text-left px-3 py-2 text-black text-[calc((13/12)*var(--base-font-size))] font-bold capitalize hover:bg-[#FFF8EE] transition"
-            >
-              {name}
-            </button>
-          ))}
+      {showGhost && (
+        <div className="absolute inset-0 border-2 border-transparent rounded-lg px-3 py-2 text-[calc((13/12)*var(--base-font-size))] font-bold leading-normal pointer-events-none whitespace-pre overflow-hidden">
+          <span className="invisible">{value}</span>
+          <span
+            className="text-black/30 pointer-events-auto cursor-text"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={complete}
+          >
+            {suffix}
+          </span>
         </div>
       )}
     </div>
